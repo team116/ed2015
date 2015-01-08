@@ -1,0 +1,7 @@
+# silly metadata things
+.cproject
+.project
+build.properties
+build.xml
+.settings/*
+Debug/*
