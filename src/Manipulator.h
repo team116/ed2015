@@ -20,6 +20,7 @@ private:
 	static Manipulator* INSTANCE;
 
 	int height;
+	bool belt_moving;
 
 	//motors n' stuff need to go here
 };

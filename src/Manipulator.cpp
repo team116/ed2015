@@ -6,6 +6,7 @@ Manipulator* Manipulator::INSTANCE = NULL;
 
 Manipulator::Manipulator() {
 	height = 0; //starting height (floor level)
+	belt_moving = false;
 
 }
 
@@ -40,9 +41,9 @@ int Manipulator::getHeight(){
 void Manipulator::openArms() {
 
 }
-void startConveyorBelt() {
-
+void Manipulator::startConveyorBelt() {
+	belt_moving = true;
 }
-void stopConveyorBelt() {
-
+void Manipulator::stopConveyorBelt() {
+	belt_moving = false;
 }
