@@ -3,6 +3,7 @@
 #include "DS.h"
 #include "Mobility.h"
 #include "Autonomous.h"
+#include "Manipulator.h"
 
 class Robot : public IterativeRobot
 {
@@ -11,6 +12,7 @@ private:
 	Mobility* mobility;
 	DS* ds;
 	Autonomous* autonomous;
+	Manipulator* manipulator;
 
 	LiveWindow* lw;
 
@@ -21,6 +23,7 @@ public:
 		ds = DS::getInstance();
 		mobility = Mobility::getInstance();
 		autonomous = Autonomous::getInstance();
+		manipulator = Manipulator::getInstance()
 	}
 
     ////////////////////////////////////////////////////////////////////////////
