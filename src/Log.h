@@ -14,6 +14,7 @@
 class Log {
 public:
 	static Log* getInstance();
+	~Log();
 
 	enum debugLevelType
 	{

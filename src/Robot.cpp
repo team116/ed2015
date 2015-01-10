@@ -64,12 +64,13 @@ public:
 
     void AutonomousPeriodic()
     {
-
+    	autonomous->process();
     }
 
     void TeleopPeriodic()
     {
-
+    	ds->process();
+    	manipulator->process();
     }
 
 	void TestPeriodic()

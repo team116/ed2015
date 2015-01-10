@@ -9,6 +9,11 @@ Autonomous::Autonomous()
 
 }
 
+void Autonomous::process()
+{
+
+}
+
 Autonomous* Autonomous::getInstance()
 {
     if (INSTANCE == NULL) {

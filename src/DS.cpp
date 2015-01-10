@@ -9,6 +9,11 @@ DS::DS()
 	
 }
 
+void DS::process()
+{
+
+}
+
 DS* DS::getInstance()
 {
 	if (INSTANCE == NULL)

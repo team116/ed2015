@@ -11,8 +11,8 @@ Log* Log::INSTANCE = NULL;
 
 Log::Log()
 {
-	filename = generateLogFilename();
-	log_file = fopen(filename, "w");
+	char* filepath = generateLogFilename();
+	log_file = fopen(filepath, "w");
 }
 
 Log::~Log()

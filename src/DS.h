@@ -6,6 +6,8 @@ class DS
 public:
 	static DS* getInstance();
 
+	void process();
+
 private:
 	DS();
 	static DS* INSTANCE;
