@@ -1,5 +1,6 @@
 #include "WPILib.h"
 #include "Ports.h"
+#include "Log.h"
 #include "DS.h"
 #include "Mobility.h"
 #include "Autonomous.h"
@@ -13,6 +14,7 @@ private:
 	DS* ds;
 	Autonomous* autonomous;
 	Manipulator* manipulator;
+	Log* log;
 
 	LiveWindow* lw;
 
@@ -23,7 +25,8 @@ public:
 		ds = DS::getInstance();
 		mobility = Mobility::getInstance();
 		autonomous = Autonomous::getInstance();
-		manipulator = Manipulator::getInstance()
+		manipulator = Manipulator::getInstance();
+		log = Log::getInstance();
 	}
 
     ////////////////////////////////////////////////////////////////////////////
