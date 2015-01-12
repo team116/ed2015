@@ -5,4 +5,3 @@ build.properties
 build.xml
 .settings/*
 Debug/*
-/Debug/

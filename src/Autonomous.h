@@ -8,6 +8,8 @@ class Autonomous
 public:
 	static Autonomous* getInstance();
 
+	void process();
+
 private:
 	Autonomous();
 	static Autonomous* INSTANCE;
