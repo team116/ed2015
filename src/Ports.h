@@ -8,7 +8,7 @@ namespace RobotPorts
 
 namespace DSPorts
 {
-	const unsigned int TEST_GAMEPAD = 0;
+
 }
 
 namespace JoystickPorts

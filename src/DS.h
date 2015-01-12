@@ -13,8 +13,6 @@ private:
 	DS();
 	static DS* INSTANCE;
 
-	Joystick* test_gamepad;
-	Mobility* mobility;
 };
 
 #endif // DS_H_
