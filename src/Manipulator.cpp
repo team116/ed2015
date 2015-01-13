@@ -28,7 +28,9 @@ void Manipulator::process() {
 }
 
 
-
+void Manipulator::grab() {
+	//do the grabbbbbbbby thing
+}
 void Manipulator::closeArms() {
 
 }

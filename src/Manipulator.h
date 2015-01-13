@@ -10,6 +10,7 @@ public:
 
 	static Manipulator* getInstance();
 	void process();
+	void grab();
 	void closeArms();
 	void moveToHeight(int level);
 	int getHeight();
