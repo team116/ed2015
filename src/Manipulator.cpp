@@ -30,6 +30,7 @@ void Manipulator::process() {
 
 void Manipulator::grab() {
 	//do the grabbbbbbbby thing
+
 }
 void Manipulator::closeArms() {
 
@@ -48,4 +49,10 @@ void Manipulator::startConveyorBelt() {
 }
 void Manipulator::stopConveyorBelt() {
 	belt_moving = false;
+}
+void Manipulator::honor_limits(bool to_use_or_not_to_use) {
+	using_limits = to_use_or_not_to_use;
+}
+void Manipulator::read_limits() {
+	//some_limit = arduino->get_some_limit();
 }
