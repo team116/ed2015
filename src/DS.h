@@ -19,7 +19,8 @@ private:
 	Joystick* main_joystick;
 	DigitalInput* grab_button;
 	AnalogPotentiometer* turn_direction_knob;
-	AnalogPotentiometer* lifter_position_switch;
+	DigitalInput* lifter_position_switch_up;
+	DigitalInput* lifter_position_switch_down;
 
 
 };

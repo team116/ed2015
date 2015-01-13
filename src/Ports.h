@@ -15,8 +15,9 @@ namespace DSPorts
 	const unsigned int GRAB_BUTTON = 1;
 
 	//analog inputs
-	const unsigned int LIFTER_POSITION_SWITCH = 1;
-	const unsigned int TURN_DIRECTION_KNOB = 2;
+	const unsigned int LIFTER_POSITION_SWITCH_UP = 1;
+	const unsigned int LIFTER_POSITION_SWITCH_DOWN = 2;
+	const unsigned int TURN_DIRECTION_KNOB = 3;
 }
 
 namespace JoystickPorts

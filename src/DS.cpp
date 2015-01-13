@@ -13,8 +13,9 @@ DS::DS()
 	grab_button = new DigitalInput(DSPorts::GRAB_BUTTON);
 	turn_direction_knob = new AnalogPotentiometer(DSPorts::TURN_DIRECTION_KNOB,2.0,-1.0);
 	//IDK what exactly we want to do with knob so I'm doing this for now. values [-1,1]
-	lifter_position_switch = new AnalogPotentiometer(DSPorts::LIFTER_POSITION_SWITCH,3.0,0);
-	//again, IDK. values [0,3]
+	lifter_position_switch_up = new DigitalInput(DSPorts::LIFTER_POSITION_SWITCH_UP);
+	lifter_position_switch_down = new DigitalInput(DSPorts::LIFTER_POSITION_SWITCH_DOWN);
+	//using two digital inputs to model a three position switch
 
 
 }
@@ -28,10 +29,12 @@ void DS::process()
 		//TODO - do the grabby thing
 	}
 
-	int target_height = lifter_position_switch->Get();
-	if(manipulator->getHeight()!=target_height){
-		manipulator->moveToHeight(target_height);
-	}
+	if(lifter_position_switch_up->Get())
+		manipulator->moveToHeight(2);
+	else if(lifter_position_switch_down->Get())
+		manipulator->moveToHeight(0);
+	else
+		manipulator->moveToHeight(1);
 
 }
 
