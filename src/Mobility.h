@@ -3,7 +3,7 @@
 
 #include "WPILib.h"
 #include "Gyro.h"
-#include "Victor.h"
+#include "TalonSRX.h"
 
 class Mobility
 {

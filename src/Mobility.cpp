@@ -2,7 +2,7 @@
 #include "Ports.h"
 #include "Mobility.h"
 #include "Gyro.h"
-#include "Victor.h"
+#include "TalonSRX.h"
 
 Mobility* Mobility::INSTANCE = NULL;
 
