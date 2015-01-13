@@ -16,8 +16,6 @@ DS::DS()
 	lifter_position_switch_up = new DigitalInput(DSPorts::LIFTER_POSITION_SWITCH_UP);
 	lifter_position_switch_down = new DigitalInput(DSPorts::LIFTER_POSITION_SWITCH_DOWN);
 	//using two digital inputs to model a three position switch
-
-
 }
 
 void DS::process()
@@ -26,16 +24,18 @@ void DS::process()
 	mobility->setRotation(turn_direction_knob->Get());
 
 	if(grab_button->Get()){
-		//TODO - do the grabby thing
+		manipulator->grab();
 	}
 
-	if(lifter_position_switch_up->Get())
+	if(lifter_position_switch_up->Get()){
 		manipulator->moveToHeight(2);
-	else if(lifter_position_switch_down->Get())
+	}
+	else if(lifter_position_switch_down->Get()){
 		manipulator->moveToHeight(0);
-	else
+	}
+	else{
 		manipulator->moveToHeight(1);
-
+	}
 }
 
 DS* DS::getInstance()
