@@ -2,7 +2,6 @@
 #define SRC_MANIPULATOR_H_
 
 #include "WPILib.h"
-#include "Arduino.h"
 #include "Mobility.h"
 //#include "UDPListener.h"
 #include "Log.h"
@@ -14,7 +13,6 @@ public:
 	virtual ~Manipulator();
 
 	static Manipulator* getInstance();
-	Arduino* arduino;
 	Mobility* mobility;
 	//UDPListener* listener;
 
