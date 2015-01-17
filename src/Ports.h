@@ -4,6 +4,7 @@ namespace RobotPorts
 	const unsigned int FRONT_RIGHT_MOTOR = 1;
 	const unsigned int REAR_LEFT_MOTOR = 2;
 	const unsigned int REAR_RIGHT_MOTOR = 3;
+	const unsigned int ULTRASONIC = 0;
 }
 
 namespace DSPorts

@@ -4,6 +4,7 @@
 #include "WPILib.h"
 #include "Gyro.h"
 #include "Victor.h"
+#include <AnalogInput.h>
 
 class Mobility
 {
@@ -12,6 +13,7 @@ public:
 	void process();
 	void setDirection(float x, float y);
 	void setRotation(float rotation);
+	double getUltrasonicDistance();
 
 private:
 	Mobility();
@@ -21,6 +23,8 @@ private:
 	TalonSRX* rear_left_motor;
 	TalonSRX* rear_right_motor;
 	RobotDrive* robot_drive;
+	AnalogInput* ultrasonic;
+
 
 	float x_direction;
 	float y_direction;
