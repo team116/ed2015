@@ -13,11 +13,18 @@ public:
 private:
 	DS();
 	static DS* INSTANCE;
+
 	Mobility* mobility;
 	Manipulator* manipulator;
 
 	Joystick* main_joystick;
 	Joystick* secondary_joystick;
+	Joystick* buttons;
+
+	bool override;
+	bool backwards_camera;
+	int lifter_preset;
+	bool on_step;
 
 
 };
