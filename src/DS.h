@@ -17,10 +17,10 @@ private:
 	Manipulator* manipulator;
 
 	Joystick* main_joystick;
-	DigitalInput* grab_button;
-	AnalogPotentiometer* turn_direction_knob;
-	DigitalInput* lifter_position_switch_up;
-	DigitalInput* lifter_position_switch_down;
+	Joystick* secondary_joystick;
+	DigitalInput* lifter_up_button;
+	DigitalInput* lifter_down_button;
+
 
 
 };
