@@ -16,6 +16,7 @@ private:
 
 	Mobility* mobility;
 	Manipulator* manipulator;
+	Log* log;
 
 	Joystick* main_joystick;
 	Joystick* secondary_joystick;
@@ -23,7 +24,6 @@ private:
 
 	bool override;
 	bool backwards_camera;
-	int lifter_preset;
 	bool on_step;
 
 

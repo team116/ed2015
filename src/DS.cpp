@@ -2,6 +2,7 @@
 #include "Ports.h"
 #include "DS.h"
 #include "Mobility.h"
+#include "Log.h"
 using namespace std;
 DS* DS::INSTANCE = NULL;
 
@@ -9,10 +10,10 @@ DS::DS()
 {
 	mobility = Mobility::getInstance();
 	manipulator = Manipulator::getInstance();
+	log = Log::getInstance();
 	main_joystick = Joystick::GetStickForPort(DSPorts::DRIVER_ONE_JOYSTICK);
 	secondary_joystick = Joystick::GetStickForPort(DSPorts::DRIVER_TWO_JOYSTICK);
 	buttons = Joystick::GetStickForPort(DSPorts::BUTTONS_JOYSTICK);
-	lifter_preset = -6;
 	on_step = false;
 	backwards_camera = false;
 	override = false;
@@ -21,6 +22,7 @@ DS::DS()
 void DS::process()
 {
 	if(secondary_joystick->GetRawButton(JoystickPorts::OVERRIDE_BUTTON)){
+		log->write(Log::INFO_LEVEL,"Override button pressed");
 		override=!override;
 	}
 
@@ -30,17 +32,17 @@ void DS::process()
 		mobility->setRotation(main_joystick->GetTwist());
 
 		if(secondary_joystick->GetY()>0.25){
-			//release a tote
+			manipulator->pushTote();
 		}else if(secondary_joystick->GetY()<-0.25){
-			//pull in tote
+			manipulator->pullTote();
 		}
 
-		//manipulator->spinTote(secondary_joystick->GetTwist());
+		manipulator->spinTote(secondary_joystick->GetTwist());
 
 	}
 	else{
-		//secondary driver has overriden so that they can control
-		//I'm halving all input because this is for precise control
+		//secondary driver has overriden so that they can control movement
+		//I'm halving all input because this is for precision
 		mobility->setDirection(secondary_joystick->GetX()/2.0,secondary_joystick->GetY()/2.0);
 		mobility->setRotation(secondary_joystick->GetTwist()/2.0);
 	}
@@ -48,27 +50,25 @@ void DS::process()
 	on_step = buttons->GetRawButton(ButtonPorts::STACK_ON_STEP_SWITCH);
 
 	if(buttons->GetRawButton(ButtonPorts::LIFTER_PRESET_1)){
-		lifter_preset = 1;
+		manipulator->setTargetHeight(1,on_step);
 	}else if(buttons->GetRawButton(ButtonPorts::LIFTER_PRESET_2)){
-		lifter_preset = 2;
+		manipulator->setTargetHeight(2,on_step);
 	}else if(buttons->GetRawButton(ButtonPorts::LIFTER_PRESET_3)){
-		lifter_preset = 3;
+		manipulator->setTargetHeight(3,on_step);
 	}else if(buttons->GetRawButton(ButtonPorts::LIFTER_PRESET_4)){
-		lifter_preset = 4;
+		manipulator->setTargetHeight(4,on_step);
 	}else if(buttons->GetRawButton(ButtonPorts::LIFTER_PRESET_5)){
-		lifter_preset = 5;
+		manipulator->setTargetHeight(5,on_step);
 	}else if(buttons->GetRawButton(ButtonPorts::LIFTER_PRESET_6)){
-		lifter_preset = 6;
+		manipulator->setTargetHeight(6,on_step);
 	}else{
-		lifter_preset = -6;
+		//do nothing
 	}
 
-	//manipulator->moveToPreset(lifter_preset,on_step);
-
 	if(buttons->GetRawButton(ButtonPorts::MOVE_UP_BUTTON)){
-		//manipulator->moveUp();
+		manipulator->changeHeight(0.5);
 	}else if(buttons->GetRawButton(ButtonPorts::MOVE_DOWN_BUTTON)){
-		//manipulator->moveDown();
+		manipulator->changeHeight(-0.5);
 	}
 
 	backwards_camera = buttons->GetRawButton(ButtonPorts::CAMERA_SELECT_TOGGLE);

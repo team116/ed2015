@@ -12,7 +12,7 @@ namespace RobotPorts
 	const unsigned int LIFTER_TWO = 7;
 	const unsigned int RAKE_PORT_MOTOR = 8;
 	const unsigned int RAKE_STARBOARD_MOTOR = 9;
-	const unsigned int CLOSE_ARMS_MOTOR = 10;
+	const unsigned int CLOSE_HOOKS_MOTOR = 10;
 
 	// analog sensors
 	const unsigned int ULTRASONIC = 0;

@@ -18,9 +18,10 @@ public:
 	//UDPListener* listener;
 
 	void process();
-	void grab();
-	void closeArms(bool close);
-	void moveToHeight(int level); //move to one of preset levels
+	void pullTote();
+	void pushTote();
+	void setHooks(bool close);
+	void setTargetHeight(int level,bool on_step); //move to one of preset levels, with parameter for whether or not step is a factor
 	void changeHeight(float change); // to move up/down depending on positive/negative by change # of inches
 	int getLevel();
 	float getHeight(); // to return height in inches
@@ -30,8 +31,7 @@ public:
 	void read_limits();
 	void liftLifters();
 	void liftRakes();
-	void spinWheels();
-
+	void spinTote(float direction);//use wheels to spin tote in direction [-1.0,1.0]
 
 private:
 	static Manipulator* INSTANCE;
@@ -41,13 +41,14 @@ private:
 	CANTalon* lifter_two;
 	CANTalon* rake_port;
 	CANTalon* rake_starboard;
-	CANTalon* close_arms;
+	CANTalon* close_hooks;
 
 
-	float current_height; //inches
+	float current_height; //inches for everything
 	float target_height;
 	bool belt_moving;
 	bool using_limits;
+	const float TOTE_HEIGHT = 12.1;
 
 	//motors n' stuff need to go here
 };
