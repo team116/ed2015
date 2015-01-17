@@ -1,15 +1,15 @@
 namespace RobotPorts
 {
-	const unsigned int FRONT_LEFT_MOTOR = 0;
-	const unsigned int FRONT_RIGHT_MOTOR = 1;
-	const unsigned int REAR_LEFT_MOTOR = 2;
-	const unsigned int REAR_RIGHT_MOTOR = 3;
+	const unsigned int FRONT_LEFT_MOTOR = 1;//CAN ID #
+	const unsigned int FRONT_RIGHT_MOTOR = 2;//CAN ID #
+	const unsigned int REAR_LEFT_MOTOR = 3;//CAN ID #
+	const unsigned int REAR_RIGHT_MOTOR = 4;//CAN ID #
 }
 
 namespace DSPorts
 {
 	//joysticks
-	const unsigned int MAIN_JOYSTICK = 1;
+	const unsigned int MAIN_JOYSTICK = 0;
 
 	//digital inputs
 	const unsigned int GRAB_BUTTON = 1;
