@@ -62,7 +62,7 @@ char* Log::generateLogFilename()
 	int file_num = 0;
 
 	while(true){
-		sprintf(filename,"/home/lvuser/%s%d%s",base,file_num,ext);
+		sprintf(filename,"%s%d%s",base,file_num,ext);
 
 		previous_log_file = fopen(filename,"r");
 		if(!previous_log_file){
