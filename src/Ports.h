@@ -1,11 +1,25 @@
 namespace RobotPorts
 {
-const unsigned int ULTRASONIC = 0;
-//CANbus
-const unsigned int FRONT_LEFT_MOTOR = 1;//CAN ID #
-const unsigned int FRONT_RIGHT_MOTOR = 2;//CAN ID #
-const unsigned int REAR_LEFT_MOTOR = 3;//CAN ID #
-const unsigned int REAR_RIGHT_MOTOR = 4;//CAN ID #
+
+	// motors
+	const unsigned int FRONT_LEFT_MOTOR = 0;
+	const unsigned int FRONT_RIGHT_MOTOR = 1;
+	const unsigned int REAR_LEFT_MOTOR = 2;
+	const unsigned int REAR_RIGHT_MOTOR = 3;
+	const unsigned int LEFT_WHEEL = 4;
+	const unsigned int RIGHT_WHEEL = 5;
+	const unsigned int LIFTER_ONE = 6;
+	const unsigned int LIFTER_TWO = 7;
+	const unsigned int RAKE_PORT_MOTOR = 8;
+	const unsigned int RAKE_STARBOARD_MOTOR = 9;
+	const unsigned int CLOSE_ARMS_MOTOR = 10;
+
+	// analog sensors
+	const unsigned int ULTRASONIC = 0;
+
+	// digital sensors
+
+
 }
 
 namespace DSPorts

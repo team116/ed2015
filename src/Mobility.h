@@ -1,10 +1,10 @@
 #ifndef MOBILITY_H_
 #define MOBILITY_H_
 
-#include "WPILib.h"
-#include "Gyro.h"
+#include <WPILib.h>
+#include <Gyro.h>
 #include <AnalogInput.h>
-#include "CANTalon.h"
+#include <CANTalon.h>
 #include "Log.h"
 
 class Mobility

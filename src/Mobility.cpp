@@ -1,11 +1,9 @@
-#include "WPILib.h"
-#include "Ports.h"
+#include <WPILib.h>
+#include <Gyro.h>
+#include <CANTalon.h>
 #include "Mobility.h"
-#include "Gyro.h"
-#include "CANTalon.h"
+#include "Ports.h"
 #include "Log.h"
-
-#include <cmath>
 
 Mobility* Mobility::INSTANCE = NULL;
 
