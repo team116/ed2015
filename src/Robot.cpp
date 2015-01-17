@@ -70,6 +70,7 @@ public:
     void TeleopPeriodic()
     {
     	ds->process();
+    	mobility->process();
     	manipulator->process();
     }
 

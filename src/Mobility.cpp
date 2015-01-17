@@ -2,17 +2,24 @@
 #include "Ports.h"
 #include "Mobility.h"
 #include "Gyro.h"
-#include "Victor.h"
+#include "CANTalon.h"
+#include "Log.h"
+
+#include <cmath>
 
 Mobility* Mobility::INSTANCE = NULL;
 
 Mobility::Mobility()
 {
-	front_left_motor = new TalonSRX(RobotPorts::FRONT_LEFT_MOTOR);
-	front_right_motor = new TalonSRX(RobotPorts::FRONT_RIGHT_MOTOR);
-	rear_left_motor = new TalonSRX(RobotPorts::REAR_LEFT_MOTOR);
-	rear_right_motor = new TalonSRX(RobotPorts::REAR_RIGHT_MOTOR);
+	front_left_motor = new CANTalon(RobotPorts::FRONT_LEFT_MOTOR);
+	front_right_motor = new CANTalon(RobotPorts::FRONT_RIGHT_MOTOR);
+	rear_left_motor = new CANTalon(RobotPorts::REAR_LEFT_MOTOR);
+	rear_right_motor = new CANTalon(RobotPorts::REAR_RIGHT_MOTOR);
 	robot_drive = new RobotDrive(front_left_motor, rear_left_motor, front_right_motor, rear_right_motor);
+	robot_drive->SetInvertedMotor(RobotDrive::kFrontRightMotor, true);
+	robot_drive->SetInvertedMotor(RobotDrive::kRearRightMotor, true);
+	robot_drive->SetSafetyEnabled(false);
+	log = Log::getInstance();
 	x_direction = 0;
 	y_direction = 0;
 	rotation = 0;
@@ -21,17 +28,28 @@ Mobility::Mobility()
 
 void Mobility::process()
 {
+	log->write(Log::INFO_LEVEL, "X: %5.2f Y: %5.2f Rotation: %5.2f\n", x_direction, y_direction, rotation);
 	robot_drive->MecanumDrive_Cartesian(x_direction, y_direction, rotation);
 }
 
 void Mobility::setDirection(float x, float y)//-1.0 through 1.0
 {
-	x_direction = x;
-	y_direction = y;
+	x_direction = x * abs(x) * 0.25;
+	y_direction = y * abs(y) * 0.25;
 }
 void Mobility::setRotation(float rotation_)//-1.0 through 1.0
 {
-	rotation = rotation_;
+	rotation = rotation_ * abs(rotation_) * 0.25;
+}
+void Mobility::runTalon(int talon, float speed)
+{
+	switch(talon)
+	{
+	case RobotPorts::FRONT_LEFT_MOTOR: front_left_motor->Set(speed); break;
+	case RobotPorts::FRONT_RIGHT_MOTOR: front_right_motor->Set(speed); break;
+	case RobotPorts::REAR_LEFT_MOTOR: rear_left_motor->Set(speed); break;
+	case RobotPorts::REAR_RIGHT_MOTOR: rear_right_motor->Set(speed); break;
+	}
 }
 float Mobility::getUltrasonicDistance()
 {

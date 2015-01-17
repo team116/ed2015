@@ -18,9 +18,6 @@ private:
 
 	Joystick* main_joystick;
 	Joystick* secondary_joystick;
-	DigitalInput* lifter_up_button;
-	DigitalInput* lifter_down_button;
-
 
 
 };
