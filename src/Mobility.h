@@ -3,7 +3,8 @@
 
 #include "WPILib.h"
 #include "Gyro.h"
-#include "TalonSRX.h"
+#include "CANTalon.h"
+#include "Log.h"
 
 class Mobility
 {
@@ -12,15 +13,17 @@ public:
 	void process();
 	void setDirection(float x, float y);
 	void setRotation(float rotation);
+	void runTalon(int talon, float speed);
 
 private:
 	Mobility();
 	static Mobility* INSTANCE;
-	TalonSRX* front_left_motor;
-	TalonSRX* front_right_motor;
-	TalonSRX* rear_left_motor;
-	TalonSRX* rear_right_motor;
+	CANTalon* front_left_motor;
+	CANTalon* front_right_motor;
+	CANTalon* rear_left_motor;
+	CANTalon* rear_right_motor;
 	RobotDrive* robot_drive;
+	Log* log;
 
 	float x_direction;
 	float y_direction;
