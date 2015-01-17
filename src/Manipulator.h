@@ -48,7 +48,6 @@ private:
 	float target_height;
 	bool belt_moving;
 	bool using_limits;
-	int height;
 
 	//motors n' stuff need to go here
 };

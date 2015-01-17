@@ -15,7 +15,7 @@ Manipulator::Manipulator()
 	lifter_two = new CANTalon(RobotPorts::LIFTER_TWO);
 	rake_port = new CANTalon(RobotPorts::RAKE_PORT);
 	rake_starboard = new CANTalon(RobotPorts::RAKE_STARBOARD);
-	height = 0; //starting height (floor level)
+	current_height = 0; //starting height (floor level)
 	belt_moving = false;
 
 }
@@ -46,14 +46,14 @@ void Manipulator::grab()
 	//do the grabbbbbbbby thing
 
 }
-void Manipulator::closeArms() {
+void Manipulator::closeArms(bool close) {
 
 }
 void Manipulator::moveToHeight(int level) {
 
 }
-int Manipulator::getHeight(){
-	return height;
+float Manipulator::getHeight(){
+	return current_height;
 }
 void Manipulator::startConveyorBelt() {
 	belt_moving = true;
@@ -79,3 +79,6 @@ void Manipulator::liftRakes()
 	//controls moving rakes up/down
 }
 void Manipulator::spinWheels()
+{
+
+}
