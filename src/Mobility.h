@@ -13,7 +13,7 @@ public:
 	void process();
 	void setDirection(float x, float y);
 	void setRotation(float rotation);
-	double getUltrasonicDistance();
+	float getUltrasonicDistance();
 
 private:
 	Mobility();

@@ -33,12 +33,12 @@ void Mobility::setRotation(float rotation_)//-1.0 through 1.0
 {
 	rotation = rotation_;
 }
-double Mobility::getUltrasonicDistance()
+float Mobility::getUltrasonicDistance()
 {
 	int bits;
-	double maxDistance = 254;
-	double currentDistance;
-	double maxVoltage = 5.5;
+	float maxDistance = 254;
+	float currentDistance;
+	float maxVoltage = 5.5;
 	// sets roof for sampling values
 	ultrasonic->SetOversampleBits(2);
 	bits = ultrasonic->GetOversampleBits();
@@ -48,9 +48,9 @@ double Mobility::getUltrasonicDistance()
 
 	ultrasonic->SetSampleRate(62500);
 	int raw = ultrasonic->GetValue();
-	double volts = ultrasonic->GetVoltage();
+	float volts = ultrasonic->GetVoltage();
 	int averageRaw = ultrasonic->GetAverageValue();
-	double averageVolts = ultrasonic->GetAverageVoltage();
+	float averageVolts = ultrasonic->GetAverageVoltage();
 	//	wait for iiiiiiiittt.....
 	currentDistance = (volts * maxDistance)/maxVoltage;
 	return currentDistance;
