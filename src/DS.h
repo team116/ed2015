@@ -3,12 +3,17 @@
 
 #include "Mobility.h"
 #include "Manipulator.h"
+#include <CameraServer.h>
+#include <USBCamera.h>
+
 
 class DS
 {
 public:
 	static DS* getInstance();
 	void process();
+	void startCameraForward();
+	void startCameraBackward();
 
 private:
 	DS();
@@ -17,6 +22,9 @@ private:
 	Mobility* mobility;
 	Manipulator* manipulator;
 	Log* log;
+	CameraServer* server;
+	USBCamera* camForward;
+	USBCamera* camBackwards;
 
 	Joystick* main_joystick;
 	Joystick* secondary_joystick;
