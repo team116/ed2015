@@ -31,7 +31,7 @@ public:
 	void read_limits();
 	void liftLifters();
 	void liftRakes();
-	void spinTote(float direction);//use wheels to spin tote in direction [-1.0,1.0]
+	void spinTote(float direction);//use wheels to spin tote in direction in range [-1.0,1.0]
 
 private:
 	static Manipulator* INSTANCE;
@@ -46,11 +46,10 @@ private:
 
 	float current_height; //inches for everything
 	float target_height;
-	bool belt_moving;
-	bool using_limits;
 	const float TOTE_HEIGHT = 12.1;
 
-	//motors n' stuff need to go here
+	bool using_limits;
+	bool belt_moving;
 };
 
 
