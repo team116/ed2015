@@ -1,9 +1,9 @@
 #ifndef MOBILITY_H_
 #define MOBILITY_H_
 
-#include "WPILib.h"
-#include "Gyro.h"
-#include "Victor.h"
+#include <WPILib.h>
+#include <Gyro.h>
+#include <CANTalon.h>
 
 class Mobility
 {
@@ -16,10 +16,10 @@ public:
 private:
 	Mobility();
 	static Mobility* INSTANCE;
-	TalonSRX* front_left_motor;
-	TalonSRX* front_right_motor;
-	TalonSRX* rear_left_motor;
-	TalonSRX* rear_right_motor;
+	CANTalon* front_left_motor;
+	CANTalon* front_right_motor;
+	CANTalon* rear_left_motor;
+	CANTalon* rear_right_motor;
 	RobotDrive* robot_drive;
 
 	float x_direction;
