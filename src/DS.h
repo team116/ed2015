@@ -12,13 +12,15 @@ class DS
 public:
 	static DS* getInstance();
 	void process();
+	void processMobility();
+	void processManipulator();
+	void processLEDS();
 	void startCameraForward();
 	void startCameraBackward();
 
 private:
 	DS();
 	static DS* INSTANCE;
-
 	Mobility* mobility;
 	Manipulator* manipulator;
 	Log* log;
@@ -28,7 +30,7 @@ private:
 
 	Joystick* main_joystick;
 	Joystick* secondary_joystick;
-	Joystick* buttons;
+	Joystick* digitalIO;
 
 	bool override;
 	bool backwards_camera;

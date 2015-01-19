@@ -21,6 +21,13 @@ Manipulator::Manipulator()
 	rake_port = new CANTalon(RobotPorts::RAKE_PORT_MOTOR);
 	rake_starboard = new CANTalon(RobotPorts::RAKE_STARBOARD_MOTOR);
 	close_hooks = new CANTalon(RobotPorts::CLOSE_HOOKS_MOTOR);
+	lift_upper_limit = new DigitalInput(RobotPorts::LIFT_UPPER_LIMIT);
+	lift_lower_limit = new DigitalInput(RobotPorts::LIFT_LOWER_LIMIT);
+	flaps_upper_limit = new DigitalInput(RobotPorts::FLAPS_UPPER_LIMIT);
+	flaps_lower_limit = new DigitalInput(RobotPorts::FLAPS_LOWER_LIMIT);
+	left_rake_limit = new DigitalInput(RobotPorts::LEFT_RAKE_LIMIT);
+	right_rake_limit = new DigitalInput(RobotPorts::RIGHT_RAKE_LIMIT);
+	encoder = new Encoder(RobotPorts::ENCODER_A, RobotPorts::ENCODER_B);
 	current_height = 0; //starting height (floor level)
 	target_height = 0;
 	using_limits = true;
