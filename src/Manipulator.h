@@ -48,6 +48,14 @@ private:
 	CANTalon* rake_starboard;
 	CANTalon* close_hooks;
 
+	DigitalInput* lift_upper_limit;
+	DigitalInput* lift_lower_limit;
+	DigitalInput* flaps_upper_limit;
+	DigitalInput* flaps_lower_limit;
+	DigitalInput* left_rake_limit;
+	DigitalInput* right_rake_limit;
+
+	Encoder* encoder;
 
 	float current_height; //inches for everything
 	float target_height;
