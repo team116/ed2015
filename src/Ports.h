@@ -2,17 +2,17 @@ namespace RobotPorts
 {
 
 	// motors
-	const unsigned int FRONT_LEFT_MOTOR = 0;
-	const unsigned int FRONT_RIGHT_MOTOR = 1;
-	const unsigned int REAR_LEFT_MOTOR = 2;
-	const unsigned int REAR_RIGHT_MOTOR = 3;
-	const unsigned int LEFT_WHEEL = 4;
-	const unsigned int RIGHT_WHEEL = 5;
-	const unsigned int LIFTER_ONE = 6;
-	const unsigned int LIFTER_TWO = 7;
-	const unsigned int RAKE_PORT_MOTOR = 8;
-	const unsigned int RAKE_STARBOARD_MOTOR = 9;
-	const unsigned int CLOSE_HOOKS_MOTOR = 10;
+	const unsigned int FRONT_LEFT_MOTOR = 1;
+	const unsigned int FRONT_RIGHT_MOTOR = 2;
+	const unsigned int REAR_LEFT_MOTOR = 3;
+	const unsigned int REAR_RIGHT_MOTOR = 4;
+	const unsigned int LEFT_WHEEL = 5;
+	const unsigned int RIGHT_WHEEL = 6;
+	const unsigned int LIFTER_ONE = 7;
+	const unsigned int LIFTER_TWO = 8;
+	const unsigned int RAKE_PORT_MOTOR = 9;
+	const unsigned int RAKE_STARBOARD_MOTOR = 10;
+	const unsigned int CLOSE_HOOKS_MOTOR = 11;
 
 	// analog sensors
 	const unsigned int ULTRASONIC = 0;
@@ -25,7 +25,7 @@ namespace RobotPorts
 namespace DSPorts
 {
 //joysticks
-const unsigned int DRIVER_ONE_JOYSTICK = 1;
+const unsigned int DRIVER_ONE_JOYSTICK = 0;
 const unsigned int DRIVER_TWO_JOYSTICK = 2;
 const unsigned int BUTTONS_JOYSTICK = 3;
 
