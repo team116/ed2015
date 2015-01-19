@@ -25,7 +25,7 @@ Manipulator::Manipulator()
 	target_height = 0;
 	using_limits = true;
 	belt_moving = false;
-
+	surface = 0;
 }
 
 Manipulator::~Manipulator() {
@@ -42,10 +42,26 @@ Manipulator* Manipulator::getInstance() {
 
 
 void Manipulator::process() {
+	if (current_height < target_height + .3 && current_height > target_height - .3)	//insignificant change
+	{
+		lifter_one->Set(0);
+		lifter_two->Set(0);
+	}
+	else		//significant change
+	{
+		if(current_height < target_height){		//desired height is above current height
+			lifter_one ->Set(0.5);
+			lifter_two ->Set(0.5);
+		}
 
-
+		else{		//desired height is below current height
+			lifter_one -> Set(-0.5);
+			lifter_two -> Set(-0.5);
+		}
+	}
 
 }
+
 
 void Manipulator::pullTote()
 {
