@@ -65,8 +65,8 @@ float Mobility::getUltrasonicDistance()
 	ultrasonic->SetSampleRate(62500);
 	int raw = ultrasonic->GetValue();
 	float volts = ultrasonic->GetVoltage();
-	int averageRaw = ultrasonic->GetAverageValue();
-	float averageVolts = ultrasonic->GetAverageVoltage();
+	//int averageRaw = ultrasonic->GetAverageValue();
+	//float averageVolts = ultrasonic->GetAverageVoltage();
 	//	wait for iiiiiiiittt.....
 	currentDistance = (volts * maxDistance)/maxVoltage;
 	return currentDistance;
