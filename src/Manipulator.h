@@ -21,17 +21,22 @@ public:
 	void pullTote();
 	void pushTote();
 	void setHooks(bool close);
-	void setTargetHeight(int level,bool on_step); //move to one of preset levels, with parameter for whether or not step is a factor
-	void changeHeight(float change); // to move up/down depending on positive/negative by change # of inches
-	int getLevel();
+	void setSurface(float s);
+	void setTargetHeight(int level); //move to one of preset levels
 	float getHeight(); // to return height in inches
+	int getLevel();
+	void changeHeight(float change); // to move up/down depending on positive/negative by change # of inches
+	void spinTote(float direction);//use wheels to spin tote in direction in range [-1.0,1.0]
 	void startConveyorBelt();
 	void stopConveyorBelt();
     void honor_limits(bool to_use_or_not_to_use);
 	void read_limits();
 	void liftLifters();
 	void liftRakes();
-	void spinTote(float direction);//use wheels to spin tote in direction in range [-1.0,1.0]
+
+	static const float FLOOR;
+	static const float SCORING_PLATFORM;
+	static const float STEP;
 
 private:
 	static Manipulator* INSTANCE;
@@ -46,7 +51,9 @@ private:
 
 	float current_height; //inches for everything
 	float target_height;
-	const float TOTE_HEIGHT = 12.1;
+	static const float TOTE_HEIGHT;
+
+	float surface;	//should always be equal to one of the constants below
 
 	bool using_limits;
 	bool belt_moving;

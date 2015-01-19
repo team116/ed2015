@@ -5,6 +5,10 @@
 #include <cmath>
 
 Manipulator* Manipulator::INSTANCE = NULL;
+const float Manipulator::TOTE_HEIGHT = 12.1;
+const float Manipulator::FLOOR = 0.0;
+const float Manipulator::SCORING_PLATFORM = 2.0;
+const float Manipulator::STEP = 6.25;
 
 Manipulator::Manipulator()
 {
@@ -45,39 +49,60 @@ void Manipulator::process() {
 
 void Manipulator::pullTote()
 {
-	left_wheel->Set(0.5);
-	right_wheel->Set(0.5);
+	left_wheel->Set(0.5);			//0.5 is an arbitrary number, may change
+	right_wheel->Set(0.5);			//also, +/- is written here to signify inwards/outwards, not right/left (check, may need to change)
 }
 
 void Manipulator::pushTote(){
 	left_wheel->Set(-0.2);
 	right_wheel->Set(-0.2);
 }
+
 void Manipulator::setHooks(bool close) {
 	//close or open based on value of close
 }
-void Manipulator::setTargetHeight(int level,bool on_step) {
-	int new_target = level*TOTE_HEIGHT;
-	if(on_step){
-		new_target+=2.0;
+
+void Manipulator::setSurface(float s){
+	surface = s;
+}
+
+/*Please destroy this
+int Manipulator::getSurface() {
+	if (surface == FLOOR){
+		return 0;
 	}
-	if(abs(current_height - new_target) < abs(current_height - target_height)){
+	else if(surface == SCORING_PLATFORM) {
+		return 1;
+	}
+	else {				//if(surface == STEP)
+		return 2;
+	}
+}
+*/
+
+void Manipulator::setTargetHeight(int level) {
+	int new_target = level*TOTE_HEIGHT + surface;	//surface = height of surface on which we are trying to stack totes ((private variable))
+	if(abs(current_height - new_target) < abs(current_height - target_height)){		//in case of button mash, go to whichever instruction is closest to current position
 		target_height = new_target;
 	}
 }
+
 float Manipulator::getHeight(){
 	return current_height;
 }
+
 int Manipulator::getLevel(){
-	return current_height/TOTE_HEIGHT;
+	return (current_height - surface)/TOTE_HEIGHT;
 }
+
 void Manipulator::changeHeight(float change){
 	//this overrides whatever the previous target height was
 	target_height = current_height + change;
 }
+
 void Manipulator::spinTote(float direction){
 	//might swap left and right depending on which twist direction the joysticks consider positive
-	float left_dir = 0.5-direction;
+	float left_dir = 0.5-direction;		//totally random (unrelated to 0.5 in pullTote)
 	float right_dir = 0.5+direction;
 
 	//neither motor can go above 1.0, and for now neither goes below neutral
@@ -96,23 +121,29 @@ void Manipulator::spinTote(float direction){
 	left_wheel->Set(left_dir);
 	right_wheel->Set(right_dir);
 }
+
 void Manipulator::startConveyorBelt() {
 	belt_moving = true;
 }
+
 void Manipulator::stopConveyorBelt() {
 	belt_moving = false;
 }
+
 void Manipulator::honor_limits(bool to_use_or_not_to_use) {
 	using_limits = to_use_or_not_to_use;
 }
+
 void Manipulator::read_limits() {
 	//some_limit = arduino->get_some_limit();
 }
+
 void Manipulator::liftLifters()
 {
 	lifter_one ->Set(0.5);
 	lifter_two->Set(0.5);
 }
+
 void Manipulator::liftRakes()
 {
 	rake_port ->Set(0.5);
