@@ -6,3 +6,5 @@ build.xml
 .settings/*
 Debug/*
 /Debug/
+Release/*
+/Release/
