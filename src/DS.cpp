@@ -5,6 +5,7 @@
 #include "Log.h"
 using namespace std;
 DS* DS::INSTANCE = NULL;
+const float DS::LIFTER_BUTTON_CHANGE = 0.25;//this is an arbitrary number
 
 DS::DS()
 {
@@ -16,7 +17,7 @@ DS::DS()
 	buttons = Joystick::GetStickForPort(DSPorts::BUTTONS_JOYSTICK);
 	camForward = new USBCamera("Robot View 1", true);
 	camBackwards = new USBCamera("Robot View 2", true);
-	server = new CameraServer();
+	//server = new CameraServer();
 	on_step = false;
 	backwards_camera = false;
 	override = false;
@@ -50,28 +51,33 @@ void DS::process()
 		mobility->setRotation(secondary_joystick->GetTwist()/2.0);
 	}
 
-	on_step = buttons->GetRawButton(ButtonPorts::STACK_ON_STEP_SWITCH);
+	if(buttons->GetRawButton(ButtonPorts::STACK_ON_STEP_SWITCH)){
+		manipulator->setSurface(Manipulator::STEP);
+	}
+	else if(buttons->GetRawButton(ButtonPorts::STACK_ON_PLATFORM_SWITCH)){
+		manipulator->setSurface(Manipulator::SCORING_PLATFORM);
+	}
 
 	if(buttons->GetRawButton(ButtonPorts::LIFTER_PRESET_1)){
-		manipulator->setTargetHeight(1,on_step);
+		manipulator->setTargetHeight(1);
 	}else if(buttons->GetRawButton(ButtonPorts::LIFTER_PRESET_2)){
-		manipulator->setTargetHeight(2,on_step);
+		manipulator->setTargetHeight(2);
 	}else if(buttons->GetRawButton(ButtonPorts::LIFTER_PRESET_3)){
-		manipulator->setTargetHeight(3,on_step);
+		manipulator->setTargetHeight(3);
 	}else if(buttons->GetRawButton(ButtonPorts::LIFTER_PRESET_4)){
-		manipulator->setTargetHeight(4,on_step);
+		manipulator->setTargetHeight(4);
 	}else if(buttons->GetRawButton(ButtonPorts::LIFTER_PRESET_5)){
-		manipulator->setTargetHeight(5,on_step);
+		manipulator->setTargetHeight(5);
 	}else if(buttons->GetRawButton(ButtonPorts::LIFTER_PRESET_6)){
-		manipulator->setTargetHeight(6,on_step);
+		manipulator->setTargetHeight(6);
 	}else{
 		//do nothing
 	}
 
 	if(buttons->GetRawButton(ButtonPorts::MOVE_UP_BUTTON)){
-		manipulator->changeHeight(0.5);
+		manipulator->changeHeight(LIFTER_BUTTON_CHANGE);
 	}else if(buttons->GetRawButton(ButtonPorts::MOVE_DOWN_BUTTON)){
-		manipulator->changeHeight(-0.5);
+		manipulator->changeHeight(LIFTER_BUTTON_CHANGE);
 	}
 
 	backwards_camera = buttons->GetRawButton(ButtonPorts::CAMERA_SELECT_TOGGLE);

@@ -34,6 +34,7 @@ private:
 	bool backwards_camera;
 	bool on_step;
 
+	const static float LIFTER_BUTTON_CHANGE;
 
 };
 
