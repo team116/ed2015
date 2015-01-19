@@ -9,6 +9,8 @@ const float Manipulator::TOTE_HEIGHT = 12.1;
 const float Manipulator::FLOOR = 0.0;
 const float Manipulator::SCORING_PLATFORM = 2.0;
 const float Manipulator::STEP = 6.25;
+const int Manipulator::pulse_per_rev = 64;
+const float Manipulator::inch_per_rev = 4;
 
 Manipulator::Manipulator()
 {
@@ -20,18 +22,19 @@ Manipulator::Manipulator()
 	lifter_two = new CANTalon(RobotPorts::LIFTER_TWO);
 	rake_port = new CANTalon(RobotPorts::RAKE_PORT_MOTOR);
 	rake_starboard = new CANTalon(RobotPorts::RAKE_STARBOARD_MOTOR);
-	close_hooks = new CANTalon(RobotPorts::CLOSE_HOOKS_MOTOR);
+	close_flaps = new CANTalon(RobotPorts::CLOSE_FLAPS_MOTOR);
 	lift_upper_limit = new DigitalInput(RobotPorts::LIFT_UPPER_LIMIT);
 	lift_lower_limit = new DigitalInput(RobotPorts::LIFT_LOWER_LIMIT);
 	flaps_upper_limit = new DigitalInput(RobotPorts::FLAPS_UPPER_LIMIT);
 	flaps_lower_limit = new DigitalInput(RobotPorts::FLAPS_LOWER_LIMIT);
-	left_rake_limit = new DigitalInput(RobotPorts::LEFT_RAKE_LIMIT);
-	right_rake_limit = new DigitalInput(RobotPorts::RIGHT_RAKE_LIMIT);
+	port_rake_limit = new DigitalInput(RobotPorts::PORT_RAKE_LIMIT);
+	starboard_rake_limit = new DigitalInput(RobotPorts::STARBOARD_RAKE_LIMIT);
 	encoder = new Encoder(RobotPorts::ENCODER_A, RobotPorts::ENCODER_B);
+	encoder->SetDistancePerPulse(inch_per_rev/pulse_per_rev);	//inches per revolution / pulses per revolution = inches per pulse
 	current_height = 0; //starting height (floor level)
 	target_height = 0;
 	using_limits = true;
-	belt_moving = false;
+	//belt_moving = false;
 	surface = 0;
 }
 
@@ -49,6 +52,8 @@ Manipulator* Manipulator::getInstance() {
 
 
 void Manipulator::process() {
+	current_height = encoder->GetDistance();	//uses data from encoder to determine current height of lift
+
 	if (current_height < target_height + .3 && current_height > target_height - .3)	//insignificant change
 	{
 		lifter_one->Set(0);
@@ -56,17 +61,20 @@ void Manipulator::process() {
 	}
 	else		//significant change
 	{
-		if(current_height < target_height){		//desired height is above current height
+		if(current_height < target_height && (!lift_upper_limit && using_limits)){		//desired height is above current height and upper limit has not been reached
 			lifter_one ->Set(0.5);
 			lifter_two ->Set(0.5);
 		}
 
-		else{		//desired height is below current height
+		else if(current_height > target_height && (!lift_lower_limit && using_limits)){		//desired height is below current height
 			lifter_one -> Set(-0.5);
 			lifter_two -> Set(-0.5);
 		}
 	}
 
+	if(lift_lower_limit){		//reset encoder to 0 every time lift hits lower limit switch
+		encoder->Reset();
+	}
 }
 
 
@@ -81,8 +89,14 @@ void Manipulator::pushTote(){
 	right_wheel->Set(-0.2);
 }
 
-void Manipulator::setHooks(bool close) {
+void Manipulator::setFlaps(bool close) {
 	//close or open based on value of close
+	if(close && (!flaps_lower_limit && using_limits)){	//close flaps
+		close_flaps->Set(0.5);
+	}
+	else if (!close && (!flaps_upper_limit && using_limits)){		//open flaps
+		close_flaps->Set(-0.5);
+	}
 }
 
 void Manipulator::setSurface(float s){
@@ -145,32 +159,34 @@ void Manipulator::spinTote(float direction){
 	right_wheel->Set(right_dir);
 }
 
-void Manipulator::startConveyorBelt() {
+/*void Manipulator::startConveyorBelt() {
 	belt_moving = true;
 }
 
 void Manipulator::stopConveyorBelt() {
 	belt_moving = false;
-}
+}*/
 
 void Manipulator::honor_limits(bool to_use_or_not_to_use) {
 	using_limits = to_use_or_not_to_use;
 }
 
-void Manipulator::read_limits() {
-	//some_limit = arduino->get_some_limit();
-}
-
 void Manipulator::liftLifters()
 {
-	lifter_one ->Set(0.5);
-	lifter_two->Set(0.5);
+	if(!lift_upper_limit && using_limits) {
+		lifter_one ->Set(0.5);
+		lifter_two->Set(0.5);
+	}
 }
 
 void Manipulator::liftRakes()
 {
-	rake_port ->Set(0.5);
-	rake_starboard ->Set(0.5);
+	if(!port_rake_limit && using_limits){
+		rake_port ->Set(0.5);
+	}
+	if(!starboard_rake_limit && using_limits){
+		rake_starboard ->Set(0.5);
+	}
 	//controls moving rakes up/down
 }
 
