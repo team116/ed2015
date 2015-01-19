@@ -53,23 +53,24 @@ void DS::process()
 
 	if(buttons->GetRawButton(ButtonPorts::STACK_ON_STEP_SWITCH)){
 		manipulator->setSurface(Manipulator::STEP);
-	}
-	else if(buttons->GetRawButton(ButtonPorts::STACK_ON_PLATFORM_SWITCH)){
+	}else if(buttons->GetRawButton(ButtonPorts::STACK_ON_PLATFORM_SWITCH)){
 		manipulator->setSurface(Manipulator::SCORING_PLATFORM);
+	}else{
+		manipulator->setSurface(Manipulator::FLOOR);
 	}
 
 	if(buttons->GetRawButton(ButtonPorts::LIFTER_PRESET_1)){
-		manipulator->setTargetHeight(1);
+		manipulator->setTargetHeight(0);
 	}else if(buttons->GetRawButton(ButtonPorts::LIFTER_PRESET_2)){
-		manipulator->setTargetHeight(2);
+		manipulator->setTargetHeight(1);
 	}else if(buttons->GetRawButton(ButtonPorts::LIFTER_PRESET_3)){
-		manipulator->setTargetHeight(3);
+		manipulator->setTargetHeight(2);
 	}else if(buttons->GetRawButton(ButtonPorts::LIFTER_PRESET_4)){
-		manipulator->setTargetHeight(4);
+		manipulator->setTargetHeight(3);
 	}else if(buttons->GetRawButton(ButtonPorts::LIFTER_PRESET_5)){
-		manipulator->setTargetHeight(5);
+		manipulator->setTargetHeight(4);
 	}else if(buttons->GetRawButton(ButtonPorts::LIFTER_PRESET_6)){
-		manipulator->setTargetHeight(6);
+		manipulator->setTargetHeight(5);
 	}else{
 		//do nothing
 	}
@@ -85,8 +86,9 @@ void DS::process()
 	if(backwards_camera == false){
 		startCameraForward();
 	}
-	else
+	else{
 		startCameraBackward();
+	}
 
 }
 void DS::startCameraForward(){
