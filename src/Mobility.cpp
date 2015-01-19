@@ -39,7 +39,7 @@ void Mobility::setRotation(float rotation_)//-1.0 through 1.0
 {
 	rotation = rotation_ * abs(rotation_) * 0.25;
 }
-void Mobility::runTalon(int talon, float speed)
+void Mobility::runTalon(int talon, float speed)//For testing individual talons. You MUST comment out robot_drive to use this
 {
 	switch(talon)
 	{
