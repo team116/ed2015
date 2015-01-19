@@ -18,7 +18,15 @@ namespace RobotPorts
 	const unsigned int ULTRASONIC = 0;
 
 	// digital sensors
+	const unsigned int LIFT_UPPER_LIMIT = 0;
+	const unsigned int LIFT_LOWER_LIMIT = 1;
+	const unsigned int FLAPS_UPPER_LIMIT = 2;
+	const unsigned int FLAPS_LOWER_LIMIT = 3;
+	const unsigned int LEFT_RAKE_LIMIT = 4;
+	const unsigned int RIGHT_RAKE_LIMIT = 5;
 
+	const unsigned int ENCODER_A = 6;
+	const unsigned int ENCODER_B = 7;
 
 }
 
