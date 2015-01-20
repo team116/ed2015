@@ -12,7 +12,7 @@ namespace RobotPorts
 	const unsigned int LIFTER_TWO = 7;
 	const unsigned int RAKE_PORT_MOTOR = 8;
 	const unsigned int RAKE_STARBOARD_MOTOR = 9;
-	const unsigned int CLOSE_HOOKS_MOTOR = 10;
+	const unsigned int CLOSE_FLAPS_MOTOR = 10;
 
 	// analog sensors
 	const unsigned int ULTRASONIC = 0;
@@ -25,8 +25,8 @@ namespace RobotPorts
 	const unsigned int LIFT_LOWER_LIMIT = 1;
 	const unsigned int FLAPS_UPPER_LIMIT = 2;
 	const unsigned int FLAPS_LOWER_LIMIT = 3;
-	const unsigned int LEFT_RAKE_LIMIT = 4;
-	const unsigned int RIGHT_RAKE_LIMIT = 5;
+	const unsigned int PORT_RAKE_LIMIT = 4;
+	const unsigned int STARBOARD_RAKE_LIMIT = 5;
 
 	const unsigned int ENCODER_A = 6;
 	const unsigned int ENCODER_B = 7;
