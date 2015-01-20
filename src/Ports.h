@@ -16,6 +16,9 @@ namespace RobotPorts
 
 	// analog sensors
 	const unsigned int ULTRASONIC = 0;
+	const unsigned int AUTONOMOUS_DELAY_SWITCH = 1;
+	const unsigned int AUTONOMOUS_PLAY_SWITCH = 2;
+	const unsigned int AUTONOMOUS_LOCATION_SWITCH = 3;
 
 	// digital sensors
 	const unsigned int LIFT_UPPER_LIMIT = 0;
@@ -80,4 +83,9 @@ namespace DigitalIOPorts
 	const unsigned int BACK_CAMERA_INDICATOR = 21;
 	const unsigned int FRONT_CAMERA_INDICATOR = 22;
 
+}
+
+namespace Utils
+{
+	int convertFromVolts(const float voltage, const int voltage_levels, const float max_voltage);
 }
