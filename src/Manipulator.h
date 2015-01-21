@@ -15,6 +15,7 @@ public:
 
 	static Manipulator* getInstance();
 	Mobility* mobility;
+	Log* log;
 	//UDPListener* listener;
 
 	void process();
@@ -31,7 +32,7 @@ public:
 	void stopConveyorBelt();*/
     void honor_limits(bool to_use_or_not_to_use);
 	void liftLifters();
-	void liftRakes();
+	void liftRakes(bool going_up_or_down);
 
 	static const float FLOOR;
 	static const float SCORING_PLATFORM;

@@ -15,6 +15,7 @@ const float Manipulator::inch_per_rev = 4;
 Manipulator::Manipulator()
 {
 	mobility = Mobility::getInstance();
+	log = Log::getInstance();
 
 	left_wheel = new CANTalon(RobotPorts::LEFT_WHEEL);
 	right_wheel = new CANTalon(RobotPorts::RIGHT_WHEEL);
@@ -100,6 +101,9 @@ void Manipulator::setFlaps(bool close) {
 }
 
 void Manipulator::setSurface(float s){
+	if(surface!=s){
+		log->write(Log::INFO_LEVEL,"Changed surface height to %f",s);
+	}
 	surface = s;
 }
 
@@ -118,6 +122,7 @@ int Manipulator::getSurface() {
 */
 
 void Manipulator::setTargetHeight(int level) {
+	log->write(Log::INFO_LEVEL,"Set lifter preset to %d",level);
 	int new_target = level*TOTE_HEIGHT + surface;	//surface = height of surface on which we are trying to stack totes ((private variable))
 	if(abs(current_height - new_target) < abs(current_height - target_height)){		//in case of button mash, go to whichever instruction is closest to current position
 		target_height = new_target;
@@ -179,7 +184,7 @@ void Manipulator::liftLifters()
 	}
 }
 
-void Manipulator::liftRakes()
+void Manipulator::liftRakes(bool going_up_or_down)
 {
 	if(!port_rake_limit && using_limits){
 		rake_port ->Set(0.5);
