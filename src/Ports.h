@@ -41,7 +41,7 @@ namespace DSPorts
 	const unsigned int BUTTONS_JOYSTICK = 3;
 
 	//analog inputs
-	const unsigned int CONTAINER_RAKE_HEIGHT = 1;
+	//const unsigned int CONTAINER_RAKE_HEIGHT = 1;
 
 }
 
@@ -63,10 +63,13 @@ namespace DigitalIOPorts
 	const unsigned int STACK_ON_PLATFORM_SWITCH = 7;
 	const unsigned int STACK_ON_STEP_SWITCH = 8;
 
-	const unsigned int MOVE_UP_BUTTON = 9;
-	const unsigned int MOVE_DOWN_BUTTON = 10;
+	const unsigned int LIFTER_UP_BUTTON = 9;
+	const unsigned int LIFTER_DOWN_BUTTON = 10;
 
-	const unsigned int CAMERA_SELECT_TOGGLE = 11;
+	const unsigned int RAKES_UP_BUTTON = 11;
+	const unsigned int RAKES_DOWN_BUTTON = 12;
+
+	const unsigned int CAMERA_SELECT_TOGGLE = 13;
 
 	//digital outputs
 	const unsigned int LEVEL_0_INDICATOR = 12;
