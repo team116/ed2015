@@ -72,6 +72,17 @@ void Autonomous::stackTote()
 	switch (current_step)
 	{
 
+	case 1:
+		// assumes the robot is at a -90 degree angle to the landmark (facing tote 1 from the right)
+		manipulator->setFlaps(false);
+		if(mobility->getUltrasonicDistance() < 35){
+			mobility->setDirection(0.0, 0.5);
+		}
+		else if(mobility->getUltrasonicDistance() > 3){
+			mobility->setDirection(0.0, 0.0);
+		}
+		manipulator->setFlaps(true);
+
 	}
 }
 
