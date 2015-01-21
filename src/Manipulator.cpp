@@ -184,14 +184,17 @@ void Manipulator::liftLifters()
 	}
 }
 
-void Manipulator::liftRakes(bool going_up_or_down)
+void Manipulator::liftRakes(bool going_up)	///not complete, looks are deceiving
 {
-	if(!port_rake_limit && using_limits){
-		rake_port ->Set(0.5);
+	if(going_up){
+		if(!port_rake_limit && using_limits){
+			rake_port ->Set(0.5);				//find out from end effector whether limits are on top or on bottom
+		}
+		if(!starboard_rake_limit && using_limits){
+			rake_starboard ->Set(0.5);
+		}
 	}
-	if(!starboard_rake_limit && using_limits){
-		rake_starboard ->Set(0.5);
-	}
+	else{
 	//controls moving rakes up/down
 }
 

@@ -32,7 +32,7 @@ public:
 	void stopConveyorBelt();*/
     void honor_limits(bool to_use_or_not_to_use);
 	void liftLifters();
-	void liftRakes(bool going_up_or_down);
+	void liftRakes(bool going_up);
 
 	static const float FLOOR;
 	static const float SCORING_PLATFORM;
