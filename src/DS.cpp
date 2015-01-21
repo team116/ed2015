@@ -17,7 +17,7 @@ DS::DS()
 	digitalIO = Joystick::GetStickForPort(DSPorts::BUTTONS_JOYSTICK);
 	camForward = new USBCamera("Robot View 1", true);
 	camBackwards = new USBCamera("Robot View 2", true);
-	//server = new CameraServer();
+	server = CameraServer::GetInstance();
 	on_step = false;
 	backwards_camera = false;
 	override = false;
@@ -112,6 +112,7 @@ void DS::processManipulator(){
 void DS::processLEDS(){
 	digitalIO->SetOutputs(0);
 	switch (manipulator->getLevel()){
+	//fall through is intentional
 		case 5:
 			digitalIO->SetOutput(DigitalIOPorts::LEVEL_5_INDICATOR,true);
 		case 4:
