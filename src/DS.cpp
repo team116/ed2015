@@ -95,9 +95,15 @@ void DS::processManipulator(){
 		manipulator->changeHeight(LIFTER_BUTTON_CHANGE);
 	}
 	else if(digitalIO->GetRawButton(DigitalIOPorts::LIFTER_DOWN_BUTTON)){
-		manipulator->changeHeight(LIFTER_BUTTON_CHANGE);
+		manipulator->changeHeight(-LIFTER_BUTTON_CHANGE);
 	}
 
+	if(digitalIO->GetRawButton(DigitalIOPorts::RAKES_UP_BUTTON)){
+		manipulator->liftRakes(true);
+	}
+	else if(digitalIO->GetRawButton(DigitalIOPorts::RAKES_DOWN_BUTTON)){
+		manipulator->liftRakes(false);
+	}
 	if(!override){
 		//normal control of manipulator by driver two
 		if(secondary_joystick->GetY()>0.25){
