@@ -3,8 +3,13 @@
 .project
 build.properties
 build.xml
+sysProps.xml
+*.xml
 .settings/*
+
+# compilation output
 Debug/*
 /Debug/
 Release/*
 /Release/
+
