@@ -82,6 +82,8 @@ void Autonomous::stackTote()
 			mobility->setDirection(0.0, 0.0);
 		}
 		manipulator->setFlaps(true);
+		int distance;
+		distance = mobility->getUltrasonicDistance();
 
 	}
 }

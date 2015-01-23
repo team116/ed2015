@@ -16,6 +16,7 @@ public:
 	void setRotation(float rotation);
 	float getUltrasonicDistance();
 	void runTalon(int talon, float speed);
+	void setRotation();
 
 private:
 	Mobility();

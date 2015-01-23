@@ -71,7 +71,9 @@ float Mobility::getUltrasonicDistance()
 	currentDistance = (volts * maxDistance)/maxVoltage;
 	return currentDistance;
 }
-
+void Mobility::setRotation(){
+	// Will, this is where I need your help...
+}
 Mobility* Mobility::getInstance()
 {
     if (INSTANCE == NULL) {
