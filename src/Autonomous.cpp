@@ -82,10 +82,16 @@ void Autonomous::stackTote()
 			mobility->setDirection(0.0, 0.0);
 		}
 		manipulator->setFlaps(true);
-		int distance;
-		distance = mobility->getUltrasonicDistance();
+		// turn the robot so that it is facing the allaince wall
+		if(mobility < 124){
+			mobility->setDirection(0.0, -0.5);
+
+		}
+
 
 	}
+	case 2:
+
 }
 
 void Autonomous::moveContainer()
