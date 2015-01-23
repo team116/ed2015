@@ -10,7 +10,7 @@ const float Manipulator::FLOOR = 0.0;
 const float Manipulator::SCORING_PLATFORM = 2.0;
 const float Manipulator::STEP = 6.25;
 
-Manipulator::Manipulator()
+Manipulator::Manipulator()//cock
 {
 	mobility = Mobility::getInstance();
 

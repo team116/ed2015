@@ -6,6 +6,7 @@
 #include <AnalogInput.h>
 #include <CANTalon.h>
 #include "Log.h"
+#include <BuiltInAccelerometer.h>
 
 class Mobility
 {
@@ -16,6 +17,7 @@ public:
 	void setRotation(float rotation);
 	float getUltrasonicDistance();
 	void runTalon(int talon, float speed);
+	void toggleFieldCentric();
 
 private:
 	Mobility();
@@ -26,9 +28,12 @@ private:
 	CANTalon* rear_right_motor;
 	RobotDrive* robot_drive;
 	AnalogInput* ultrasonic;
+	BuiltInAccelerometer* accel;
+	Gyro* gyro;
 
 	Log* log;
 
+	bool field_centric;
 	float x_direction;
 	float y_direction;
 	float rotation;

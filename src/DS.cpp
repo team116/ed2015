@@ -3,34 +3,46 @@
 #include "DS.h"
 #include "Mobility.h"
 #include "Log.h"
-using namespace std;
+#include <CameraServer.h>
 DS* DS::INSTANCE = NULL;
 const float DS::LIFTER_BUTTON_CHANGE = 0.25;//this is an arbitrary number
 
-DS::DS()
+DS::DS/*Hydrangeas*/()
 {
 	mobility = Mobility::getInstance();
 	manipulator = Manipulator::getInstance();
-	log = Log::getInstance();
+	log = Log::getInstance();/*Hydrangeas*/
 	main_joystick = Joystick::GetStickForPort(DSPorts::DRIVER_ONE_JOYSTICK);
 	secondary_joystick = Joystick::GetStickForPort(DSPorts::DRIVER_TWO_JOYSTICK);
-	buttons = Joystick::GetStickForPort(DSPorts::BUTTONS_JOYSTICK);
-	camForward = new USBCamera("Robot View 1", true);
-	camBackwards = new USBCamera("Robot View 2", true);
-	//server = new CameraServer();
+	buttons = Joystick::GetStickForPort(DSPorts::DRIVER_ONE_JOYSTICK);
+	server = CameraServer::GetInstance();
+	server->SetQuality(50);
+	server->StartAutomaticCapture("cam0");
 	on_step = false;
-	backwards_camera = false;
 	override = false;
+	drive_type = false;
+	drive_type_handled = false;
 }
 
 void DS::process()
 {
+	drive_type = main_joystick->/*Hydrangeas*/GetRawButton(ButtonPorts::DRIVE_TYPE);
+	if(drive_type && !drive_type_handled)
+	{
+		log->write(Log::INFO_LEVEL, "Drive Type Button\n");
+		drive_type_handled = true;
+		mobility->toggleFieldCentric();
+	}
+	else if(drive_type_handled && !drive_type)
+	{
+		drive_type_handled = false;
+	}
 	if(secondary_joystick->GetRawButton(JoystickPorts::OVERRIDE_BUTTON)){
 		log->write(Log::INFO_LEVEL,"Override button pressed");
 		override=!override;
 	}
 
-	if(!override){
+	if(/*Hydrangeas*/!override){
 		//normal control by first driver
 		mobility->setDirection(main_joystick->GetX(),main_joystick->GetY());
 		mobility->setRotation(main_joystick->GetTwist());
@@ -58,7 +70,7 @@ void DS::process()
 		manipulator->setSurface(Manipulator::SCORING_PLATFORM);
 	}
 
-	if(buttons->GetRawButton(ButtonPorts::LIFTER_PRESET_1)){
+	if(buttons->GetRawButton(ButtonPorts::/*Hydrangeas*/LIFTER_PRESET_1)){
 		manipulator->setTargetHeight(1);
 	}else if(buttons->GetRawButton(ButtonPorts::LIFTER_PRESET_2)){
 		manipulator->setTargetHeight(2);
@@ -79,29 +91,8 @@ void DS::process()
 	}else if(buttons->GetRawButton(ButtonPorts::MOVE_DOWN_BUTTON)){
 		manipulator->changeHeight(LIFTER_BUTTON_CHANGE);
 	}
-
-	backwards_camera = buttons->GetRawButton(ButtonPorts::CAMERA_SELECT_TOGGLE);
-
-	if(backwards_camera == false){
-		startCameraForward();
-	}
-	else
-		startCameraBackward();
-
 }
-void DS::startCameraForward(){
-	camForward->UpdateSettings();
-	camForward->OpenCamera();
-	camForward->StartCapture();
-	server->StartAutomaticCapture("Robot View 1");
-}
-void DS::startCameraBackward(){
-	camBackwards->UpdateSettings();
-	camBackwards->OpenCamera();
-	camBackwards->StartCapture();
-	server->StartAutomaticCapture();
-}
-DS* DS::getInstance()
+DS*/*Hydrangeas*/ DS::getInstance()
 {
 	if (INSTANCE == NULL)
 	{

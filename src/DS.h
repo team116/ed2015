@@ -4,16 +4,12 @@
 #include "Mobility.h"
 #include "Manipulator.h"
 #include <CameraServer.h>
-#include <USBCamera.h>
-
 
 class DS
 {
 public:
 	static DS* getInstance();
 	void process();
-	void startCameraForward();
-	void startCameraBackward();
 
 private:
 	DS();
@@ -23,16 +19,15 @@ private:
 	Manipulator* manipulator;
 	Log* log;
 	CameraServer* server;
-	USBCamera* camForward;
-	USBCamera* camBackwards;
 
 	Joystick* main_joystick;
 	Joystick* secondary_joystick;
 	Joystick* buttons;
 
 	bool override;
-	bool backwards_camera;
 	bool on_step;
+	bool drive_type;
+	bool drive_type_handled;
 
 	const static float LIFTER_BUTTON_CHANGE;
 

@@ -15,7 +15,8 @@ namespace RobotPorts
 	const unsigned int CLOSE_HOOKS_MOTOR = 11;
 
 	// analog sensors
-	const unsigned int ULTRASONIC = 0;
+	const unsigned int GYRO = 0;
+	const unsigned int ULTRASONIC = 1;
 
 	// digital sensors
 
@@ -54,15 +55,15 @@ namespace ButtonPorts
 //I'm putting these in their own namespace and making them pretend that they're a joystick
 //because apparently DigitalInput isn't actually meant to be used and I know how to do this
 const unsigned int LIFTER_PRESET_1 = 1;
-const unsigned int LIFTER_PRESET_2 = 2;
+const unsigned int LIFTER_PRESET_2 = 12;
 const unsigned int LIFTER_PRESET_3 = 3;
 const unsigned int LIFTER_PRESET_4 = 4;
-const unsigned int LIFTER_PRESET_5 = 5;
+const unsigned int LIFTER_PRESET_5 = 11;
 const unsigned int LIFTER_PRESET_6 = 6;
 const unsigned int STACK_ON_PLATFORM_SWITCH = 7;
 const unsigned int STACK_ON_STEP_SWITCH = 8;
 const unsigned int MOVE_UP_BUTTON = 9;
 const unsigned int MOVE_DOWN_BUTTON = 10;
-const unsigned int CAMERA_SELECT_TOGGLE = 11;
+const unsigned int DRIVE_TYPE = 2;
 
 }
