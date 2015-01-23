@@ -195,6 +195,7 @@ void Manipulator::liftRakes(bool going_up)	///not complete, looks are deceiving
 		}
 	}
 	else{
+	}
 	//controls moving rakes up/down
 }
 
