@@ -48,7 +48,6 @@ void Mobility::setRotation(float rotation_)//-1.0 through 1.0
 }
 void Mobility::runTalon(int talon, float speed)//For testing individual talons. You MUST comment out robot_drive to use this
 {
-	log->write(Log::INFO_LEVEL, "Run Talon %d", talon);
 	switch(talon)
 	{
 	case RobotPorts::FRONT_LEFT_MOTOR: front_left_motor->Set(speed); break;
@@ -78,13 +77,15 @@ float Mobility::getUltrasonicDistance()
 	ultrasonic->SetSampleRate(62500);
 	int raw = ultrasonic->GetValue();
 	float volts = ultrasonic->GetVoltage();
-	int averageRaw = ultrasonic->GetAverageValue();
-	float averageVolts = ultrasonic->GetAverageVoltage();
+	//int averageRaw = ultrasonic->GetAverageValue();
+	//float averageVolts = ultrasonic->GetAverageVoltage();
 	//	wait for iiiiiiiittt.....
 	currentDistance = (volts * maxDistance)/maxVoltage;
 	return currentDistance;
 }
-
+void Mobility::setRotation(){
+	// Will, this is where I need your help...
+}
 Mobility* Mobility::getInstance()
 {
     if (INSTANCE == NULL) {

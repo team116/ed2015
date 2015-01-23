@@ -18,6 +18,7 @@ public:
 	float getUltrasonicDistance();
 	void runTalon(int talon, float speed);
 	void toggleFieldCentric();
+	void setRotation();
 
 private:
 	Mobility();
