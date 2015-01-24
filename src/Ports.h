@@ -48,7 +48,8 @@ namespace DSPorts
 
 namespace JoystickPorts
 {
-	const unsigned int OVERRIDE_BUTTON = 1;
+	const unsigned int FIELD_CENTRIC_TOGGLE = 2;
+	const unsigned int OVERRIDE_BUTTON = 7;
 }
 
 namespace DigitalIOPorts

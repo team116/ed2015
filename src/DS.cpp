@@ -5,7 +5,6 @@
 #include "Log.h"
 #include <CameraServer.h>
 DS* DS::INSTANCE = NULL;
-const float DS::LIFTER_BUTTON_CHANGE = 0.25;//this is an arbitrary number
 
 DS::DS()
 {
@@ -27,114 +26,112 @@ DS::DS()
 
 void DS::process()
 {
-	drive_type = main_joystick->GetRawButton(DSPorts::DRIVER_ONE_JOYSTICK);
-	if(drive_type && !drive_type_handled)
-	{
-		log->write(Log::INFO_LEVEL, "Drive Type Button\n");
-		drive_type_handled = true;
-		mobility->toggleFieldCentric();
-	}
-	else if(drive_type_handled && !drive_type)
-	{
-		drive_type_handled = false;
-	}
-	if(secondary_joystick->GetRawButton(JoystickPorts::OVERRIDE_BUTTON)){
+
+	if(secondary_joystick->GetRawButton(JoystickPorts::OVERRIDE_BUTTON)) {
 		log->write(Log::INFO_LEVEL,"Override button pressed");
 		override=!override;
 	}
-
-	if(!override){
-		//normal control by first driver
-		mobility->setDirection(main_joystick->GetX(),main_joystick->GetY());
-		mobility->setRotation(main_joystick->GetTwist());
-
-		if(secondary_joystick->GetY()>0.25){
-			manipulator->pushTote();
-		}else if(secondary_joystick->GetY()<-0.25){
-			manipulator->pullTote();
-		}
-	}
-
-		manipulator->spinTote(secondary_joystick->GetTwist());
 
 	processMobility();
 	processManipulator();
 	processLEDS();
 
 }
-void DS::processMobility(){
-	if(override){
+
+void DS::processMobility()
+{
+	if(override) {
 		//secondary driver has overriden so that they can control movement
 		//I'm halving all input because this is for precision
+		//we might just remove this because the override button is a dumb idea
 		mobility->setDirection(secondary_joystick->GetX()/2.0,secondary_joystick->GetY()/2.0);
 		mobility->setRotation(secondary_joystick->GetTwist()/2.0);
 	}
-	else{
+	else {
 		//normal control by first driver
+		drive_type = main_joystick->GetRawButton(JoystickPorts::FIELD_CENTRIC_TOGGLE);
+		//check if the driver is trying to change to/from field-centric
+		if(drive_type && !drive_type_handled) {
+			log->write(Log::INFO_LEVEL, "Drive Type Button\n");
+			drive_type_handled = true;
+			mobility->toggleFieldCentric();
+		}
+		else if(drive_type_handled && !drive_type) {
+			drive_type_handled = false;
+		}
+
 		mobility->setDirection(main_joystick->GetX(),main_joystick->GetY());
 		mobility->setRotation(main_joystick->GetTwist());
 	}
 }
-void DS::processManipulator(){
-	if(digitalIO->GetRawButton(DigitalIOPorts::STACK_ON_STEP_SWITCH)){
+
+void DS::processManipulator()
+{
+	if(digitalIO->GetRawButton(DigitalIOPorts::STACK_ON_STEP_SWITCH)) {
 		manipulator->setSurface(Manipulator::STEP);
 	}
-	else if(digitalIO->GetRawButton(DigitalIOPorts::STACK_ON_PLATFORM_SWITCH)){
+	else if(digitalIO->GetRawButton(DigitalIOPorts::STACK_ON_PLATFORM_SWITCH)) {
 		manipulator->setSurface(Manipulator::SCORING_PLATFORM);
 	}
-	else{
+	else {
 		manipulator->setSurface(Manipulator::FLOOR);
 	}
 
-	if(digitalIO->GetRawButton(DigitalIOPorts::LIFTER_PRESET_1)){
+	if(digitalIO->GetRawButton(DigitalIOPorts::LIFTER_PRESET_1)) {
 		manipulator->setTargetHeight(0);
 	}
-	else if(digitalIO->GetRawButton(DigitalIOPorts::LIFTER_PRESET_2)){
+	else if(digitalIO->GetRawButton(DigitalIOPorts::LIFTER_PRESET_2)) {
 		manipulator->setTargetHeight(1);
 	}
-	else if(digitalIO->GetRawButton(DigitalIOPorts::LIFTER_PRESET_3)){
+	else if(digitalIO->GetRawButton(DigitalIOPorts::LIFTER_PRESET_3)) {
 		manipulator->setTargetHeight(2);
 	}
-	else if(digitalIO->GetRawButton(DigitalIOPorts::LIFTER_PRESET_4)){
+	else if(digitalIO->GetRawButton(DigitalIOPorts::LIFTER_PRESET_4)) {
 		manipulator->setTargetHeight(3);
 	}
-	else if(digitalIO->GetRawButton(DigitalIOPorts::LIFTER_PRESET_5)){
+	else if(digitalIO->GetRawButton(DigitalIOPorts::LIFTER_PRESET_5)) {
 		manipulator->setTargetHeight(4);
 	}
-	else if(digitalIO->GetRawButton(DigitalIOPorts::LIFTER_PRESET_6)){
+	else if(digitalIO->GetRawButton(DigitalIOPorts::LIFTER_PRESET_6)) {
 		manipulator->setTargetHeight(5);
 	}
-	else{
+	else {
 		//do nothing
 	}
 
-	if(digitalIO->GetRawButton(DigitalIOPorts::LIFTER_UP_BUTTON)){
-		manipulator->changeHeight(LIFTER_BUTTON_CHANGE);
+	if(digitalIO->GetRawButton(DigitalIOPorts::LIFTER_UP_BUTTON)) {
+		manipulator->liftLifters();//argument for up
 	}
-	else if(digitalIO->GetRawButton(DigitalIOPorts::LIFTER_DOWN_BUTTON)){
-		manipulator->changeHeight(-LIFTER_BUTTON_CHANGE);
+	else if(digitalIO->GetRawButton(DigitalIOPorts::LIFTER_DOWN_BUTTON)) {
+		manipulator->liftLifters();//argument for down
+	}
+	else {
+		manipulator->liftLifters();//argument for stay
 	}
 
-	if(digitalIO->GetRawButton(DigitalIOPorts::RAKES_UP_BUTTON)){
+	if(digitalIO->GetRawButton(DigitalIOPorts::RAKES_UP_BUTTON)) {
 		manipulator->liftRakes(true);
 	}
-	else if(digitalIO->GetRawButton(DigitalIOPorts::RAKES_DOWN_BUTTON)){
+	else if(digitalIO->GetRawButton(DigitalIOPorts::RAKES_DOWN_BUTTON)) {
 		manipulator->liftRakes(false);
 	}
-	if(!override){
+	if(!override) {
 		//normal control of manipulator by driver two
-		if(secondary_joystick->GetY()>0.25){
+		if(secondary_joystick->GetY()>0.25) {
 			manipulator->pushTote();
-		}else if(secondary_joystick->GetY()<-0.25){
+		}
+		else if(secondary_joystick->GetY()<-0.25) {
 			manipulator->pullTote();
 		}
 
 		manipulator->spinTote(secondary_joystick->GetTwist());
 	}
 }
-void DS::processLEDS(){
+
+void DS::processLEDS()
+{
 	digitalIO->SetOutputs(0);
-	switch (manipulator->getLevel()){
+	switch (manipulator->getLevel()) {
 	//fall through is intentional
 		case 5:
 			digitalIO->SetOutput(DigitalIOPorts::LEVEL_5_INDICATOR,true);
@@ -150,17 +147,18 @@ void DS::processLEDS(){
 			digitalIO->SetOutput(DigitalIOPorts::LEVEL_0_INDICATOR,true);
 	}
 
-	if(digitalIO->GetRawButton(DigitalIOPorts::STACK_ON_PLATFORM_SWITCH)){
+	if(digitalIO->GetRawButton(DigitalIOPorts::STACK_ON_PLATFORM_SWITCH)) {
 		digitalIO->SetOutput(DigitalIOPorts::STACK_ON_PLATFORM_INDICATOR,true);
 	}
-	else if(digitalIO->GetRawButton(DigitalIOPorts::STACK_ON_STEP_SWITCH)){
+	else if(digitalIO->GetRawButton(DigitalIOPorts::STACK_ON_STEP_SWITCH)) {
 		digitalIO->SetOutput(DigitalIOPorts::STACK_ON_STEP_INDICATOR,true);
 	}
-	else{
+	else {
 		digitalIO->SetOutput(DigitalIOPorts::STACK_ON_FLOOR_INDICATOR,true);
 	}
 
 }
+
 DS* DS::getInstance()
 {
 	if (INSTANCE == NULL)
