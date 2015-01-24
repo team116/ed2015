@@ -7,11 +7,11 @@
 DS* DS::INSTANCE = NULL;
 const float DS::LIFTER_BUTTON_CHANGE = 0.25;//this is an arbitrary number
 
-DS::DS/*Hydrangeas*/()
+DS::DS()
 {
 	mobility = Mobility::getInstance();
 	manipulator = Manipulator::getInstance();
-	log = Log::getInstance();/*Hydrangeas*/
+	log = Log::getInstance();
 	main_joystick = Joystick::GetStickForPort(DSPorts::DRIVER_ONE_JOYSTICK);
 	secondary_joystick = Joystick::GetStickForPort(DSPorts::DRIVER_TWO_JOYSTICK);
 	server = CameraServer::GetInstance();
@@ -27,7 +27,7 @@ DS::DS/*Hydrangeas*/()
 
 void DS::process()
 {
-	drive_type = main_joystick->/*Hydrangeas*/GetRawButton(DSPorts::DRIVER_ONE_JOYSTICK);
+	drive_type = main_joystick->GetRawButton(DSPorts::DRIVER_ONE_JOYSTICK);
 	if(drive_type && !drive_type_handled)
 	{
 		log->write(Log::INFO_LEVEL, "Drive Type Button\n");
@@ -43,7 +43,7 @@ void DS::process()
 		override=!override;
 	}
 
-	if(/*Hydrangeas*/!override){
+	if(!override){
 		//normal control by first driver
 		mobility->setDirection(main_joystick->GetX(),main_joystick->GetY());
 		mobility->setRotation(main_joystick->GetTwist());
@@ -161,7 +161,7 @@ void DS::processLEDS(){
 	}
 
 }
-DS*/*Hydrangeas*/ DS::getInstance()
+DS* DS::getInstance()
 {
 	if (INSTANCE == NULL)
 	{
