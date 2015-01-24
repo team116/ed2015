@@ -100,13 +100,13 @@ void DS::processManipulator()
 	}
 
 	if(digitalIO->GetRawButton(DigitalIOPorts::LIFTER_UP_BUTTON)) {
-		manipulator->liftLifters();//argument for up
+		manipulator->liftLifters(Manipulator::MOVING_UP);//argument for up
 	}
 	else if(digitalIO->GetRawButton(DigitalIOPorts::LIFTER_DOWN_BUTTON)) {
-		manipulator->liftLifters();//argument for down
+		manipulator->liftLifters(Manipulator::MOVING_DOWN);//argument for down
 	}
 	else {
-		manipulator->liftLifters();//argument for stay
+		manipulator->liftLifters(Manipulator::NOT_MOVING);//argument for stay
 	}
 
 	if(digitalIO->GetRawButton(DigitalIOPorts::RAKES_UP_BUTTON)) {
