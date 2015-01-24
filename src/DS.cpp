@@ -32,6 +32,13 @@ void DS::process()
 		override=!override;
 	}
 
+	if(digitalIO->GetRawButton(DigitalIOPorts::CAMERA_SELECT_TOGGLE)) {
+		//switch to back camera
+	}
+	else {
+		//switch to front camera
+	}
+
 	processMobility();
 	processManipulator();
 	processLEDS();
@@ -52,7 +59,7 @@ void DS::processMobility()
 		drive_type = main_joystick->GetRawButton(JoystickPorts::FIELD_CENTRIC_TOGGLE);
 		//check if the driver is trying to change to/from field-centric
 		if(drive_type && !drive_type_handled) {
-			log->write(Log::INFO_LEVEL, "Drive Type Button\n");
+			log->write(Log::INFO_LEVEL, "Field-centric toggle pressed\n");
 			drive_type_handled = true;
 			mobility->toggleFieldCentric();
 		}
@@ -100,13 +107,13 @@ void DS::processManipulator()
 	}
 
 	if(digitalIO->GetRawButton(DigitalIOPorts::LIFTER_UP_BUTTON)) {
-		manipulator->liftLifters(Manipulator::MOVING_UP);//argument for up
+		manipulator->liftLifters(Manipulator::MOVING_UP);
 	}
 	else if(digitalIO->GetRawButton(DigitalIOPorts::LIFTER_DOWN_BUTTON)) {
-		manipulator->liftLifters(Manipulator::MOVING_DOWN);//argument for down
+		manipulator->liftLifters(Manipulator::MOVING_DOWN);
 	}
 	else {
-		manipulator->liftLifters(Manipulator::NOT_MOVING);//argument for stay
+		manipulator->liftLifters(Manipulator::NOT_MOVING);
 	}
 
 	if(digitalIO->GetRawButton(DigitalIOPorts::RAKES_UP_BUTTON)) {
@@ -157,6 +164,12 @@ void DS::processLEDS()
 		digitalIO->SetOutput(DigitalIOPorts::STACK_ON_FLOOR_INDICATOR,true);
 	}
 
+	if(digitalIO->GetRawButton(DigitalIOPorts::CAMERA_SELECT_TOGGLE)){
+		digitalIO->SetOutput(DigitalIOPorts::BACK_CAMERA_INDICATOR,true);
+	}
+	else {
+		digitalIO->SetOutput(DigitalIOPorts::FRONT_CAMERA_INDICATOR,true);
+	}
 }
 
 DS* DS::getInstance()
