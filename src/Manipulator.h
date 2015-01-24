@@ -3,6 +3,7 @@
 
 #include <WPILib.h>
 #include <CANTalon.h>
+#include <Timer.h>
 #include "Mobility.h"
 //#include "UDPListener.h"
 #include "Log.h"
@@ -18,6 +19,13 @@ public:
 	Log* log;
 	//UDPListener* listener;
 
+	enum manual_lifter_controls
+	{
+		MOVING_UP,
+		MOVING_DOWN,
+		NOT_MOVING,
+	};
+
 	void process();
 	void pullTote();
 	void pushTote();
@@ -31,12 +39,14 @@ public:
 	/*void startConveyorBelt();
 	void stopConveyorBelt();*/
     void honor_limits(bool to_use_or_not_to_use);
-	void liftLifters();
+	void liftLifters(manual_lifter_controls lifter_direction);
 	void liftRakes(bool going_up);
 
 	static const float FLOOR;
 	static const float SCORING_PLATFORM;
 	static const float STEP;
+
+
 
 private:
 	static Manipulator* INSTANCE;
@@ -50,8 +60,8 @@ private:
 
 	DigitalInput* lift_upper_limit;
 	DigitalInput* lift_lower_limit;
-	DigitalInput* flaps_upper_limit;
-	DigitalInput* flaps_lower_limit;
+	DigitalInput* flaps_closed_limit;	//originally upper
+	DigitalInput* flaps_opened_limit;	//originally lower
 	DigitalInput* port_rake_limit;
 	DigitalInput* starboard_rake_limit;
 
@@ -59,9 +69,23 @@ private:
 	static const int pulse_per_rev;
 	static const float inch_per_rev;
 
+	Timer* arm_timer;
+	Timer* rake_timer;
+	Timer* lift_timer;
+
 	float current_height; //inches for everything
 	float target_height;
 	static const float TOTE_HEIGHT;
+
+	int rake_direction;
+
+	enum flap_direction
+	{
+		OPENING,
+		CLOSING,
+		STILL
+	};
+	flap_direction flap_state;
 
 	float surface;	//should always be equal to one of the constants below
 
