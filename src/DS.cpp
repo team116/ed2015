@@ -85,22 +85,22 @@ void DS::processManipulator()
 	}
 
 	if(digitalIO->GetRawButton(DigitalIOPorts::LIFTER_PRESET_1)) {
-		manipulator->setTargetHeight(0);
+		manipulator->setTargetLevel(0);
 	}
 	else if(digitalIO->GetRawButton(DigitalIOPorts::LIFTER_PRESET_2)) {
-		manipulator->setTargetHeight(1);
+		manipulator->setTargetLevel(1);
 	}
 	else if(digitalIO->GetRawButton(DigitalIOPorts::LIFTER_PRESET_3)) {
-		manipulator->setTargetHeight(2);
+		manipulator->setTargetLevel(2);
 	}
 	else if(digitalIO->GetRawButton(DigitalIOPorts::LIFTER_PRESET_4)) {
-		manipulator->setTargetHeight(3);
+		manipulator->setTargetLevel(3);
 	}
 	else if(digitalIO->GetRawButton(DigitalIOPorts::LIFTER_PRESET_5)) {
-		manipulator->setTargetHeight(4);
+		manipulator->setTargetLevel(4);
 	}
 	else if(digitalIO->GetRawButton(DigitalIOPorts::LIFTER_PRESET_6)) {
-		manipulator->setTargetHeight(5);
+		manipulator->setTargetLevel(5);
 	}
 	else {
 		//do nothing

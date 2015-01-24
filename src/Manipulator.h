@@ -5,9 +5,7 @@
 #include <CANTalon.h>
 #include <Timer.h>
 #include "Mobility.h"
-//#include "UDPListener.h"
 #include "Log.h"
-//#include "Piston.h"
 
 class Manipulator {
 public:
@@ -17,9 +15,8 @@ public:
 	static Manipulator* getInstance();
 	Mobility* mobility;
 	Log* log;
-	//UDPListener* listener;
 
-	enum manual_lifter_controls
+	enum lifter_direction
 	{
 		MOVING_UP,
 		MOVING_DOWN,
@@ -27,29 +24,37 @@ public:
 	};
 
 	void process();
+
 	void pullTote();
 	void pushTote();
-	void setFlaps(bool close);
+	void spinTote(float direction);
+
+	void closeFlaps(bool close);
+
 	void setSurface(float s);
-	void setTargetHeight(int level); //move to one of preset levels
-	float getHeight(); // to return height in inches
+	void setTargetLevel(int level);
+	void changeHeight(float change);
+	void liftLifters(lifter_direction direction);
 	int getLevel();
-	void changeHeight(float change); // to move up/down depending on positive/negative by change # of inches
-	void spinTote(float direction);//use wheels to spin tote in direction in range [-1.0,1.0]
-	/*void startConveyorBelt();
-	void stopConveyorBelt();*/
-    void honor_limits(bool to_use_or_not_to_use);
-	void liftLifters(manual_lifter_controls lifter_direction);
+	float getHeight();
+
 	void liftRakes(bool going_up);
+
+	void honorLimits(bool to_use_or_not_to_use);
+
+	/*
+	void startConveyorBelt();
+	void stopConveyorBelt();
+	 */
 
 	static const float FLOOR;
 	static const float SCORING_PLATFORM;
 	static const float STEP;
 
-
-
 private:
 	static Manipulator* INSTANCE;
+
+	// motors
 	CANTalon* left_wheel;
 	CANTalon* right_wheel;
 	CANTalon* lifter_one;
@@ -58,6 +63,7 @@ private:
 	CANTalon* rake_starboard;
 	CANTalon* close_flaps;
 
+	// sensors
 	DigitalInput* lift_upper_limit;
 	DigitalInput* lift_lower_limit;
 	DigitalInput* flaps_closed_limit;	//originally upper
@@ -66,28 +72,46 @@ private:
 	DigitalInput* starboard_rake_limit;
 
 	Encoder* encoder;
-	static const int pulse_per_rev;
+	static const int PULSE_PER_REV;
 	static const float inch_per_rev;
 
-	Timer* arm_timer;
+	// timers
+	Timer* flap_timer;
+	static const float FLAP_TIMEOUT;
 	Timer* rake_timer;
+	static const float RAKE_TIMEOUT;
 	Timer* lift_timer;
+	static const float LEVEL_TIMEOUT;
 
+	// lifter stuff
 	float current_height; //inches for everything
 	float target_height;
+	float lifter_timeout; // how long we should move the lifter for when using presets
+
 	static const float TOTE_HEIGHT;
+	static const float LIFTER_RANGE;
 
-	int rake_direction;
+	bool isInsignificantChange(float first, float second); // the order of the parameters doesn't matter
 
+	// rake stuff
+	enum rake_direction
+	{
+		RAKE_LIFTING,
+		RAKE_LOWERING,
+		RAKE_STILL
+	};
+	rake_direction rake_direction;
+
+	// flap stuff
 	enum flap_direction
 	{
-		OPENING,
-		CLOSING,
-		STILL
+		FLAP_OPENING,
+		FLAP_CLOSING,
+		FLAP_STILL
 	};
 	flap_direction flap_state;
 
-	float surface;	//should always be equal to one of the constants below
+	float surface;	//should always be equal to one of the platform constants
 
 	bool using_limits;
 	//bool belt_moving;
