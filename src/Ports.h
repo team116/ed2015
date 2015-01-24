@@ -73,22 +73,20 @@ namespace DigitalIOPorts
 
 	const unsigned int CAMERA_SELECT_TOGGLE = 13;
 
-	const unsigned int DRIVE_TYPE = 14;
-
 	//digital outputs
-	const unsigned int LEVEL_0_INDICATOR = 12;
-	const unsigned int LEVEL_1_INDICATOR = 13;
-	const unsigned int LEVEL_2_INDICATOR = 14;
-	const unsigned int LEVEL_3_INDICATOR = 15;
-	const unsigned int LEVEL_4_INDICATOR = 16;
-	const unsigned int LEVEL_5_INDICATOR = 17;
+	const unsigned int LEVEL_0_INDICATOR = 14;
+	const unsigned int LEVEL_1_INDICATOR = 15;
+	const unsigned int LEVEL_2_INDICATOR = 16;
+	const unsigned int LEVEL_3_INDICATOR = 17;
+	const unsigned int LEVEL_4_INDICATOR = 18;
+	const unsigned int LEVEL_5_INDICATOR = 19;
 
-	const unsigned int STACK_ON_FLOOR_INDICATOR = 18;
-	const unsigned int STACK_ON_PLATFORM_INDICATOR = 19;
-	const unsigned int STACK_ON_STEP_INDICATOR = 20;
+	const unsigned int STACK_ON_FLOOR_INDICATOR = 20;
+	const unsigned int STACK_ON_PLATFORM_INDICATOR = 21;
+	const unsigned int STACK_ON_STEP_INDICATOR = 22;
 
-	const unsigned int BACK_CAMERA_INDICATOR = 21;
-	const unsigned int FRONT_CAMERA_INDICATOR = 22;
+	const unsigned int BACK_CAMERA_INDICATOR = 23;
+	const unsigned int FRONT_CAMERA_INDICATOR = 24;
 
 }
 
