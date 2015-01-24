@@ -21,6 +21,7 @@ private:
 	Manipulator* manipulator;
 	Log* log;
 	Timer* delay_timer;
+	Timer* play_timer;
 
 	void doNothing();
 	void moveToZone();

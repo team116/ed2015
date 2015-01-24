@@ -1,4 +1,5 @@
 #include <WPILib.h>
+#include <Timer.h>
 #include "Ports.h"
 #include "Autonomous.h"
 #include "Mobility.h"
@@ -15,6 +16,7 @@ Autonomous::Autonomous(int delay, int play, int location)
 	this->play = play;
 
 	delay_timer = new Timer();
+	play_timer = new Timer();
 	mobility = Mobility::getInstance();
 	manipulator = Manipulator::getInstance();
 	log = Log::getInstance();
@@ -82,11 +84,18 @@ void Autonomous::stackTote()
 			mobility->setDirection(0.0, 0.0);
 		}
 		manipulator->setFlaps(true);
-		// turn the robot so that it is facing the allaince wall
+		// turn the robot so that it is facing the alliance wall here... pending other code
 		if(mobility->getUltrasonicDistance() < 124){
 			mobility->setDirection(0.0, -0.5);
-
 		}
+		else
+			mobility->setDirection(0.0, 0.0);
+		if(play_timer->HasPeriodPassed(2) != true){
+			mobility->setDirection(-0.5, 0.0);
+		}
+		else
+			mobility->setDirection(0.0, 0.0);
+
 		break;
 	case 2:
 		break;
