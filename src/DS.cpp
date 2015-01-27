@@ -47,7 +47,7 @@ void DS::process()
 
 void DS::processMobility()
 {
-	// secondary driver has overriden so that they can control movement
+	// secondary driver has overridden so that they can control movement
 	// I'm halving all input because this is for precision
 	// we might just remove this because the override button is a dumb idea
 	if(override) {
