@@ -79,6 +79,8 @@ public:
     void AutonomousPeriodic()
     {
     	autonomous->process();
+    	mobility->process();
+    	manipulator->process();
     }
 
     void TeleopPeriodic()
