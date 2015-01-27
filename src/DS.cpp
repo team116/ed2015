@@ -33,10 +33,10 @@ void DS::process()
 	}
 
 	if(digitalIO->GetRawButton(DigitalIOPorts::CAMERA_SELECT_TOGGLE)) {
-		//switch to back camera
+		// switch to back camera
 	}
 	else {
-		//switch to front camera
+		// switch to front camera
 	}
 
 	processMobility();
@@ -56,7 +56,7 @@ void DS::processMobility()
 		mobility->setRotationSpeed(secondary_joystick->GetTwist()/2.0);
 	}
 
-	//normal control by first driver
+	// normal control by first driver
 	else {
 		// check if the driver is trying to change to/from field-centric
 		drive_type = main_joystick->GetRawButton(JoystickPorts::FIELD_CENTRIC_TOGGLE);
@@ -77,7 +77,7 @@ void DS::processMobility()
 
 void DS::processManipulator()
 {
-	//surface switch
+	// surface switch
 	if(digitalIO->GetRawButton(DigitalIOPorts::STACK_ON_STEP_SWITCH)) {
 		manipulator->setSurface(Manipulator::STEP);
 	}
@@ -88,7 +88,7 @@ void DS::processManipulator()
 		manipulator->setSurface(Manipulator::FLOOR);
 	}
 
-	//lifter preset buttons
+	// lifter preset buttons
 	if(digitalIO->GetRawButton(DigitalIOPorts::LIFTER_PRESET_1)) {
 		manipulator->setTargetLevel(0);
 	}
@@ -145,45 +145,91 @@ void DS::processManipulator()
 
 void DS::processLEDS()
 {
-	digitalIO->SetOutputs(0);
-
-	//lifter height indicators
+	// lifter height indicators
 	// fall through is intentional
-	switch (manipulator->getLevel()) {
-		case 5:
-			digitalIO->SetOutput(DigitalIOPorts::LEVEL_5_INDICATOR,true);
-		case 4:
-			digitalIO->SetOutput(DigitalIOPorts::LEVEL_4_INDICATOR,true);
-		case 3:
-			digitalIO->SetOutput(DigitalIOPorts::LEVEL_3_INDICATOR,true);
-		case 2:
-			digitalIO->SetOutput(DigitalIOPorts::LEVEL_2_INDICATOR,true);
-		case 1:
-			digitalIO->SetOutput(DigitalIOPorts::LEVEL_1_INDICATOR,true);
-		case 0:
-			digitalIO->SetOutput(DigitalIOPorts::LEVEL_0_INDICATOR,true);
-	}
+	doLevelLEDS(manipulator->getLevel());
 
-	//selected stacking surface indicators
+	// selected stacking surface indicators
 	if(digitalIO->GetRawButton(DigitalIOPorts::STACK_ON_PLATFORM_SWITCH)) {
+		digitalIO->SetOutput(DigitalIOPorts::STACK_ON_FLOOR_INDICATOR,false);
 		digitalIO->SetOutput(DigitalIOPorts::STACK_ON_PLATFORM_INDICATOR,true);
+		digitalIO->SetOutput(DigitalIOPorts::STACK_ON_STEP_INDICATOR,false);
 	}
 	else if(digitalIO->GetRawButton(DigitalIOPorts::STACK_ON_STEP_SWITCH)) {
+		digitalIO->SetOutput(DigitalIOPorts::STACK_ON_FLOOR_INDICATOR,false);
+		digitalIO->SetOutput(DigitalIOPorts::STACK_ON_PLATFORM_INDICATOR,false);
 		digitalIO->SetOutput(DigitalIOPorts::STACK_ON_STEP_INDICATOR,true);
 	}
 	else {
 		digitalIO->SetOutput(DigitalIOPorts::STACK_ON_FLOOR_INDICATOR,true);
+		digitalIO->SetOutput(DigitalIOPorts::STACK_ON_PLATFORM_INDICATOR,false);
+		digitalIO->SetOutput(DigitalIOPorts::STACK_ON_STEP_INDICATOR,false);
 	}
 
-	//camera select indicators
+	// camera select indicators
 	if(digitalIO->GetRawButton(DigitalIOPorts::CAMERA_SELECT_TOGGLE)){
 		digitalIO->SetOutput(DigitalIOPorts::BACK_CAMERA_INDICATOR,true);
+		digitalIO->SetOutput(DigitalIOPorts::FRONT_CAMERA_INDICATOR,false);
 	}
 	else {
+		digitalIO->SetOutput(DigitalIOPorts::BACK_CAMERA_INDICATOR,false);
 		digitalIO->SetOutput(DigitalIOPorts::FRONT_CAMERA_INDICATOR,true);
 	}
 }
 
+void DS::doLevelLEDS(int level){
+	// turns on all leds at or below level, turns off the others
+	switch (level) {
+	case 0:
+		digitalIO->SetOutput(DigitalIOPorts::LEVEL_0_INDICATOR,true);
+		digitalIO->SetOutput(DigitalIOPorts::LEVEL_1_INDICATOR,false);
+		digitalIO->SetOutput(DigitalIOPorts::LEVEL_2_INDICATOR,false);
+		digitalIO->SetOutput(DigitalIOPorts::LEVEL_3_INDICATOR,false);
+		digitalIO->SetOutput(DigitalIOPorts::LEVEL_4_INDICATOR,false);
+		digitalIO->SetOutput(DigitalIOPorts::LEVEL_5_INDICATOR,false);
+		break;
+	case 1:
+		digitalIO->SetOutput(DigitalIOPorts::LEVEL_0_INDICATOR,true);
+		digitalIO->SetOutput(DigitalIOPorts::LEVEL_1_INDICATOR,true);
+		digitalIO->SetOutput(DigitalIOPorts::LEVEL_2_INDICATOR,false);
+		digitalIO->SetOutput(DigitalIOPorts::LEVEL_3_INDICATOR,false);
+		digitalIO->SetOutput(DigitalIOPorts::LEVEL_4_INDICATOR,false);
+		digitalIO->SetOutput(DigitalIOPorts::LEVEL_5_INDICATOR,false);
+		break;
+	case 2:
+		digitalIO->SetOutput(DigitalIOPorts::LEVEL_0_INDICATOR,true);
+		digitalIO->SetOutput(DigitalIOPorts::LEVEL_1_INDICATOR,true);
+		digitalIO->SetOutput(DigitalIOPorts::LEVEL_2_INDICATOR,true);
+		digitalIO->SetOutput(DigitalIOPorts::LEVEL_3_INDICATOR,false);
+		digitalIO->SetOutput(DigitalIOPorts::LEVEL_4_INDICATOR,false);
+		digitalIO->SetOutput(DigitalIOPorts::LEVEL_5_INDICATOR,false);
+		break;
+	case 3:
+		digitalIO->SetOutput(DigitalIOPorts::LEVEL_0_INDICATOR,true);
+		digitalIO->SetOutput(DigitalIOPorts::LEVEL_1_INDICATOR,true);
+		digitalIO->SetOutput(DigitalIOPorts::LEVEL_2_INDICATOR,true);
+		digitalIO->SetOutput(DigitalIOPorts::LEVEL_3_INDICATOR,true);
+		digitalIO->SetOutput(DigitalIOPorts::LEVEL_4_INDICATOR,false);
+		digitalIO->SetOutput(DigitalIOPorts::LEVEL_5_INDICATOR,false);
+		break;
+	case 4:
+		digitalIO->SetOutput(DigitalIOPorts::LEVEL_0_INDICATOR,true);
+		digitalIO->SetOutput(DigitalIOPorts::LEVEL_1_INDICATOR,true);
+		digitalIO->SetOutput(DigitalIOPorts::LEVEL_2_INDICATOR,true);
+		digitalIO->SetOutput(DigitalIOPorts::LEVEL_3_INDICATOR,true);
+		digitalIO->SetOutput(DigitalIOPorts::LEVEL_4_INDICATOR,true);
+		digitalIO->SetOutput(DigitalIOPorts::LEVEL_5_INDICATOR,false);
+		break;
+	case 5:
+		digitalIO->SetOutput(DigitalIOPorts::LEVEL_0_INDICATOR,true);
+		digitalIO->SetOutput(DigitalIOPorts::LEVEL_1_INDICATOR,true);
+		digitalIO->SetOutput(DigitalIOPorts::LEVEL_2_INDICATOR,true);
+		digitalIO->SetOutput(DigitalIOPorts::LEVEL_3_INDICATOR,true);
+		digitalIO->SetOutput(DigitalIOPorts::LEVEL_4_INDICATOR,true);
+		digitalIO->SetOutput(DigitalIOPorts::LEVEL_5_INDICATOR,true);
+		break;
+	}
+}
 DS* DS::getInstance()
 {
 	if (INSTANCE == NULL)
