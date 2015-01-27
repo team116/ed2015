@@ -8,8 +8,8 @@
 #include <BuiltInAccelerometer.h>
 
 Mobility* Mobility::INSTANCE = NULL;
-const Mobility* Mobility::DEFAULT_SPEED = 0.5;
-const Mobility* Mobility::MAX_SPEED = 0.9;
+const float Mobility::DEFAULT_SPEED = 0.5;
+const float Mobility::MAX_SPEED = 0.9;
 
 Mobility::Mobility()
 {
