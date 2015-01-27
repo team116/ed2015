@@ -21,7 +21,7 @@ const float Manipulator::FLOOR = 0.0;
 const float Manipulator::SCORING_PLATFORM = 2.0;
 const float Manipulator::STEP = 6.25;
 
-Manipulator::Manipulator()//cock
+Manipulator::Manipulator()
 {
 	// subsystem instance getting
 	mobility = Mobility::getInstance();
@@ -185,20 +185,6 @@ void Manipulator::setSurface(float s)
 	surface = s;
 }
 
-/*Please destroy this
-int Manipulator::getSurface() {
-	if (surface == FLOOR){
-		return 0;
-	}
-	else if(surface == SCORING_PLATFORM) {
-		return 1;
-	}
-	else {				//if(surface == STEP)
-		return 2;
-	}
-}
-*/
-
 void Manipulator::setTargetLevel(int level)
 {
 	log->write(Log::INFO_LEVEL, "Set lifter preset to %d", level);
@@ -271,7 +257,6 @@ void Manipulator::liftLifters(lifter_direction direction)
 	if (direction == MOVING_UP && (!lift_upper_limit->Get() && using_limits) ) {
 		lifter_one ->Set(0.5);
 		lifter_two->Set(0.5);
-
 	}
 
 	else if (direction == MOVING_DOWN && (!lift_lower_limit->Get() && using_limits) ) {

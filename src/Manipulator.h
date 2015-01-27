@@ -42,19 +42,15 @@ public:
 
 	void honorLimits(bool to_use_or_not_to_use);
 
-	/*
-	void startConveyorBelt();
-	void stopConveyorBelt();
-	 */
 
 	static const float FLOOR;
 	static const float SCORING_PLATFORM;
 	static const float STEP;
 
 private:
-	static Manipulator* INSTANCE;
-
-	// motors
+	static Manipulator* INSTANCE; //																			   ,`~
+	//HYDRAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAANGEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAS!!! :D  :3  (/^W^)/ `',', ~
+	// motors																									 ,~	`	`
 	CANTalon* left_wheel;
 	CANTalon* right_wheel;
 	CANTalon* lifter_one;
@@ -62,12 +58,18 @@ private:
 	CANTalon* rake_port;
 	CANTalon* rake_starboard;
 	CANTalon* close_flaps;
-
+	//hydrangeas
+	//hydrangeas
+	//hydrangeas
+	//hydrangeas
+	//hydrangeas
+	//hydrangeas
+	//hydrangeas
 	// sensors
 	DigitalInput* lift_upper_limit;
 	DigitalInput* lift_lower_limit;
-	DigitalInput* flaps_closed_limit;	//originally upper
-	DigitalInput* flaps_opened_limit;	//originally lower
+	DigitalInput* flaps_closed_limit;
+	DigitalInput* flaps_opened_limit;
 	DigitalInput* port_rake_limit;
 	DigitalInput* starboard_rake_limit;
 
@@ -83,10 +85,10 @@ private:
 	Timer* lift_timer;
 	static const float LEVEL_TIMEOUT;
 
-	// lifter stuff
-	float current_height; //inches for everything
+	// lifter stuff --inches for everything
+	float current_height;
 	float target_height;
-	float lifter_timeout; // how long we should move the lifter for when using presets
+	float lifter_timeout;
 
 	static const float TOTE_HEIGHT;
 	static const float LIFTER_RANGE;
@@ -94,8 +96,8 @@ private:
 	bool isInsignificantChange(float first, float second); // the order of the parameters doesn't matter
 	bool canMoveLifter();
 	bool flapMotionDone();
-	bool Manipulator::rakeUpMotionDone();
-	bool Manipulator::rakeDownMotionDone();
+	bool rakeUpMotionDone();
+	bool rakeDownMotionDone();
 
 	// rake stuff
 	enum rake_direction
@@ -118,7 +120,6 @@ private:
 	float surface;	//should always be equal to one of the platform constants
 
 	bool using_limits;
-	//bool belt_moving;
 };
 
 
