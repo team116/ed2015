@@ -94,12 +94,10 @@ void Manipulator::process()
 	else {
 		if(canMoveLifter()) {
 			if(current_height < target_height) {
-
 				lifter_one->Set(0.5);
 				lifter_two->Set(0.5);
 			}
-			else
-			{
+			else {
 				lifter_one->Set(-0.5);
 				lifter_two->Set(-0.5);
 			}
@@ -111,12 +109,12 @@ void Manipulator::process()
 		encoder->Reset();
 	}
 
-	if (rake_direction == 1 && ((port_rake_limit->Get() && using_limits) || rake_timer->HasPeriodPassed(RAKE_TIMEOUT))){ 	//TODO: get real times
+	if (rakeUpMotionDone()){ 	//TODO: get real times
 		rake_port->Set(0.0);
 		rake_starboard->Set(0.0);
 		rake_direction = RAKE_STILL;
 	}
-	else if (rake_direction == -1 && rake_timer->HasPeriodPassed(RAKE_TIMEOUT)){ 	//TODO: get real timeout period
+	else if (rakeDownMotionDone()){ 	//TODO: get real timeout period
 		rake_port->Set(0.0);
 		rake_starboard->Set(0.0);
 		rake_direction = RAKE_STILL;
@@ -144,6 +142,13 @@ bool Manipulator::flapMotionDone(){
 		return true;
 }
 
+bool Manipulator::rakeUpMotionDone(){
+	return rake_direction == RAKE_LIFTING && ((port_rake_limit->Get() && using_limits) || rake_timer->HasPeriodPassed(RAKE_TIMEOUT));
+}
+
+bool Manipulator::rakeDownMotionDone(){
+	return rake_direction == RAKE_LOWERING && rake_timer->HasPeriodPassed(RAKE_TIMEOUT);
+}
 
 void Manipulator::pullTote()
 {

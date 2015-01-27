@@ -94,6 +94,8 @@ private:
 	bool isInsignificantChange(float first, float second); // the order of the parameters doesn't matter
 	bool canMoveLifter();
 	bool flapMotionDone();
+	bool Manipulator::rakeUpMotionDone();
+	bool Manipulator::rakeDownMotionDone();
 
 	// rake stuff
 	enum rake_direction
