@@ -2,11 +2,11 @@ namespace RobotPorts
 {
 
 	// motors
-	const unsigned int FRONT_LEFT_MOTOR = 0;
-	const unsigned int FRONT_RIGHT_MOTOR = 1;
-	const unsigned int REAR_LEFT_MOTOR = 2;
-	const unsigned int REAR_RIGHT_MOTOR = 3;
-	const unsigned int LEFT_WHEEL = 4;
+	const unsigned int FRONT_LEFT_MOTOR = 1;
+	const unsigned int FRONT_RIGHT_MOTOR = 2;
+	const unsigned int REAR_LEFT_MOTOR = 3;
+	const unsigned int REAR_RIGHT_MOTOR = 4;
+	const unsigned int LEFT_WHEEL = 11;
 	const unsigned int RIGHT_WHEEL = 5;
 	const unsigned int LIFTER_ONE = 6;
 	const unsigned int LIFTER_TWO = 7;
@@ -37,9 +37,9 @@ namespace RobotPorts
 namespace DSPorts
 {
 	//joysticks
-	const unsigned int DRIVER_ONE_JOYSTICK = 1;
-	const unsigned int DRIVER_TWO_JOYSTICK = 2;
-	const unsigned int BUTTONS_JOYSTICK = 3;
+	const unsigned int DRIVER_ONE_JOYSTICK = 0;
+	const unsigned int DRIVER_TWO_JOYSTICK = 1;
+	const unsigned int BUTTONS_JOYSTICK = 2;
 
 	//analog inputs
 	//const unsigned int CONTAINER_RAKE_HEIGHT = 1;

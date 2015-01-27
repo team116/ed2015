@@ -8,6 +8,8 @@
 #include <BuiltInAccelerometer.h>
 
 Mobility* Mobility::INSTANCE = NULL;
+const Mobility* Mobility::DEFAULT_SPEED = 0.5;
+const Mobility* Mobility::MAX_SPEED = 0.9;
 
 Mobility::Mobility()
 {
@@ -24,13 +26,35 @@ Mobility::Mobility()
 	x_direction = 0;
 	y_direction = 0;
 	rotation = 0;
+	start_degrees = 0;
+	rotate_degrees = 0;
 	field_centric = false;
+	rotating_degrees = false;
 	ultrasonic = new AnalogInput(RobotPorts::ULTRASONIC);
 	gyro = new Gyro(RobotPorts::GYRO);
 }
 
 void Mobility::process()
 {
+	if(rotating_degrees)
+	{
+		if((int)gyro->GetAngle() == (start_degrees + rotate_degrees))
+		{
+			setRotationSpeed(0);
+			rotating_degrees = false;
+			rotate_degrees = 0;
+			start_degrees = 0;
+		}
+		else
+		{
+			if(rotate_degrees < 0)
+				setRotationSpeed(-DEFAULT_SPEED);
+			else if(rotate_degrees > 0)
+				setRotationSpeed(DEFAULT_SPEED);
+			else
+				setRotationSpeed(0.0);
+		}
+	}
 	if(field_centric)
 		robot_drive->MecanumDrive_Cartesian(x_direction, y_direction, rotation, gyro->GetAngle());
 	else
@@ -39,15 +63,16 @@ void Mobility::process()
 
 void Mobility::setDirection(float x, float y)//-1.0 through 1.0
 {
-	x_direction = x * fabs(x) * 0.90;
-	y_direction = y * fabs(y) * 0.90;
+	x_direction = x * fabs(x) * MAX_SPEED;
+	y_direction = y * fabs(y) * MAX_SPEED;
 }
-void Mobility::setRotation(float rotation_)//-1.0 through 1.0
+void Mobility::setRotationSpeed(float rotation_)//-1.0 through 1.0
 {
-	rotation = rotation_ * fabs(rotation_) * 0.90;
+	rotation = rotation_ * fabs(rotation_) * MAX_SPEED;
 }
 void Mobility::runTalon(int talon, float speed)//For testing individual talons. You MUST comment out robot_drive to use this
 {
+	log->write(Log::INFO_LEVEL, "Run Talon %d", talon);
 	switch(talon)
 	{
 	case RobotPorts::FRONT_LEFT_MOTOR: front_left_motor->Set(speed); break;
@@ -83,8 +108,10 @@ float Mobility::getUltrasonicDistance()
 	currentDistance = (volts * maxDistance)/maxVoltage;
 	return currentDistance;
 }
-void Mobility::setRotation(){
-	// Will, this is where I need your help...
+void Mobility::setRotationDegrees(int degrees)
+{
+	start_degrees = gyro->GetAngle();
+	rotating_degrees = true;
 }
 Mobility* Mobility::getInstance()
 {

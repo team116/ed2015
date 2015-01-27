@@ -51,8 +51,9 @@ void DS::processMobility()
 		//secondary driver has overriden so that they can control movement
 		//I'm halving all input because this is for precision
 		//we might just remove this because the override button is a dumb idea
+		log->write(Log::TRACE_LEVEL,"In override mode");
 		mobility->setDirection(secondary_joystick->GetX()/2.0,secondary_joystick->GetY()/2.0);
-		mobility->setRotation(secondary_joystick->GetTwist()/2.0);
+		mobility->setRotationSpeed(secondary_joystick->GetTwist()/2.0);
 	}
 	else {
 		//normal control by first driver
@@ -68,7 +69,7 @@ void DS::processMobility()
 		}
 
 		mobility->setDirection(main_joystick->GetX(),main_joystick->GetY());
-		mobility->setRotation(main_joystick->GetTwist());
+		mobility->setRotationSpeed(main_joystick->GetTwist());
 	}
 }
 
