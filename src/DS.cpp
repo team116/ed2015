@@ -47,17 +47,19 @@ void DS::process()
 
 void DS::processMobility()
 {
+	// secondary driver has overriden so that they can control movement
+	// I'm halving all input because this is for precision
+	// we might just remove this because the override button is a dumb idea
 	if(override) {
-		//secondary driver has overriden so that they can control movement
-		//I'm halving all input because this is for precision
-		//we might just remove this because the override button is a dumb idea
 		mobility->setDirection(secondary_joystick->GetX()/2.0,secondary_joystick->GetY()/2.0);
 		mobility->setRotation(secondary_joystick->GetTwist()/2.0);
 	}
+
+	//normal control by first driver
 	else {
-		//normal control by first driver
+		// check if the driver is trying to change to/from field-centric
 		drive_type = main_joystick->GetRawButton(JoystickPorts::FIELD_CENTRIC_TOGGLE);
-		//check if the driver is trying to change to/from field-centric
+
 		if(drive_type && !drive_type_handled) {
 			log->write(Log::INFO_LEVEL, "Field-centric toggle pressed\n");
 			drive_type_handled = true;
@@ -74,6 +76,7 @@ void DS::processMobility()
 
 void DS::processManipulator()
 {
+	//surface switch
 	if(digitalIO->GetRawButton(DigitalIOPorts::STACK_ON_STEP_SWITCH)) {
 		manipulator->setSurface(Manipulator::STEP);
 	}
@@ -84,6 +87,7 @@ void DS::processManipulator()
 		manipulator->setSurface(Manipulator::FLOOR);
 	}
 
+	//lifter preset buttons
 	if(digitalIO->GetRawButton(DigitalIOPorts::LIFTER_PRESET_1)) {
 		manipulator->setTargetLevel(0);
 	}
@@ -103,9 +107,10 @@ void DS::processManipulator()
 		manipulator->setTargetLevel(5);
 	}
 	else {
-		//do nothing
+		// do nothing
 	}
 
+	// manual lifter control buttons
 	if(digitalIO->GetRawButton(DigitalIOPorts::LIFTER_UP_BUTTON)) {
 		manipulator->liftLifters(Manipulator::MOVING_UP);
 	}
@@ -116,14 +121,16 @@ void DS::processManipulator()
 		manipulator->liftLifters(Manipulator::NOT_MOVING);
 	}
 
+	// rake control buttons
 	if(digitalIO->GetRawButton(DigitalIOPorts::RAKES_UP_BUTTON)) {
 		manipulator->liftRakes(true);
 	}
 	else if(digitalIO->GetRawButton(DigitalIOPorts::RAKES_DOWN_BUTTON)) {
 		manipulator->liftRakes(false);
 	}
+
+	// normal control of manipulator by driver two
 	if(!override) {
-		//normal control of manipulator by driver two
 		if(secondary_joystick->GetY()>0.25) {
 			manipulator->pushTote();
 		}
@@ -138,8 +145,10 @@ void DS::processManipulator()
 void DS::processLEDS()
 {
 	digitalIO->SetOutputs(0);
+
+	//lifter height indicators
+	// fall through is intentional
 	switch (manipulator->getLevel()) {
-	//fall through is intentional
 		case 5:
 			digitalIO->SetOutput(DigitalIOPorts::LEVEL_5_INDICATOR,true);
 		case 4:
@@ -154,6 +163,7 @@ void DS::processLEDS()
 			digitalIO->SetOutput(DigitalIOPorts::LEVEL_0_INDICATOR,true);
 	}
 
+	//selected stacking surface indicators
 	if(digitalIO->GetRawButton(DigitalIOPorts::STACK_ON_PLATFORM_SWITCH)) {
 		digitalIO->SetOutput(DigitalIOPorts::STACK_ON_PLATFORM_INDICATOR,true);
 	}
@@ -164,6 +174,7 @@ void DS::processLEDS()
 		digitalIO->SetOutput(DigitalIOPorts::STACK_ON_FLOOR_INDICATOR,true);
 	}
 
+	//camera select indicators
 	if(digitalIO->GetRawButton(DigitalIOPorts::CAMERA_SELECT_TOGGLE)){
 		digitalIO->SetOutput(DigitalIOPorts::BACK_CAMERA_INDICATOR,true);
 	}
