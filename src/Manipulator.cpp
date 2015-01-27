@@ -81,45 +81,67 @@ void Manipulator::process()
 {
 	current_height = encoder->GetDistance();	//uses data from encoder to determine current height of lift
 
-	if (flap_state == FLAP_CLOSING && ((flaps_closed_limit->Get() && using_limits) || flap_timer->HasPeriodPassed(FLAP_TIMEOUT))) {
+	if (flapMotionDone()) {
 		close_flaps->Set(0.0);
 		flap_state = FLAP_STILL;
 	}
-	else if (flap_state == FLAP_OPENING && ((flaps_opened_limit->Get() && using_limits) || flap_timer->HasPeriodPassed(FLAP_TIMEOUT))) {
-		close_flaps->Set(0.0);
-		flap_state = FLAP_STILL;
-	}
+
 
 	if (isInsignificantChange(current_height, target_height)) {
 		lifter_one->Set(0);
 		lifter_two->Set(0);
 	}
-	else		//significant change
-	{
-		if (current_height < target_height && (!lift_upper_limit->Get() || !using_limits) && !lift_timer->HasPeriodPassed(lifter_timeout)) {		//desired height is above current height and upper limit has not been reached
-			lifter_one->Set(0.5);
-			lifter_two->Set(0.5);
-		}
-		else if (current_height > target_height && (!lift_lower_limit->Get() || !using_limits) && !lift_timer->HasPeriodPassed(lifter_timeout)) {		//desired height is below current height
-			lifter_one->Set(-0.5);
-			lifter_two->Set(-0.5);
+	else {
+		if(canMoveLifter()) {
+			if(current_height < target_height) {
+
+				lifter_one->Set(0.5);
+				lifter_two->Set(0.5);
+			}
+			else
+			{
+				lifter_one->Set(-0.5);
+				lifter_two->Set(-0.5);
+			}
 		}
 	}
 
-	if (lift_lower_limit->Get()) {		//reset encoder to 0 every time lift hits lower limit switch
+
+	if (lift_lower_limit->Get()){		//reset encoder to 0 every time lift hits lower limit switch
 		encoder->Reset();
 	}
 
-	if (rake_direction == 1 && ((port_rake_limit->Get() && using_limits) || rake_timer->HasPeriodPassed(RAKE_TIMEOUT))) { 	//TODO: get real times
+	if (rake_direction == 1 && ((port_rake_limit->Get() && using_limits) || rake_timer->HasPeriodPassed(RAKE_TIMEOUT))){ 	//TODO: get real times
 		rake_port->Set(0.0);
 		rake_starboard->Set(0.0);
 		rake_direction = RAKE_STILL;
 	}
-	else if (rake_direction == -1 && rake_timer->HasPeriodPassed(RAKE_TIMEOUT)) { 	//TODO: get real timeout period
+	else if (rake_direction == -1 && rake_timer->HasPeriodPassed(RAKE_TIMEOUT)){ 	//TODO: get real timeout period
 		rake_port->Set(0.0);
 		rake_starboard->Set(0.0);
 		rake_direction = RAKE_STILL;
 	}
+}
+
+bool Manipulator::canMoveLifter()
+{
+	if(current_height < target_height){
+		return (!lift_upper_limit->Get() || !using_limits) && !lift_timer->HasPeriodPassed(lifter_timeout);
+	}
+	else{
+		return (!lift_lower_limit->Get() || !using_limits) && !lift_timer->HasPeriodPassed(lifter_timeout);
+	}
+}
+
+bool Manipulator::flapMotionDone(){
+	if (flap_state == FLAP_CLOSING) {
+		return (flaps_closed_limit->Get() && using_limits) || flap_timer->HasPeriodPassed(FLAP_TIMEOUT);
+	}
+	else if (flap_state == FLAP_OPENING) {
+		return (flaps_opened_limit->Get() && using_limits) || flap_timer->HasPeriodPassed(FLAP_TIMEOUT);
+	}
+	else
+		return true;
 }
 
 
