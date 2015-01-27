@@ -55,38 +55,38 @@ namespace JoystickPorts
 namespace DigitalIOPorts
 {
 	//digital inputs
-	const unsigned int LIFTER_PRESET_1 = 1;
-	const unsigned int LIFTER_PRESET_2 = 2;
-	const unsigned int LIFTER_PRESET_3 = 3;
-	const unsigned int LIFTER_PRESET_4 = 4;
-	const unsigned int LIFTER_PRESET_5 = 5;
-	const unsigned int LIFTER_PRESET_6 = 6;
+	const unsigned int LIFTER_PRESET_1 = 0;
+	const unsigned int LIFTER_PRESET_2 = 1;
+	const unsigned int LIFTER_PRESET_3 = 2;
+	const unsigned int LIFTER_PRESET_4 = 3;
+	const unsigned int LIFTER_PRESET_5 = 4;
+	const unsigned int LIFTER_PRESET_6 = 5;
 
-	const unsigned int STACK_ON_PLATFORM_SWITCH = 7;
-	const unsigned int STACK_ON_STEP_SWITCH = 8;
+	const unsigned int STACK_ON_PLATFORM_SWITCH = 6;
+	const unsigned int STACK_ON_STEP_SWITCH = 7;
 
-	const unsigned int LIFTER_UP_BUTTON = 9;
-	const unsigned int LIFTER_DOWN_BUTTON = 10;
+	const unsigned int LIFTER_UP_BUTTON = 8;
+	const unsigned int LIFTER_DOWN_BUTTON = 9;
 
-	const unsigned int RAKES_UP_BUTTON = 11;
-	const unsigned int RAKES_DOWN_BUTTON = 12;
+	const unsigned int RAKES_UP_BUTTON = 10;
+	const unsigned int RAKES_DOWN_BUTTON = 11;
 
-	const unsigned int CAMERA_SELECT_TOGGLE = 13;
+	const unsigned int CAMERA_SELECT_TOGGLE = 12;
 
 	//digital outputs
-	const unsigned int LEVEL_0_INDICATOR = 14;
-	const unsigned int LEVEL_1_INDICATOR = 15;
-	const unsigned int LEVEL_2_INDICATOR = 16;
-	const unsigned int LEVEL_3_INDICATOR = 17;
-	const unsigned int LEVEL_4_INDICATOR = 18;
-	const unsigned int LEVEL_5_INDICATOR = 19;
+	const unsigned int LEVEL_0_INDICATOR = 13;
+	const unsigned int LEVEL_1_INDICATOR = 14;
+	const unsigned int LEVEL_2_INDICATOR = 15;
+	const unsigned int LEVEL_3_INDICATOR = 16;
+	const unsigned int LEVEL_4_INDICATOR = 17;
+	const unsigned int LEVEL_5_INDICATOR = 18;
 
-	const unsigned int STACK_ON_FLOOR_INDICATOR = 20;
-	const unsigned int STACK_ON_PLATFORM_INDICATOR = 21;
-	const unsigned int STACK_ON_STEP_INDICATOR = 22;
+	const unsigned int STACK_ON_FLOOR_INDICATOR = 19;
+	const unsigned int STACK_ON_PLATFORM_INDICATOR = 20;
+	const unsigned int STACK_ON_STEP_INDICATOR = 21;
 
-	const unsigned int BACK_CAMERA_INDICATOR = 23;
-	const unsigned int FRONT_CAMERA_INDICATOR = 24;
+	const unsigned int BACK_CAMERA_INDICATOR = 22;
+	const unsigned int FRONT_CAMERA_INDICATOR = 23;
 
 }
 
