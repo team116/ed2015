@@ -39,10 +39,8 @@ namespace DSPorts
 	//joysticks
 	const unsigned int DRIVER_ONE_JOYSTICK = 0;
 	const unsigned int DRIVER_TWO_JOYSTICK = 1;
-	const unsigned int BUTTONS_JOYSTICK = 2;
-
-	//analog inputs
-	//const unsigned int CONTAINER_RAKE_HEIGHT = 1;
+	const unsigned int DIGITAL_IO_BOARD = 2;
+	const unsigned int SECOND_IO_BOARD = 3;
 
 }
 
@@ -52,26 +50,21 @@ namespace JoystickPorts
 	const unsigned int OVERRIDE_BUTTON = 7;
 }
 
-namespace DigitalIOPorts
+namespace IOBoardOnePorts
 {
 	//digital inputs
-	const unsigned int LIFTER_PRESET_1 = 0;
-	const unsigned int LIFTER_PRESET_2 = 1;
-	const unsigned int LIFTER_PRESET_3 = 2;
-	const unsigned int LIFTER_PRESET_4 = 3;
-	const unsigned int LIFTER_PRESET_5 = 4;
-	const unsigned int LIFTER_PRESET_6 = 5;
+	const unsigned int LIFTER_PRESET_1 = 1;
+	const unsigned int LIFTER_PRESET_2 = 2;
+	const unsigned int LIFTER_PRESET_3 = 3;
+	const unsigned int LIFTER_PRESET_4 = 4;
+	const unsigned int LIFTER_PRESET_5 = 5;
+	const unsigned int LIFTER_PRESET_6 = 6;
 
-	const unsigned int STACK_ON_PLATFORM_SWITCH = 6;
-	const unsigned int STACK_ON_STEP_SWITCH = 7;
+	const unsigned int STACK_ON_PLATFORM_SWITCH = 7;
+	const unsigned int STACK_ON_STEP_SWITCH = 8;
 
-	const unsigned int LIFTER_UP_BUTTON = 8;
-	const unsigned int LIFTER_DOWN_BUTTON = 9;
-
-	const unsigned int RAKES_UP_BUTTON = 10;
-	const unsigned int RAKES_DOWN_BUTTON = 11;
-
-	const unsigned int CAMERA_SELECT_TOGGLE = 12;
+	const unsigned int LIFTER_UP_BUTTON = 9;
+	const unsigned int LIFTER_DOWN_BUTTON = 10;
 
 	//digital outputs
 	const unsigned int LEVEL_0_INDICATOR = 13;
@@ -88,6 +81,16 @@ namespace DigitalIOPorts
 	const unsigned int BACK_CAMERA_INDICATOR = 22;
 	const unsigned int FRONT_CAMERA_INDICATOR = 23;
 
+	//analog inputs
+	const unsigned int ROTATION_KNOB = 0;
+}
+
+namespace IOBoardTwoPorts{
+	const unsigned int FRONT_CAMERA_SELECT = 1;
+	const unsigned int BACK_CAMERA_SELECT = 2;
+
+	const unsigned int RAKES_UP_BUTTON = 3;
+	const unsigned int RAKES_DOWN_BUTTON = 4;
 }
 
 namespace Utils
