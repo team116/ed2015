@@ -11,7 +11,7 @@ Mobility* Mobility::INSTANCE = NULL;
 const float Mobility::DEFAULT_SPEED = 0.5;
 const float Mobility::MAX_SPEED = 0.9;
 
-Mobility::Mobility()
+Mobility::Mobility()//Test
 {
 	front_left_motor = new CANTalon(RobotPorts::FRONT_LEFT_MOTOR);
 	front_right_motor = new CANTalon(RobotPorts::FRONT_RIGHT_MOTOR);
