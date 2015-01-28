@@ -31,6 +31,8 @@ private:
 	bool drive_type;
 	bool drive_type_handled;
 
+	void doLevelLEDS(int level);
+
 	const static float LIFTER_BUTTON_CHANGE;
 
 };

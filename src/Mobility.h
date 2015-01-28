@@ -14,15 +14,17 @@ public:
 	static Mobility* getInstance();
 	void process();
 	void setDirection(float x, float y);
-	void setRotation(float rotation);
+	void setRotationSpeed(float rotation);
+	void setRotationDegrees(int degrees);
 	float getUltrasonicDistance();
 	void runTalon(int talon, float speed);
 	void toggleFieldCentric();
-	void setRotation();
 
 private:
 	Mobility();
 	static Mobility* INSTANCE;
+	static const float DEFAULT_SPEED;
+	static const float MAX_SPEED;
 	CANTalon* front_left_motor;
 	CANTalon* front_right_motor;
 	CANTalon* rear_left_motor;
@@ -35,6 +37,9 @@ private:
 	Log* log;
 
 	bool field_centric;
+	bool rotating_degrees;
+	int start_degrees;
+	int rotate_degrees;
 	float x_direction;
 	float y_direction;
 	float rotation;
