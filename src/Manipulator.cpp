@@ -80,24 +80,34 @@ Manipulator* Manipulator::getInstance()
 void Manipulator::process()
 {
 	current_height = encoder->GetDistance();	//uses data from encoder to determine current height of lift
+	log->write(Log::INFO_LEVEL, "Current Height: %f \t Target Height: %f",current_height,target_height);
 
 	if (flapMotionDone()) {
+		if(flap_state == FLAP_CLOSING){
+			log->write(Log::INFO_LEVEL, "flaps closed\n");
+		}
+		else{
+			log->write(Log::INFO_LEVEL, "flaps opened\n");
+		}
 		close_flaps->Set(0.0);
 		flap_state = FLAP_STILL;
 	}
 
 
 	if (isInsignificantChange(current_height, target_height)) {
+		log->write(Log::INFO_LEVEL, "change insignificant: lift motors stopped\n");
 		lifter_one->Set(0);
 		lifter_two->Set(0);
 	}
 	else {
 		if(canMoveLifter()) {
 			if(current_height < target_height) {
+				log->write(Log::INFO_LEVEL, "moving lift up\n");
 				lifter_one->Set(0.5);
 				lifter_two->Set(0.5);
 			}
 			else {
+				log->write(Log::INFO_LEVEL, "moving lift down\n");
 				lifter_one->Set(-0.5);
 				lifter_two->Set(-0.5);
 			}
@@ -106,15 +116,18 @@ void Manipulator::process()
 
 
 	if (lift_lower_limit->Get()){		//reset encoder to 0 every time lift hits lower limit switch
+		log->write(Log::INFO_LEVEL, "Hit bottom of lift: encoder set to 0\n");
 		encoder->Reset();
 	}
 
 	if (rakeUpMotionDone()){ 	//TODO: get real times
+		log->write(Log::INFO_LEVEL, "Rake finished moving up\n");
 		rake_port->Set(0.0);
 		rake_starboard->Set(0.0);
 		rake_direction = RAKE_STILL;
 	}
 	else if (rakeDownMotionDone()){ 	//TODO: get real timeout period
+		log->write(Log::INFO_LEVEL, "Rake finished moving down\n");
 		rake_port->Set(0.0);
 		rake_starboard->Set(0.0);
 		rake_direction = RAKE_STILL;
@@ -235,6 +248,7 @@ void Manipulator::spinTote(float direction)
 	else if (right_dir>1.0) {
 		right_dir=1.0;
 	}
+	log->write(Log::INFO_LEVEL, "Spinning tote: Direction = %f\tLeft = %f\tRight = %f\n", direction, left_dir, right_dir);
 	left_wheel->Set(left_dir);
 	right_wheel->Set(right_dir);
 }
@@ -254,34 +268,40 @@ void Manipulator::honorLimits(bool to_use_or_not_to_use)
 
 void Manipulator::liftLifters(lifter_direction direction)
 {
-	if (direction == MOVING_UP && (!lift_upper_limit->Get() && using_limits) ) {
-		lifter_one ->Set(0.5);
+	if (direction == MOVING_UP && (!lift_upper_limit->Get() || !using_limits) ) {
+		log->write(Log::INFO_LEVEL, "Lift moving up\n");
+		lifter_one->Set(0.5);
 		lifter_two->Set(0.5);
 	}
 
-	else if (direction == MOVING_DOWN && (!lift_lower_limit->Get() && using_limits) ) {
+	else if (direction == MOVING_DOWN && (!lift_lower_limit->Get() || !using_limits) ) {
+		log->write(Log::INFO_LEVEL, "Lift moving down\n");
 		lifter_one->Set(-0.5);
 		lifter_two->Set(-0.5);
 
 	}
 	else if (direction == NOT_MOVING) {
+		log->write(Log::INFO_LEVEL, "Lift motors stopped\n");
 		lifter_one->Set(0.0);
 		lifter_two->Set(0.0);
 	}
 }
 
-void Manipulator::liftRakes(bool going_up)	///not complete, looks are deceiving
+void Manipulator::liftRakes(bool going_up)
 {
 	if (going_up) {
 		if (!port_rake_limit->Get() && using_limits) {
+			log->write(Log::INFO_LEVEL, "Port Rake moving up\n");
 			rake_port ->Set(0.5);				//find out from end effector whether limits are on top or on bottom
 		}
 		if (!starboard_rake_limit->Get() && using_limits) {
+			log->write(Log::INFO_LEVEL, "Starboard Rake moving up\n");
 			rake_starboard ->Set(0.5);
 		}
 		rake_direction = RAKE_LIFTING;
 	}
 	else {
+		log->write(Log::INFO_LEVEL, "Rakes moving down\n");
 		rake_port->Set(-0.5);
 		rake_starboard->Set(-0.5);
 		rake_direction = RAKE_LOWERING;
