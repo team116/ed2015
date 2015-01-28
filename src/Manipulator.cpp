@@ -165,12 +165,14 @@ bool Manipulator::rakeDownMotionDone(){
 
 void Manipulator::pullTote()
 {
+	log->write(Log::INFO_LEVEL, "Pulling tote\n");
 	left_wheel->Set(0.5);			//0.5 is an arbitrary number, may change
 	right_wheel->Set(0.5);			//also, +/- is written here to signify inwards/outwards, not right/left (check, may need to change)
 }
 
 void Manipulator::pushTote()
 {
+	log->write(Log::INFO_LEVEL, "Pushing tote\n");
 	left_wheel->Set(-0.2);
 	right_wheel->Set(-0.2);
 }
@@ -179,10 +181,12 @@ void Manipulator::closeFlaps(bool close)
 {
 	//close or open based on value of close
 	if (close && (!flaps_opened_limit->Get() && using_limits)) {	//close flaps
+		log->write(Log::INFO_LEVEL, "Closing flaps\n");
 		close_flaps->Set(0.5);
 		flap_state = FLAP_CLOSING;
 	}
 	else if (!close && (!flaps_closed_limit->Get() && using_limits)) {		//open flaps
+		log->write(Log::INFO_LEVEL, "Opening flaps\n");
 		close_flaps->Set(-0.5);
 		flap_state = FLAP_OPENING;
 	}
@@ -263,6 +267,12 @@ void Manipulator::stopConveyorBelt() {
 
 void Manipulator::honorLimits(bool to_use_or_not_to_use)
 {
+	if(to_use_or_not_to_use){
+		log->write(Log::INFO_LEVEL, "Using limits\n");
+	}
+	else{
+		log->write(Log::INFO_LEVEL, "Not using limits\n");
+	}
 	using_limits = to_use_or_not_to_use;
 }
 
