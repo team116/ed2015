@@ -11,17 +11,21 @@ DS::DS()
 	mobility = Mobility::getInstance();
 	manipulator = Manipulator::getInstance();
 	log = Log::getInstance();
+
 	main_joystick = Joystick::GetStickForPort(DSPorts::DRIVER_ONE_JOYSTICK);
 	secondary_joystick = Joystick::GetStickForPort(DSPorts::DRIVER_TWO_JOYSTICK);
+	IO_board_one = Joystick::GetStickForPort(DSPorts::DIGITAL_IO_BOARD);
+	IO_board_two = Joystick::GetStickForPort(DSPorts::SECOND_IO_BOARD);
+
 	server = CameraServer::GetInstance();
 	server->SetQuality(50);
 	server->StartAutomaticCapture("cam0");
-	IO_board_one = Joystick::GetStickForPort(DSPorts::DIGITAL_IO_BOARD);
-	IO_board_two = Joystick::GetStickForPort(DSPorts::SECOND_IO_BOARD);
+
 	on_step = false;
 	override = false;
 	drive_type = false;
 	drive_type_handled = false;
+
 	IO_board_one->SetOutputs(0);
 }
 
