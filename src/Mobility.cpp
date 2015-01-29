@@ -10,6 +10,8 @@
 Mobility* Mobility::INSTANCE = NULL;
 const float Mobility::DEFAULT_SPEED = 0.5;
 const float Mobility::MAX_SPEED = 0.9;
+const float Mobility::MAX_ULTRASONIC_DISTANCE = 254.0;
+const float Mobility::MAX_ULTRASONIC_VOLTAGE = 5.5;
 
 Mobility::Mobility()//COMMIT NUMBER 100
 {
@@ -31,6 +33,7 @@ Mobility::Mobility()//COMMIT NUMBER 100
 	field_centric = false;
 	rotating_degrees = false;
 	ultrasonic = new AnalogInput(RobotPorts::ULTRASONIC);
+	ultrasonic->SetOversampleBits(2);
 	gyro = new Gyro(RobotPorts::GYRO);
 }
 
@@ -88,8 +91,9 @@ void Mobility::toggleFieldCentric()
 }
 float Mobility::getUltrasonicDistance()
 {
+ 	/*
 	int bits;
-	float maxDistance = 254;
+	float maxDistance = 254.0;
 	float currentDistance;
 	float maxVoltage = 5.5;
 	// sets roof for sampling values
@@ -102,11 +106,14 @@ float Mobility::getUltrasonicDistance()
 	ultrasonic->SetSampleRate(62500);
 	int raw = ultrasonic->GetValue();
 	float volts = ultrasonic->GetVoltage();
-	//int averageRaw = ultrasonic->GetAverageValue();
-	//float averageVolts = ultrasonic->GetAverageVoltage();
+	int averageRaw = ultrasonic->GetAverageValue();
+	float averageVolts = ultrasonic->GetAverageVoltage();
 	//	wait for iiiiiiiittt.....
 	currentDistance = (volts * maxDistance)/maxVoltage;
 	return currentDistance;
+	*/
+	//IDK how this is supposed to actually be but I'm going with this
+	return (ultrasonic->GetVoltage() * MAX_ULTRASONIC_DISTANCE)/MAX_ULTRASONIC_VOLTAGE;
 }
 void Mobility::setRotationDegrees(int degrees)
 {

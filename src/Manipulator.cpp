@@ -80,7 +80,7 @@ Manipulator* Manipulator::getInstance()
 void Manipulator::process()
 {
 	current_height = encoder->GetDistance();	//uses data from encoder to determine current height of lift
-	log->write(Log::INFO_LEVEL, "Current Height: %f \t Target Height: %f",current_height,target_height);
+	log->write(Log::INFO_LEVEL, "Current Height: %f \nTarget Height: %f\n",current_height,target_height);
 
 	if (flapMotionDone()) {
 		if(flap_state == FLAP_CLOSING){
@@ -252,7 +252,7 @@ void Manipulator::spinTote(float direction)
 	else if (right_dir>1.0) {
 		right_dir=1.0;
 	}
-	log->write(Log::INFO_LEVEL, "Spinning tote: Direction = %f\tLeft = %f\tRight = %f\n", direction, left_dir, right_dir);
+	log->write(Log::INFO_LEVEL, "Spinning tote: Direction = %f\n", direction, left_dir, right_dir);
 	left_wheel->Set(left_dir);
 	right_wheel->Set(right_dir);
 }
