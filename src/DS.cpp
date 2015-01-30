@@ -33,7 +33,7 @@ void DS::process()
 {
 
 	if(secondary_joystick->GetRawButton(JoystickPorts::OVERRIDE_BUTTON)) {
-		log->write(Log::INFO_LEVEL,"Override button pressed");
+		log->write(Log::INFO_LEVEL,"%s\tOverride button pressed\n",Utils::getCurrentTime());
 		override=!override;
 	}
 
@@ -56,7 +56,7 @@ void DS::processMobility()
 	// I'm halving all input because this is for precision
 	// we might just remove this because the override button is a dumb idea
 	if(override) {
-		log->write(Log::TRACE_LEVEL,"In override mode");
+		log->write(Log::TRACE_LEVEL,"%s\tIn override mode\n",Utils::getCurrentTime());
 		mobility->setDirection(secondary_joystick->GetX()/2.0,secondary_joystick->GetY()/2.0);
 		mobility->setRotationSpeed(secondary_joystick->GetTwist()/2.0);
 	}
@@ -67,7 +67,7 @@ void DS::processMobility()
 		drive_type = main_joystick->GetRawButton(JoystickPorts::FIELD_CENTRIC_TOGGLE);
 
 		if(drive_type && !drive_type_handled) {
-			log->write(Log::INFO_LEVEL, "Field-centric toggle pressed\n");
+			log->write(Log::INFO_LEVEL, "%s\tField-centric toggle pressed\n",Utils::getCurrentTime());
 			drive_type_handled = true;
 			mobility->toggleFieldCentric();
 		}

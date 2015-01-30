@@ -181,11 +181,11 @@ bool Manipulator::rakeDownMotionDone(){
 }
 
 bool Manipulator::pushToteDone() {
-	return wheel_direction == WHEELS_PUSHING && wheel_timer->HasPeriodPassed(WHEEL_TIMEOUT);
+	return wheel_state == WHEELS_PUSHING && wheel_timer->HasPeriodPassed(WHEEL_TIMEOUT);
 }
 
 bool Manipulator::pullToteDone() {
-	return wheel_direction == WHEELS_PULLING && wheel_timer->HasPeriodPassed(WHEEL_TIMEOUT);
+	return wheel_state == WHEELS_PULLING && wheel_timer->HasPeriodPassed(WHEEL_TIMEOUT);
 }
 
 void Manipulator::pullTote()

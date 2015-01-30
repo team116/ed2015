@@ -1,3 +1,4 @@
+#include <ctime>
 namespace RobotPorts
 {
 
@@ -96,4 +97,5 @@ namespace IOBoardTwoPorts{
 namespace Utils
 {
 	int convertFromVolts(const float voltage, const int voltage_levels, const float max_voltage);
+	char* getCurrentTime();
 }
