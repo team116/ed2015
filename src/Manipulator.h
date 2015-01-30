@@ -6,6 +6,7 @@
 #include <Timer.h>
 #include "Mobility.h"
 #include "Log.h"
+#include <ctime>
 
 class Manipulator {
 public:
@@ -84,6 +85,8 @@ private:
 	static const float RAKE_TIMEOUT;
 	Timer* lift_timer;
 	static const float LEVEL_TIMEOUT;
+	Timer* wheel_timer;
+	static const float WHEEL_TIMEOUT;
 
 	// lifter stuff --inches for everything
 	float current_height;
@@ -98,6 +101,8 @@ private:
 	bool flapMotionDone();
 	bool rakeUpMotionDone();
 	bool rakeDownMotionDone();
+	bool pushToteDone();
+	bool pullToteDone();
 
 	// rake stuff
 	enum rake_direction
@@ -116,6 +121,15 @@ private:
 		FLAP_STILL
 	};
 	flap_direction flap_state;
+
+	// wheel stuff
+	enum wheel_direction
+	{
+		WHEELS_PULLING,
+		WHEELS_PUSHING,
+		WHEELS_STILL
+	};
+	wheel_direction wheel_state;
 
 	float surface;	//should always be equal to one of the platform constants
 
