@@ -32,6 +32,7 @@ Manipulator::Manipulator()
 	left_wheel = new CANTalon(RobotPorts::LEFT_WHEEL);
 	right_wheel = new CANTalon(RobotPorts::RIGHT_WHEEL);
 	wheel_timer = new Timer();
+	wheel_state = WHEELS_STILL;
 
 	// lifter initializations
 	lifter_one = new CANTalon(RobotPorts::LIFTER_ONE);
@@ -83,17 +84,17 @@ Manipulator* Manipulator::getInstance()
 void Manipulator::process()
 {
 	current_height = encoder->GetDistance();	//uses data from encoder to determine current height of lift
-	log->write(Log::TRACE_LEVEL, "Current Height: %f \nTarget Height: %f\n",current_height,target_height);
+	log->write(Log::TRACE_LEVEL, "%s\tCurrent Height: %f \nTarget Height: %f\n", Utils::getCurrentTime(), current_height,target_height);
 
 	if(pushToteDone()) {
-		log->write(Log::TRACE_LEVEL, "tote pushed\n");
+		log->write(Log::TRACE_LEVEL, "%s\ttote pushed\n", Utils::getCurrentTime());
 		left_wheel->Set(0.0);
 		right_wheel->Set(0.0);
 		wheel_state = WHEELS_STILL;
 	}
 
 	if(pullToteDone()) {
-		log->write(Log::TRACE_LEVEL, "tote pulled\n");
+		log->write(Log::TRACE_LEVEL, "%s\tTote pulled\n", Utils::getCurrentTime());
 		left_wheel->Set(0.0);
 		right_wheel->Set(0.0);
 		wheel_state = WHEELS_STILL;
@@ -101,10 +102,10 @@ void Manipulator::process()
 
 	if (flapMotionDone()) {
 		if(flap_state == FLAP_CLOSING){
-			log->write(Log::TRACE_LEVEL, "flaps closed\n");
+			log->write(Log::TRACE_LEVEL, "%s\tFlaps closed\n", Utils::getCurrentTime());
 		}
 		else{
-			log->write(Log::TRACE_LEVEL, "flaps opened\n");
+			log->write(Log::TRACE_LEVEL, "%s\tFlaps opened\n", Utils::getCurrentTime());
 		}
 		close_flaps->Set(0.0);
 		flap_state = FLAP_STILL;
@@ -112,19 +113,19 @@ void Manipulator::process()
 
 
 	if (isInsignificantChange(current_height, target_height)) {
-		log->write(Log::TRACE_LEVEL, "change insignificant: lift motors stopped\n");
+		log->write(Log::TRACE_LEVEL, "%s\tChange insignificant: lift motors stopped\n", Utils::getCurrentTime());
 		lifter_one->Set(0);
 		lifter_two->Set(0);
 	}
 	else {
 		if(canMoveLifter()) {
 			if(current_height < target_height) {
-				log->write(Log::TRACE_LEVEL, "moving lift up\n");
+				log->write(Log::TRACE_LEVEL, "%s\tMoving lift up\n", Utils::getCurrentTime());
 				lifter_one->Set(0.5);
 				lifter_two->Set(0.5);
 			}
 			else {
-				log->write(Log::TRACE_LEVEL, "moving lift down\n");
+				log->write(Log::TRACE_LEVEL, "%s\tMoving lift down\n", Utils::getCurrentTime());
 				lifter_one->Set(-0.5);
 				lifter_two->Set(-0.5);
 			}
@@ -133,18 +134,18 @@ void Manipulator::process()
 
 
 	if (lift_lower_limit->Get()){		//reset encoder to 0 every time lift hits lower limit switch
-		log->write(Log::TRACE_LEVEL, "Hit bottom of lift: encoder set to 0\n");
+		log->write(Log::TRACE_LEVEL, "%s\tHit bottom of lift: encoder set to 0\n", Utils::getCurrentTime());
 		encoder->Reset();
 	}
 
 	if (rakeUpMotionDone()){ 	//TODO: get real times
-		log->write(Log::TRACE_LEVEL, "Rake finished moving up\n");
+		log->write(Log::TRACE_LEVEL, "%s\tRake finished moving up\n", Utils::getCurrentTime());
 		rake_port->Set(0.0);
 		rake_starboard->Set(0.0);
 		rake_direction = RAKE_STILL;
 	}
 	else if (rakeDownMotionDone()){ 	//TODO: get real timeout period
-		log->write(Log::TRACE_LEVEL, "Rake finished moving down\n");
+		log->write(Log::TRACE_LEVEL, "%s\tRake finished moving down\n", Utils::getCurrentTime());
 		rake_port->Set(0.0);
 		rake_starboard->Set(0.0);
 		rake_direction = RAKE_STILL;
@@ -190,7 +191,7 @@ bool Manipulator::pullToteDone() {
 
 void Manipulator::pullTote()
 {
-	log->write(Log::TRACE_LEVEL, "Pulling tote\n");
+	log->write(Log::TRACE_LEVEL, "%s\tPulling tote\n", Utils::getCurrentTime());
 	wheel_state = WHEELS_PULLING;
 	left_wheel->Set(0.5);			//0.5 is an arbitrary number, may change
 	right_wheel->Set(0.5);			//also, +/- is written here to signify inwards/outwards, not right/left (check, may need to change)
@@ -200,7 +201,7 @@ void Manipulator::pullTote()
 
 void Manipulator::pushTote()
 {
-	log->write(Log::TRACE_LEVEL, "Pushing tote\n");
+	log->write(Log::TRACE_LEVEL, "%s\tPushing tote\n", Utils::getCurrentTime());
 	wheel_state = WHEELS_PUSHING;
 	left_wheel->Set(-0.2);
 	right_wheel->Set(-0.2);
@@ -212,12 +213,12 @@ void Manipulator::closeFlaps(bool close)
 {
 	//close or open based on value of close
 	if (close && (!flaps_opened_limit->Get() && using_limits)) {	//close flaps
-		log->write(Log::TRACE_LEVEL, "Closing flaps\n");
+		log->write(Log::TRACE_LEVEL, "%s\tClosing flaps\n", Utils::getCurrentTime());
 		close_flaps->Set(0.5);
 		flap_state = FLAP_CLOSING;
 	}
 	else if (!close && (!flaps_closed_limit->Get() && using_limits)) {		//open flaps
-		log->write(Log::TRACE_LEVEL, "Opening flaps\n");
+		log->write(Log::TRACE_LEVEL, "%s\tOpening flaps\n", Utils::getCurrentTime());
 		close_flaps->Set(-0.5);
 		flap_state = FLAP_OPENING;
 	}
@@ -228,14 +229,14 @@ void Manipulator::closeFlaps(bool close)
 void Manipulator::setSurface(float s)
 {
 	if (surface != s) {
-		log->write(Log::TRACE_LEVEL,"Changed surface height to %f", s);
+		log->write(Log::TRACE_LEVEL,"%s\tChanged surface height to %f", Utils::getCurrentTime(), s);
 	}
 	surface = s;
 }
 
 void Manipulator::setTargetLevel(int level)
 {
-	log->write(Log::TRACE_LEVEL, "Set lifter preset to %d", level);
+	log->write(Log::TRACE_LEVEL, "%s\tSet lifter preset to %d", Utils::getCurrentTime(), level);
 	int new_target = level * TOTE_HEIGHT + surface;	//surface = height of surface on which we are trying to stack totes ((private variable))
 	if (abs(current_height - new_target) < abs(current_height - target_height)) {		//in case of button mash, go to whichever instruction is closest to current position
 		target_height = new_target;
@@ -283,7 +284,7 @@ void Manipulator::spinTote(float direction)
 	else if (right_dir>1.0) {
 		right_dir=1.0;
 	}
-	log->write(Log::TRACE_LEVEL, "Spinning tote: Direction = %f\n", direction, left_dir, right_dir);
+	log->write(Log::TRACE_LEVEL, "%s\tSpinning tote: Direction = %f\n", Utils::getCurrentTime(), direction, left_dir, right_dir);
 	left_wheel->Set(left_dir);
 	right_wheel->Set(right_dir);
 }
@@ -299,10 +300,10 @@ void Manipulator::stopConveyorBelt() {
 void Manipulator::honorLimits(bool to_use_or_not_to_use)
 {
 	if(to_use_or_not_to_use){
-		log->write(Log::INFO_LEVEL, "Started using limits\n");
+		log->write(Log::INFO_LEVEL, "%s\tStarted using limits\n", Utils::getCurrentTime());
 	}
 	else{
-		log->write(Log::INFO_LEVEL, "Stopped using limits\n");
+		log->write(Log::INFO_LEVEL, "%s\tStopped using limits\n", Utils::getCurrentTime());
 	}
 	using_limits = to_use_or_not_to_use;
 }
@@ -310,19 +311,19 @@ void Manipulator::honorLimits(bool to_use_or_not_to_use)
 void Manipulator::liftLifters(lifter_direction direction)
 {
 	if (direction == MOVING_UP && (!lift_upper_limit->Get() || !using_limits) ) {
-		log->write(Log::TRACE_LEVEL, "Lift moving up\n");
+		log->write(Log::TRACE_LEVEL, "%s\tLift moving up\n", Utils::getCurrentTime());
 		lifter_one->Set(0.5);
 		lifter_two->Set(0.5);
 	}
 
 	else if (direction == MOVING_DOWN && (!lift_lower_limit->Get() || !using_limits) ) {
-		log->write(Log::TRACE_LEVEL, "Lift moving down\n");
+		log->write(Log::TRACE_LEVEL, "%s\tLift moving down\n", Utils::getCurrentTime());
 		lifter_one->Set(-0.5);
 		lifter_two->Set(-0.5);
 
 	}
 	else if (direction == NOT_MOVING) {
-		log->write(Log::TRACE_LEVEL, "Lift motors stopped\n");
+		log->write(Log::TRACE_LEVEL, "%s\tLift motors stopped\n", Utils::getCurrentTime());
 		lifter_one->Set(0.0);
 		lifter_two->Set(0.0);
 	}
@@ -332,17 +333,17 @@ void Manipulator::liftRakes(bool going_up)
 {
 	if (going_up) {
 		if (!port_rake_limit->Get() && using_limits) {
-			log->write(Log::TRACE_LEVEL, "Port Rake moving up\n");
+			log->write(Log::TRACE_LEVEL, "%s\tPort Rake moving up\n", Utils::getCurrentTime());
 			rake_port ->Set(0.5);				//find out from end effector whether limits are on top or on bottom
 		}
 		if (!starboard_rake_limit->Get() && using_limits) {
-			log->write(Log::TRACE_LEVEL, "Starboard Rake moving up\n");
+			log->write(Log::TRACE_LEVEL, "%s\tStarboard Rake moving up\n", Utils::getCurrentTime());
 			rake_starboard ->Set(0.5);
 		}
 		rake_direction = RAKE_LIFTING;
 	}
 	else {
-		log->write(Log::TRACE_LEVEL, "Rakes moving down\n");
+		log->write(Log::TRACE_LEVEL, "%s\tRakes moving down\n", Utils::getCurrentTime());
 		rake_port->Set(-0.5);
 		rake_starboard->Set(-0.5);
 		rake_direction = RAKE_LOWERING;
