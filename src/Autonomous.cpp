@@ -77,12 +77,16 @@ void Autonomous::stackTote()
 	case 1:
 		// assumes the robot is at a -90 degree angle to the landmark (facing tote 1 from the right)
 		manipulator->closeFlaps(false);
-		if(mobility->getUltrasonicDistance() < 35){
+		// 35 or 3 inches away from tote?
+		if(mobility->getUltrasonicDistance() > 3){
 			mobility->setDirection(0.0, 0.5);
 		}
-		else if(mobility->getUltrasonicDistance() > 3){
+		else{
 			mobility->setDirection(0.0, 0.0);
+			++current_step;
 		}
+		break;
+	case 2:
 		manipulator->closeFlaps(true);
 		// turn the robot so that it is facing the alliance wall here... pending other code
 		if(mobility->getUltrasonicDistance() < 124){
@@ -90,12 +94,13 @@ void Autonomous::stackTote()
 		}
 		else
 			mobility->setDirection(0.0, 0.0);
+		/*
 		if(play_timer->HasPeriodPassed(2) != true){
 			mobility->setDirection(-0.5, 0.0);
 		}
 		else
 			mobility->setDirection(0.0, 0.0);
-
+		*/
 		break;
 	case 2:
 		break;
@@ -114,6 +119,14 @@ void Autonomous::moveContainer()
 }
 
 void Autonomous::moveContainerAndTote()
+{
+	switch (current_step)
+	{
+
+	}
+}
+
+void Autonomous::centerContainers()
 {
 	switch (current_step)
 	{

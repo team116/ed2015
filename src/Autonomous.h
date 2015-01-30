@@ -40,6 +40,13 @@ private:
 		CENTER_CONTAINERS = 5
 	};
 
+	enum starting_locations
+	{
+		FAR_LEFT = 0,
+		CENTER = 1,
+		FAR_RIGHT = 2
+	};
+
 	int current_step;
 	int play;
 	int starting_location;
