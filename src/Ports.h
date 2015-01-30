@@ -1,3 +1,4 @@
+#include <ctime>
 namespace RobotPorts
 {
 
@@ -82,7 +83,7 @@ namespace IOBoardOnePorts
 	const unsigned int FRONT_CAMERA_INDICATOR = 23;
 
 	//analog inputs
-	const unsigned int ROTATION_KNOB = 0;
+	const unsigned int ROTATION_KNOB = 2;
 }
 
 namespace IOBoardTwoPorts{
@@ -96,4 +97,5 @@ namespace IOBoardTwoPorts{
 namespace Utils
 {
 	int convertFromVolts(const float voltage, const int voltage_levels, const float max_voltage);
+	char* getCurrentTime();
 }
