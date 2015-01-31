@@ -400,7 +400,12 @@ void Autonomous::moveContainerAndTote() {
 }
 
 void Autonomous::centerContainers() {
+	//facing wall, starting in between auto zone and landfill zone, move to pick up containers on step
 	switch (current_step) {
+	case 1:
+		//move backwards towards step
+		mobility->setDirection(0.0, -0.5);
+		break;
 
 	}
 }
