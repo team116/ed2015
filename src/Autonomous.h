@@ -50,6 +50,7 @@ private:
 	int current_step;
 	int play;
 	int starting_location;
+	int delay;
 
 };
 
