@@ -75,6 +75,11 @@ void Autonomous::stackTote()
 	{
 
 	case 1:
+		// MOVING TO THE TOTE
+
+
+
+
 		// assumes the robot is at a -90 degree angle to the landmark (facing tote 1 from the right)
 		manipulator->closeFlaps(false);
 		// 35 or 3 inches away from tote?
@@ -87,13 +92,22 @@ void Autonomous::stackTote()
 		}
 		break;
 	case 2:
+		// PICK UP TOTE
+
+
+
 		manipulator->closeFlaps(true);
+		manipulator->setTargetLevel(1);
 		// turn the robot so that it is facing the alliance wall here... pending other code
+		mobility->setRotationDegrees(-90);
+
+		/*
 		if(mobility->getUltrasonicDistance() < 124){
 			mobility->setDirection(0.0, -0.5);
 		}
 		else
 			mobility->setDirection(0.0, 0.0);
+		*/
 		/*
 		if(play_timer->HasPeriodPassed(2) != true){
 			mobility->setDirection(-0.5, 0.0);
@@ -101,8 +115,55 @@ void Autonomous::stackTote()
 		else
 			mobility->setDirection(0.0, 0.0);
 		*/
+		if(starting_location == FAR_LEFT){
+			current_step = 3;
+		}
+		if(starting_location == CENTER){
+			current_step = 4;
+		}
+		if(starting_location == FAR_RIGHT){
+			current_step = 5;
+		}
 		break;
-	case 2:
+	case 3:
+		// IF ROBOT IS AT FAR LEFT CRATE
+
+		if(mobility->getUltrasonicDistance() < 163){
+			mobility->setDirection(0.0, -0.5);
+		}
+		else
+			mobility->setDirection(0.0, 0.0);
+		mobility->setRotationDegrees(-90);
+		if(mobility->getUltrasonicDistance() < 165.37){
+			mobility->setDirection(0.0, -0.5);
+		}
+		else
+			mobility->setDirection(0.0, 0.0);
+		manipulator->setTargetLevel(0);
+		manipulator->closeFlaps(false);
+		if(mobility->getUltrasonicDistance() < 5){
+			mobility->setDirection(0.0, -0.5);
+		}
+		else
+			mobility->setDirection(0.0, 0.0);
+
+		mobility->setRotationDegrees(180);
+		if(mobility->getUltrasonicDistance() > 10){
+			mobility->setDirection(0.0, 0.5);
+		}
+		else
+			mobility->setDirection(0, 0);
+		break;
+	case 4:
+		// IF ROBOT IS AT CENTER CRATE
+		if(mobility->getUltrasonicDistance() < 163){
+			mobility->setDirection(0.0, -0.5);
+		}
+		else
+			mobility->setDirection(0.0, 0.0);
+		break;
+	case 5:
+		// IF ROBOT IS AT RIGHT CRATE
 		break;
 	default:
 		break;
