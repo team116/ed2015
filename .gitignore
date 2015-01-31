@@ -1,10 +1,7 @@
 # silly metadata things
 .cproject
 .project
-build.properties
-build.xml
 sysProps.xml
-*.xml
 .settings/*
 
 # compilation output
