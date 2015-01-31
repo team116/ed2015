@@ -21,6 +21,7 @@ namespace RobotPorts
 	const unsigned int AUTONOMOUS_PLAY_SWITCH = 2;
 	const unsigned int AUTONOMOUS_LOCATION_SWITCH = 3;
 	const unsigned int ULTRASONIC = 4;
+	const unsigned int FLAP_POTENTIOMETER = 5;
 
 	// digital sensors
 	const unsigned int LIFT_UPPER_LIMIT = 0;

@@ -22,6 +22,10 @@ const float Manipulator::TOTE_HEIGHT = 12.1;
 const float Manipulator::FLOOR = 0.0;
 const float Manipulator::SCORING_PLATFORM = 2.0;
 const float Manipulator::STEP = 6.25;
+const float Manipulator::FLAP_ANGLE_HIGH = 270;
+const float Manipulator::FLAP_ANGLE_MID = 135; 	//note: this will change probably
+const float Manipulator::FLAP_ANGLE_LOW = 0;
+const float Manipulator::FLAP_RANGE = 10; 	//note: this will change probably
 
 Manipulator::Manipulator()
 {
@@ -41,6 +45,7 @@ Manipulator::Manipulator()
 	lift_lower_limit = new DigitalInput(RobotPorts::LIFT_LOWER_LIMIT);
 	encoder = new Encoder(RobotPorts::ENCODER_A, RobotPorts::ENCODER_B);
 	encoder->SetDistancePerPulse(inch_per_rev/PULSE_PER_REV);	//inches per revolution / pulses per revolution = inches per pulse
+	potentiometer= new AnalogPotentiometer(RobotPorts::FLAP_POTENTIOMETER, 270, 0); //270 = full range of positions; 0 = lowest position
 	lift_timer = new Timer();
 	current_height = 0; //starting height (floor level)
 	target_height = 0;
@@ -60,6 +65,7 @@ Manipulator::Manipulator()
 	flaps_opened_limit = new DigitalInput(RobotPorts::FLAPS_LOWER_LIMIT);
 	flap_timer = new Timer();
 	flap_state = FLAP_STILL;
+	flap_pos = FLAP_LOW;	//note: this might change idk
 
 	using_limits = true;
 	//belt_moving = false;
@@ -109,6 +115,24 @@ void Manipulator::process()
 		}
 		close_flaps->Set(0.0);
 		flap_state = FLAP_STILL;
+	}
+	else {
+		switch(flap_pos){
+		case FLAP_LOW:
+			closeFlaps(true);
+			break;
+		case FLAP_MID:
+			if (potentiometer->Get() < FLAP_ANGLE_MID) {	//TODO: check to make sure orientation is correct (aka small value from potentiometer = more closed)
+				closeFlaps(false);
+			}
+			else {
+				closeFlaps(true);
+			}
+			break;
+		case FLAP_HIGH:
+			closeFlaps(false);
+			break;
+		}
 	}
 
 
@@ -162,7 +186,16 @@ bool Manipulator::canMoveLifter()
 	}
 }
 
-bool Manipulator::flapMotionDone(){
+bool Manipulator::flapMotionDone(){	//TODO: add timeouts to flap positions
+	float posi = potentiometer->Get();
+	switch(flap_pos){
+	case FLAP_LOW:
+		return (fabs(posi - FLAP_ANGLE_LOW) < FLAP_RANGE);
+	case FLAP_MID:
+		return (fabs(posi - FLAP_ANGLE_MID) < FLAP_RANGE);
+	case FLAP_HIGH:
+		return (fabs(posi - FLAP_ANGLE_HIGH) < FLAP_RANGE);
+	}
 	if (flap_state == FLAP_CLOSING) {
 		return (flaps_closed_limit->Get() && using_limits) || flap_timer->HasPeriodPassed(FLAP_TIMEOUT);
 	}
@@ -244,6 +277,11 @@ void Manipulator::setTargetLevel(int level)
 	lifter_timeout = (float)(target_height - current_height) * LEVEL_TIMEOUT;
 	lift_timer->Start();
 	lift_timer->Reset();
+}
+
+void Manipulator::setFlapPosition(flap_position p){
+	log->write(Log::TRACE_LEVEL, "flaps set to position %i\n", p);
+	flap_pos = p;
 }
 
 float Manipulator::getHeight()

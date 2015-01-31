@@ -24,6 +24,34 @@ public:
 		NOT_MOVING,
 	};
 
+	enum rake_direction
+	{
+		RAKE_LIFTING,
+		RAKE_LOWERING,
+		RAKE_STILL
+	};
+
+	enum flap_direction
+	{
+		FLAP_OPENING,
+		FLAP_CLOSING,
+		FLAP_STILL
+	};
+
+	enum flap_position
+	{
+		FLAP_LOW,
+		FLAP_MID,
+		FLAP_HIGH
+	};
+
+	enum wheel_direction
+	{
+		WHEELS_PULLING,
+		WHEELS_PUSHING,
+		WHEELS_STILL
+	};
+
 	void process();
 
 	void pullTote();
@@ -34,6 +62,7 @@ public:
 
 	void setSurface(float s);
 	void setTargetLevel(int level);
+	void setFlapPosition(flap_position p);	//see flap_position enum in private section
 	void changeHeight(float change);
 	void liftLifters(lifter_direction direction);
 	int getLevel();
@@ -75,6 +104,7 @@ private:
 	DigitalInput* starboard_rake_limit;
 
 	Encoder* encoder;
+	AnalogPotentiometer* potentiometer;
 	static const int PULSE_PER_REV;
 	static const float inch_per_rev;
 
@@ -104,32 +134,18 @@ private:
 	bool pushToteDone();
 	bool pullToteDone();
 
-	// rake stuff
-	enum rake_direction
-	{
-		RAKE_LIFTING,
-		RAKE_LOWERING,
-		RAKE_STILL
-	};
 	rake_direction rake_direction;
-
-	// flap stuff
-	enum flap_direction
-	{
-		FLAP_OPENING,
-		FLAP_CLOSING,
-		FLAP_STILL
-	};
 	flap_direction flap_state;
-
-	// wheel stuff
-	enum wheel_direction
-	{
-		WHEELS_PULLING,
-		WHEELS_PUSHING,
-		WHEELS_STILL
-	};
+	flap_position flap_pos;
 	wheel_direction wheel_state;
+
+	// stores potentiometer values for the diff. positions for the flaps
+	static const float FLAP_ANGLE_LOW;	//closed
+	static const float FLAP_ANGLE_MID;
+	static const float FLAP_ANGLE_HIGH;	//opened
+
+	//stores grace range (aka how close is close enough)
+	static const float FLAP_RANGE;
 
 	float surface;	//should always be equal to one of the platform constants
 
