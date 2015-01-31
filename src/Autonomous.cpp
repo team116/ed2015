@@ -16,7 +16,7 @@ Autonomous::Autonomous(int delay, int play, int location)
 	this->play = play;
 
 	delay_timer = new Timer();
-	play_timer = new Timer();
+	timer = new Timer();
 	mobility = Mobility::getInstance();
 	manipulator = Manipulator::getInstance();
 	log = Log::getInstance();
@@ -93,77 +93,77 @@ void Autonomous::stackTote()
 		break;
 	case 2:
 		// PICK UP TOTE
-
-
-
 		manipulator->closeFlaps(true);
 		manipulator->setTargetLevel(1);
 		// turn the robot so that it is facing the alliance wall here... pending other code
 		mobility->setRotationDegrees(-90);
-
-		/*
-		if(mobility->getUltrasonicDistance() < 124){
-			mobility->setDirection(0.0, -0.5);
-		}
-		else
-			mobility->setDirection(0.0, 0.0);
-		*/
-		/*
-		if(play_timer->HasPeriodPassed(2) != true){
-			mobility->setDirection(-0.5, 0.0);
-		}
-		else
-			mobility->setDirection(0.0, 0.0);
-		*/
-		if(starting_location == FAR_LEFT){
-			current_step = 3;
-		}
-		if(starting_location == CENTER){
-			current_step = 4;
-		}
-		if(starting_location == FAR_RIGHT){
-			current_step = 5;
-		}
 		break;
 	case 3:
-		// IF ROBOT IS AT FAR LEFT CRATE
-
-		if(mobility->getUltrasonicDistance() < 163){
-			mobility->setDirection(0.0, -0.5);
+		// motion to autozone
+		switch(starting_location){
+		case FAR_LEFT:
+		case FAR_RIGHT:
+			if(mobility->getUltrasonicDistance() < 187){
+				mobility->setDirection(0.0, -0.5);
+			}
+			else{
+				mobility->setDirection(0.0, 0.0);
+				++current_step;
+			}
+			break;
+		case CENTER:
+			if(mobility->getUltrasonicDistance() < 148){
+				mobility->setDirection(0.0, -0.5);
+			}
+			else{
+				mobility->setDirection(0.0, 0.0);
+				++current_step;
+			}
+			break;
 		}
-		else
-			mobility->setDirection(0.0, 0.0);
-		mobility->setRotationDegrees(-90);
-		if(mobility->getUltrasonicDistance() < 165.37){
-			mobility->setDirection(0.0, -0.5);
-		}
-		else
-			mobility->setDirection(0.0, 0.0);
-		manipulator->setTargetLevel(0);
-		manipulator->closeFlaps(false);
-		if(mobility->getUltrasonicDistance() < 5){
-			mobility->setDirection(0.0, -0.5);
-		}
-		else
-			mobility->setDirection(0.0, 0.0);
-
-		mobility->setRotationDegrees(180);
-		if(mobility->getUltrasonicDistance() > 10){
-			mobility->setDirection(0.0, 0.5);
-		}
-		else
-			mobility->setDirection(0, 0);
 		break;
 	case 4:
-		// IF ROBOT IS AT CENTER CRATE
-		if(mobility->getUltrasonicDistance() < 163){
-			mobility->setDirection(0.0, -0.5);
+		// turning to correct angle
+		switch(starting_location){
+		case FAR_LEFT:
+			mobility->setRotationDegrees(-90);
+			++current_step;
+			break;
+		case FAR_RIGHT:
+			mobility->setRotationDegrees(90);
+			++current_step;
+			break;
+		case CENTER:
+			mobility->setRotationDegrees(180);
+			++current_step;
+			break;
 		}
-		else
-			mobility->setDirection(0.0, 0.0);
 		break;
 	case 5:
-		// IF ROBOT IS AT RIGHT CRATE
+		// movement TO landmark
+		switch(starting_location){
+		case FAR_LEFT:
+			if(mobility->getUltrasonicDistance() < 160){
+				mobility->setDirection(0.0, -0.5);
+			}
+			else{
+				mobility->setDirection(0.0, 0.0);
+				++current_step;
+			}
+			break;
+		case FAR_RIGHT:
+			if(mobility->getUltrasonicDistance() < 160){
+				mobility->setDirection(0.0, -0.5);
+			}
+			else{
+				mobility->setDirection(0.0, 0.0);
+				++current_step;
+			}
+			break;
+		case CENTER:
+			// assumes
+			break;
+		}
 		break;
 	default:
 		break;
