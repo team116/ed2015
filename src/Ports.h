@@ -51,6 +51,12 @@ namespace JoystickPorts
 	//Joystick one
 	const unsigned int CLOSE_FLAPS = 0;
 	const unsigned int OPEN_FLAPS = 1;
+
+	const unsigned int LIFT_STARBOARD_RAKE = 2;
+	const unsigned int LOWER_STARBOARD_RAKE = 3;
+
+	const unsigned int LIFT_PORT_RAKE = 4;
+	const unsigned int LOWER_PORT_RAKE = 5;
 }
 
 namespace DigitalIOPorts
