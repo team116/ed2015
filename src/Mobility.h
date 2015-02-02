@@ -17,7 +17,6 @@ public:
 	void setRotationSpeed(float rotation);
 	void setRotationDegrees(int degrees);
 	float getUltrasonicDistance();
-	void runTalon(int talon, float speed);
 	void toggleFieldCentric();
 
 private:
