@@ -21,8 +21,6 @@ private:
 	Manipulator* manipulator;
 	Log* log;
 
-	LiveWindow* lw;
-
 public:
 	Robot(void)
 	{
@@ -92,7 +90,7 @@ public:
 
 	void TestPeriodic()
 	{
-		lw->Run();
+
 	}
 };
 

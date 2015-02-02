@@ -73,17 +73,7 @@ void Mobility::setRotationSpeed(float rotation_)//-1.0 through 1.0
 {
 	rotation = rotation_ * fabs(rotation_) * MAX_SPEED;
 }
-void Mobility::runTalon(int talon, float speed)//For testing individual talons. You MUST comment out robot_drive to use this
-{
-	log->write(Log::INFO_LEVEL, "Run Talon %d", talon);
-	switch(talon)
-	{
-	case RobotPorts::FRONT_LEFT_MOTOR: front_left_motor->Set(speed); break;
-	case RobotPorts::FRONT_RIGHT_MOTOR: front_right_motor->Set(speed); break;
-	case RobotPorts::REAR_LEFT_MOTOR: rear_left_motor->Set(speed); break;
-	case RobotPorts::REAR_RIGHT_MOTOR: rear_right_motor->Set(speed); break;
-	}
-}
+
 void Mobility::toggleFieldCentric()
 {
 	log->write(Log::INFO_LEVEL, "Toggling field centric\n");
