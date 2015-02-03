@@ -6,6 +6,7 @@
  */
 #include "Ports.h"
 #include <ctime>
+#include <cstdio>
 
 namespace Utils {
 time_t now;
@@ -15,14 +16,16 @@ int convertFromVolts(const float voltage, const int voltage_levels,
 	return (int) (output + 0.5); // round the value
 }
 char* getCurrentTime() {
-	struct tm* time;
+	struct tm* time_struct;
 	time_t t;
 	time(&t);
-	time = localtime(&t);
+	time_struct = localtime(&t);
 
-	int hour = time->tm_hour;
-	int min = time->tm_min;
-	int sec = time->tm_sec;
-	return "%i:%i:%i", hour, min, sec;
+	int hour = time_struct->tm_hour;
+	int min = time_struct->tm_min;
+	int sec = time_struct->tm_sec;
+	char* temp = "";
+	sprintf(temp,"%i:%i:%i", hour, min, sec);
+	return temp;
 }
 }
