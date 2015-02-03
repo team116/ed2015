@@ -52,11 +52,29 @@ namespace JoystickPorts
 	const unsigned int CLOSE_FLAPS = 0;
 	const unsigned int OPEN_FLAPS = 1;
 
-	const unsigned int LIFT_STARBOARD_RAKE = 2;
-	const unsigned int LOWER_STARBOARD_RAKE = 3;
+	const unsigned int GO_FORWARDS_FRONT_LEFT_MOTOR = 2;
+	const unsigned int GO_BACKWARDS_FRONT_LEFT_MOTOR = 3;
+	const unsigned int GO_FORWARDS_FRONT_RIGHT_MOTOR = 4;
+	const unsigned int GO_BACKWARDS_FRONT_RIGHT_MOTOR = 5;
+	const unsigned int GO_FORWARDS_REAR_LEFT_MOTOR = 6;
+	const unsigned int GO_BACKWARDS_REAR_LEFT_MOTOR = 7;
+	const unsigned int GO_FORWARDS_REAR_RIGHT_MOTOR = 8;
+	const unsigned int GO_BACKWARDS_REAR_RIGHT_MOTOR = 9;
 
-	const unsigned int LIFT_PORT_RAKE = 4;
-	const unsigned int LOWER_PORT_RAKE = 5;
+	//joystick two
+	const unsigned int LIFT_STARBOARD_RAKE = 0;
+	const unsigned int LOWER_STARBOARD_RAKE = 1;
+	const unsigned int LIFT_PORT_RAKE = 2;
+	const unsigned int LOWER_PORT_RAKE = 3;
+
+	const unsigned int PULL_IN_LEFT_WHEEL = 4;
+	const unsigned int PUSH_OUT_LEFT_WHEEL = 5;
+	const unsigned int PULL_IN_RIGHT_WHEEL = 6;
+	const unsigned int PUSH_OUT_RIGHT_WHEEL = 7;
+
+	const unsigned int GOING_UP_LIFTER = 8;
+	const unsigned int GOING_DOWN_LIFTER = 9;
+
 }
 
 namespace DigitalIOPorts

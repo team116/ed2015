@@ -41,35 +41,141 @@ void DS::process()
 		flaps->Set(0.0);
 	}
 
-	if (joystick_one->GetRawButton(JoystickPorts::LIFT_STARBOARD_RAKE) &&
-		joystick_one->GetRawButton(JoystickPorts::LOWER_STARBOARD_RAKE)) {
-		rake_starboard->Set(0.0);
+
+
+	//wheels
+	if (joystick_one->GetRawButton(JoystickPorts::GO_FORWARDS_FRONT_LEFT_MOTOR) &&
+		joystick_one->GetRawButton(JoystickPorts::GO_BACKWARDS_FRONT_LEFT_MOTOR)) {
+		front_left_wheel->Set(0.0);
 	}
-	else if (joystick_one->GetRawButton(JoystickPorts::LIFT_STARBOARD_RAKE)) {
+	else if (joystick_one->GetRawButton(JoystickPorts::GO_FORWARDS_FRONT_LEFT_MOTOR)) {
+		front_left_wheel->Set(0.5);
+	}
+	else if (joystick_one->GetRawButton(JoystickPorts::GO_BACKWARDS_FRONT_LEFT_MOTOR)) {
+		front_left_wheel->Set(-0.5);
+	}
+	else {
+		front_left_wheel->Set(0.0);
+	}
+
+	if (joystick_one->GetRawButton(JoystickPorts::GO_FORWARDS_FRONT_RIGHT_MOTOR) &&
+		joystick_one->GetRawButton(JoystickPorts::GO_BACKWARDS_FRONT_RIGHT_MOTOR)) {
+		front_right_wheel->Set(0.0);
+	}
+	else if (joystick_one->GetRawButton(JoystickPorts::GO_FORWARDS_FRONT_RIGHT_MOTOR)) {
+		front_right_wheel->Set(0.0);
+	}
+	else if (joystick_one->GetRawButton(JoystickPorts::GO_BACKWARDS_FRONT_RIGHT_MOTOR)) {
+		front_right_wheel->Set(-0.5);
+	}
+	else {
+		front_right_wheel->Set(0.0);
+	}
+
+	if (joystick_one->GetRawButton(JoystickPorts::GO_FORWARDS_REAR_LEFT_MOTOR) &&
+		joystick_one->GetRawButton(JoystickPorts::GO_BACKWARDS_REAR_LEFT_MOTOR)) {
+		rear_left_wheel->Set(0.0);
+	}
+	else if (joystick_one->GetRawButton(JoystickPorts::GO_FORWARDS_REAR_LEFT_MOTOR)) {
+		rear_left_wheel->Set(0.5);
+	}
+	else if (joystick_one->GetRawButton(JoystickPorts::GO_BACKWARDS_REAR_LEFT_MOTOR)) {
+		rear_left_wheel->Set(-0.5);
+	}
+	else {
+		rear_left_wheel->Set(0.0);
+	}
+
+	if (joystick_one->GetRawButton(JoystickPorts::GO_FORWARDS_REAR_RIGHT_MOTOR) &&
+		joystick_one->GetRawButton(JoystickPorts::GO_BACKWARDS_REAR_RIGHT_MOTOR)) {
+		rear_right_wheel->Set(0.0);
+	}
+	else if (joystick_one->GetRawButton(JoystickPorts::GO_FORWARDS_REAR_RIGHT_MOTOR)) {
+		rear_right_wheel->Set(0.5);
+	}
+	else if (joystick_one->GetRawButton(JoystickPorts::GO_BACKWARDS_REAR_RIGHT_MOTOR)) {
+		rear_right_wheel->Set(-0.5);
+	}
+	else {
+		rear_right_wheel->Set(0.0);
+	}
+
+	//joystick two
+	//rakes
+	if (joystick_two->GetRawButton(JoystickPorts::LIFT_STARBOARD_RAKE) &&
+			joystick_two->GetRawButton(JoystickPorts::LOWER_STARBOARD_RAKE)) {
+			rake_starboard->Set(0.0);
+	}
+	else if (joystick_two->GetRawButton(JoystickPorts::LIFT_STARBOARD_RAKE)) {
 		rake_starboard->Set(0.5);
 	}
-	else if (joystick_one->GetRawButton(JoystickPorts::LOWER_STARBOARD_RAKE)) {
+	else if (joystick_two->GetRawButton(JoystickPorts::LOWER_STARBOARD_RAKE)) {
 		rake_starboard->Set(-0.5);
 	}
 	else {
 		rake_starboard->Set(0.0);
 	}
 
-	if (joystick_one->GetRawButton(JoystickPorts::LIFT_PORT_RAKE) &&
-		joystick_one->GetRawButton(JoystickPorts::LOWER_PORT_RAKE)) {
+	if (joystick_two->GetRawButton(JoystickPorts::LIFT_PORT_RAKE) &&
+		joystick_two->GetRawButton(JoystickPorts::LOWER_PORT_RAKE)) {
 		// both up and down buttons pressed, don't move
 		rake_port->Set(0.0);
 	}
-	else if (joystick_one->GetRawButton(JoystickPorts::LIFT_PORT_RAKE)) {
+	else if (joystick_two->GetRawButton(JoystickPorts::LIFT_PORT_RAKE)) {
 		rake_port->Set(0.5);
 	}
-	else if (joystick_one->GetRawButton(JoystickPorts::LOWER_PORT_RAKE)) {
+	else if (joystick_two->GetRawButton(JoystickPorts::LOWER_PORT_RAKE)) {
 		rake_port->Set(-0.5);
 	}
 	else {
 		rake_port->Set(0.0);
 	}
-}
+	//manipulator grabber wheels
+	if (joystick_two->GetRawButton(JoystickPorts::PULL_IN_LEFT_WHEEL) &&
+		joystick_two->GetRawButton(JoystickPorts::PUSH_OUT_LEFT_WHEEL)) {
+		left_grabber_wheel->Set(0.0);
+	}
+	else if (joystick_two->GetRawButton(JoystickPorts::PULL_IN_LEFT_WHEEL)) {
+		left_grabber_wheel->Set(0.5);
+	}
+	else if (joystick_two->GetRawButton(JoystickPorts::PUSH_OUT_LEFT_WHEEL)) {
+		left_grabber_wheel->Set(-0.5);
+	}
+	else {
+		left_grabber_wheel->Set(0.0);
+	}
+
+	if (joystick_two->GetRawButton(JoystickPorts::PULL_IN_RIGHT_WHEEL) &&
+		joystick_two->GetRawButton(JoystickPorts::PUSH_OUT_RIGHT_WHEEL)) {
+		right_grabber_wheel->Set(0.0);
+	}
+	else if (joystick_two->GetRawButton(JoystickPorts::PULL_IN_RIGHT_WHEEL)) {
+		right_grabber_wheel->Set(0.5);
+	}
+	else if (joystick_two->GetRawButton(JoystickPorts::PUSH_OUT_RIGHT_WHEEL)) {
+		right_grabber_wheel->Set(-0.5);
+	}
+	else {
+		right_grabber_wheel->Set(0.0);
+	}
+	//lifters for manipulator
+	if  (joystick_two->GetRawButton(JoystickPorts::GOING_UP_LIFTER) &&
+		joystick_two->GetRawButton(JoystickPorts::GOING_DOWN_LIFTER)) {
+			lifter_one->Set(0.0);
+			lifter_two->Set(0.0);
+		}
+	else if (joystick_two->GetRawButton(JoystickPorts::GOING_UP_LIFTER)) {
+			lifter_one->Set(0.5);
+			lifter_two->Set(0.5);
+	}
+	else if (joystick_two->GetRawButton(JoystickPorts::GOING_DOWN_LIFTER)) {
+		lifter_one->Set(-0.5);
+		lifter_two->Set(-0.5);
+	}
+	else {
+		lifter_one->Set(0.0);
+		lifter_two->Set(0.0);
+	}
 
 DS* DS::getInstance()
 {
