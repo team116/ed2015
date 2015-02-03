@@ -403,11 +403,19 @@ void Autonomous::centerContainers() {
 	//facing wall, starting in between auto zone and landfill zone, move to pick up containers on step
 	switch (current_step) {
 	case 1:
-		//move backwards towards step
-		mobility->setDirection(0.0, -0.5);
+		// move backwards towards step
+		// 240 is a guess - we need to move back until the back of the robot is at the landfill
+		if(mobility->getUltrasonicDistance() < 240){
+			mobility->setDirection(0.0, -0.5);
+		} else {
+			mobility->setDirection(0.0,0.0);
+			++current_step;
+		}
 		break;
-
 	}
+	case 2:
+		// extend rakes and hook the containers
+		break;
 }
 
 Autonomous* Autonomous::getInstance(int delay, int play, int location) {
