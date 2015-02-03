@@ -1,12 +1,11 @@
 #ifndef MOBILITY_H_
 #define MOBILITY_H_
 
-#include <WPILib.h>
+#include <RobotDrive.h>
 #include <Gyro.h>
 #include <AnalogInput.h>
 #include <CANTalon.h>
 #include "Log.h"
-#include <BuiltInAccelerometer.h>
 
 class Mobility
 {
@@ -21,6 +20,7 @@ public:
 
 private:
 	Mobility();
+	void balanceVoltages();
 	static Mobility* INSTANCE;
 	static const float DEFAULT_SPEED;
 	static const float MAX_SPEED;
@@ -32,15 +32,18 @@ private:
 	CANTalon* rear_right_motor;
 	RobotDrive* robot_drive;
 	AnalogInput* ultrasonic;
-	BuiltInAccelerometer* accel;
 	Gyro* gyro;
 
 	Log* log;
 
 	bool field_centric;
 	bool rotating_degrees;
-	int start_degrees;
-	int rotate_degrees;
+
+	//Turn Degrees
+	float start_degrees;
+	int rotate_direction;
+	float target_degrees;
+
 	float x_direction;
 	float y_direction;
 	float rotation;

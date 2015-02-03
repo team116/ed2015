@@ -1,11 +1,12 @@
-#include <WPILib.h>
-#include <Gyro.h>
-#include <CANTalon.h>
 #include "Mobility.h"
 #include "Ports.h"
+#include <RobotDrive.h>
+#include <Gyro.h>
+#include <AnalogInput.h>
+#include <CANTalon.h>
 #include "Log.h"
-#include <cmath>
-#include <BuiltInAccelerometer.h>
+
+using namespace std;
 
 Mobility* Mobility::INSTANCE = NULL;
 const float Mobility::DEFAULT_SPEED = 0.5;
@@ -23,13 +24,13 @@ Mobility::Mobility()//COMMIT NUMBER 100
 	robot_drive->SetInvertedMotor(RobotDrive::kFrontRightMotor, true);
 	robot_drive->SetInvertedMotor(RobotDrive::kRearRightMotor, true);
 	robot_drive->SetSafetyEnabled(false);
-	accel = new BuiltInAccelerometer();
 	log = Log::getInstance();
 	x_direction = 0;
 	y_direction = 0;
 	rotation = 0;
 	start_degrees = 0;
-	rotate_degrees = 0;
+	rotate_direction = 0;
+	target_degrees = 0;
 	field_centric = false;
 	rotating_degrees = false;
 	ultrasonic = new AnalogInput(RobotPorts::ULTRASONIC);
@@ -39,29 +40,36 @@ Mobility::Mobility()//COMMIT NUMBER 100
 
 void Mobility::process()
 {
+	float angle = gyro->GetAngle();
+	float rate = gyro->GetRate();
+	float min_rate = 45.0f;
+	float max_rate = 345.0f;
 	if(rotating_degrees)
 	{
-		if((int)gyro->GetAngle() == (start_degrees + rotate_degrees))
-		{
-			setRotationSpeed(0);
+		log->write(Log::ERROR_LEVEL, "Gyro: %f\n", angle);
+		if(((rotate_direction == 1) && (angle >= target_degrees)) || ((rotate_direction == -1) && (angle <= target_degrees))) {
+			rotate_direction = 0;
+		}
+		if (rotate_direction == 0) {
+			log->write(Log::ERROR_LEVEL, "Rotating finished\n");
 			rotating_degrees = false;
-			rotate_degrees = 0;
-			start_degrees = 0;
 		}
-		else
-		{
-			if(rotate_degrees < 0)
-				setRotationSpeed(-DEFAULT_SPEED);
-			else if(rotate_degrees > 0)
-				setRotationSpeed(DEFAULT_SPEED);
-			else
-				setRotationSpeed(0.0);
-		}
+		float var = ((((rate - min_rate)/(max_rate - min_rate))) - (max(min(fabs(target_degrees - angle),0.8f), 0.2f))) * 0.072f;
+		log->write(Log::ERROR_LEVEL, "Rotate Difference: %f\n", var);
+		log->write(Log::ERROR_LEVEL, "Rotation Speed: %f\n", rotation + var);
+		setRotationSpeed(rotation + var);
 	}
-	if(field_centric)
-		robot_drive->MecanumDrive_Cartesian(x_direction, y_direction, rotation, gyro->GetAngle());
-	else
+	if (field_centric) {
+		robot_drive->MecanumDrive_Cartesian(x_direction, y_direction, rotation, angle);
+	}
+	else {
 		robot_drive->MecanumDrive_Cartesian(x_direction, y_direction, rotation);
+	}
+}
+
+void Mobility::balanceVoltages()
+{
+
 }
 
 void Mobility::setDirection(float x, float y)//-1.0 through 1.0
@@ -108,7 +116,17 @@ float Mobility::getUltrasonicDistance()
 void Mobility::setRotationDegrees(int degrees)
 {
 	start_degrees = gyro->GetAngle();
+	rotate_direction = 0;
+	if (degrees > 0) {
+		rotate_direction = 1;
+	}
+	else if (degrees < 0) {
+		rotate_direction = -1;
+	}
+	target_degrees = start_degrees + degrees;
+	log->write(Log::ERROR_LEVEL, "Start Degrees: %f\n", start_degrees);
 	rotating_degrees = true;
+	setRotationSpeed(rotate_direction);
 }
 Mobility* Mobility::getInstance()
 {

@@ -31,6 +31,8 @@ private:
 	bool on_step;
 	bool drive_type;
 	bool drive_type_handled;
+	bool turn_degrees;
+	bool turn_degrees_handled;
 
 	void doLevelLEDS(int level);
 

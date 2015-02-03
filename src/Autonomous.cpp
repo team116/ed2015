@@ -412,10 +412,10 @@ void Autonomous::centerContainers() {
 			++current_step;
 		}
 		break;
-	}
 	case 2:
 		// extend rakes and hook the containers
 		break;
+	}
 }
 
 Autonomous* Autonomous::getInstance(int delay, int play, int location) {
