@@ -4,10 +4,10 @@
 #include "Mobility.h"
 #include "Log.h"
 #include <CameraServer.h>
+#include <cmath>
 DS* DS::INSTANCE = NULL;
 
-DS::DS()
-{
+DS::DS() {
 	mobility = Mobility::getInstance();
 	manipulator = Manipulator::getInstance();
 	log = Log::getInstance();
@@ -31,18 +31,17 @@ DS::DS()
 	IO_board_one->SetOutputs(0);
 }
 
-void DS::process()
-{
+void DS::process() {
 
-	if(secondary_joystick->GetRawButton(JoystickPorts::OVERRIDE_BUTTON)) {
-		log->write(Log::INFO_LEVEL,"%s\tOverride button pressed\n",Utils::getCurrentTime());
-		override=!override;
+	if (secondary_joystick->GetRawButton(JoystickPorts::OVERRIDE_BUTTON)) {
+		log->write(Log::INFO_LEVEL, "%s\tOverride button pressed\n", Utils::getCurrentTime());
+		override = !override;
 	}
 
-	if(IO_board_two->GetRawButton(IOBoardTwoPorts::BACK_CAMERA_SELECT)) {
+	if (IO_board_two->GetRawButton(IOBoardTwoPorts::BACK_CAMERA_SELECT)) {
 		// switch to back camera
 	}
-	else if(IO_board_two->GetRawButton(IOBoardTwoPorts::FRONT_CAMERA_SELECT)) {
+	else if (IO_board_two->GetRawButton(IOBoardTwoPorts::FRONT_CAMERA_SELECT)) {
 		// switch to front camera
 	}
 
@@ -52,15 +51,15 @@ void DS::process()
 
 }
 
-void DS::processMobility()
-{
+void DS::processMobility() {
 	// secondary driver has overridden so that they can control movement
 	// I'm halving all input because this is for precision
 	// we might just remove this because the override button is a dumb idea
-	if(override) {
-		log->write(Log::TRACE_LEVEL,"%s\tIn override mode\n",Utils::getCurrentTime());
-		mobility->setDirection(secondary_joystick->GetX()/2.0,secondary_joystick->GetY()/2.0);
-		mobility->setRotationSpeed(secondary_joystick->GetTwist()/2.0);
+	if (override) {
+		log->write(Log::TRACE_LEVEL, "%s\tIn override mode\n", Utils::getCurrentTime());
+		mobility->setDirection(secondary_joystick->GetX() / 2.0, secondary_joystick->GetY()
+				/ 2.0);
+		mobility->setRotationSpeed(secondary_joystick->GetTwist() / 2.0);
 	}
 
 	// normal control by first driver
@@ -68,39 +67,40 @@ void DS::processMobility()
 		// check if the driver is trying to change to/from field-centric
 		drive_type = main_joystick->GetRawButton(JoystickPorts::FIELD_CENTRIC_TOGGLE);
 
-		if(drive_type && !drive_type_handled) {
-			log->write(Log::INFO_LEVEL, "%s\tField-centric toggle pressed\n",Utils::getCurrentTime());
+		if (drive_type && !drive_type_handled) {
+			log->write(Log::INFO_LEVEL, "%s\tField-centric toggle pressed\n", Utils::getCurrentTime());
 			drive_type_handled = true;
 			mobility->toggleFieldCentric();
 		}
-		else if(drive_type_handled && !drive_type) {
+		else if (drive_type_handled && !drive_type) {
 			drive_type_handled = false;
 		}
 
-		mobility->setDirection(main_joystick->GetX(),main_joystick->GetY());
-		//mobility->setRotationSpeed(main_joystick->GetTwist());
+		float x = main_joystick->GetX(), y = main_joystick->GetY();
+		// small deadzones for the x and y movement of the joystick
+		x = fabs(x) < 0.05 ? 0 : x;
+		y = fabs(y) < 0.05 ? 0 : y;
+		mobility->setDirection(x, y);
+		// mobility->setRotationSpeed(main_joystick->GetTwist());
 		mobility->setRotationSpeed(IO_board_one->GetRawAxis(IOBoardOnePorts::ROTATION_KNOB));
 	}
 	turn_degrees = main_joystick->GetRawButton(JoystickPorts::TURN_DEGREES);
-	if(turn_degrees && !turn_degrees_handled)
-	{
+	if (turn_degrees && !turn_degrees_handled) {
 		log->write(Log::ERROR_LEVEL, "Starting turn Degrees\n");
 		turn_degrees_handled = true;
 		mobility->setRotationDegrees(90);
 	}
-	else if(!turn_degrees && turn_degrees_handled)
-	{
+	else if (!turn_degrees && turn_degrees_handled) {
 		turn_degrees_handled = false;
 	}
 }
 
-void DS::processManipulator()
-{
+void DS::processManipulator() {
 	// surface switch
-	if(IO_board_one->GetRawButton(IOBoardOnePorts::STACK_ON_STEP_SWITCH)) {
+	if (IO_board_one->GetRawButton(IOBoardOnePorts::STACK_ON_STEP_SWITCH)) {
 		manipulator->setSurface(Manipulator::STEP);
 	}
-	else if(IO_board_one->GetRawButton(IOBoardOnePorts::STACK_ON_PLATFORM_SWITCH)) {
+	else if (IO_board_one->GetRawButton(IOBoardOnePorts::STACK_ON_PLATFORM_SWITCH)) {
 		manipulator->setSurface(Manipulator::SCORING_PLATFORM);
 	}
 	else {
@@ -108,22 +108,22 @@ void DS::processManipulator()
 	}
 
 	// lifter preset buttons
-	if(IO_board_one->GetRawButton(IOBoardOnePorts::LIFTER_PRESET_1)) {
+	if (IO_board_one->GetRawButton(IOBoardOnePorts::LIFTER_PRESET_1)) {
 		manipulator->setTargetLevel(0);
 	}
-	else if(IO_board_one->GetRawButton(IOBoardOnePorts::LIFTER_PRESET_2)) {
+	else if (IO_board_one->GetRawButton(IOBoardOnePorts::LIFTER_PRESET_2)) {
 		manipulator->setTargetLevel(1);
 	}
-	else if(IO_board_one->GetRawButton(IOBoardOnePorts::LIFTER_PRESET_3)) {
+	else if (IO_board_one->GetRawButton(IOBoardOnePorts::LIFTER_PRESET_3)) {
 		manipulator->setTargetLevel(2);
 	}
-	else if(IO_board_one->GetRawButton(IOBoardOnePorts::LIFTER_PRESET_4)) {
+	else if (IO_board_one->GetRawButton(IOBoardOnePorts::LIFTER_PRESET_4)) {
 		manipulator->setTargetLevel(3);
 	}
-	else if(IO_board_one->GetRawButton(IOBoardOnePorts::LIFTER_PRESET_5)) {
+	else if (IO_board_one->GetRawButton(IOBoardOnePorts::LIFTER_PRESET_5)) {
 		manipulator->setTargetLevel(4);
 	}
-	else if(IO_board_one->GetRawButton(IOBoardOnePorts::LIFTER_PRESET_6)) {
+	else if (IO_board_one->GetRawButton(IOBoardOnePorts::LIFTER_PRESET_6)) {
 		manipulator->setTargetLevel(5);
 	}
 	else {
@@ -131,10 +131,10 @@ void DS::processManipulator()
 	}
 
 	// manual lifter control buttons
-	if(IO_board_one->GetRawButton(IOBoardOnePorts::LIFTER_UP_BUTTON)) {
+	if (IO_board_one->GetRawButton(IOBoardOnePorts::LIFTER_UP_BUTTON)) {
 		manipulator->liftLifters(Manipulator::MOVING_UP);
 	}
-	else if(IO_board_one->GetRawButton(IOBoardOnePorts::LIFTER_DOWN_BUTTON)) {
+	else if (IO_board_one->GetRawButton(IOBoardOnePorts::LIFTER_DOWN_BUTTON)) {
 		manipulator->liftLifters(Manipulator::MOVING_DOWN);
 	}
 	else {
@@ -142,19 +142,19 @@ void DS::processManipulator()
 	}
 
 	// rake control buttons
-	if(IO_board_one->GetRawButton(IOBoardTwoPorts::RAKES_UP_BUTTON)) {
+	if (IO_board_one->GetRawButton(IOBoardTwoPorts::RAKES_UP_BUTTON)) {
 		manipulator->liftRakes(true);
 	}
-	else if(IO_board_one->GetRawButton(IOBoardTwoPorts::RAKES_DOWN_BUTTON)) {
+	else if (IO_board_one->GetRawButton(IOBoardTwoPorts::RAKES_DOWN_BUTTON)) {
 		manipulator->liftRakes(false);
 	}
 
 	// normal control of manipulator by driver two
-	if(!override) {
-		if(secondary_joystick->GetY()>0.25) {
+	if (!override) {
+		if (secondary_joystick->GetY() > 0.25) {
 			manipulator->pushTote();
 		}
-		else if(secondary_joystick->GetY()<-0.25) {
+		else if (secondary_joystick->GetY() < -0.25) {
 			manipulator->pullTote();
 		}
 
@@ -162,96 +162,93 @@ void DS::processManipulator()
 	}
 }
 
-void DS::processLEDS()
-{
+void DS::processLEDS() {
 	// lifter height indicators
 	doLevelLEDS(manipulator->getLevel());
 
 	// selected stacking surface indicators
-	if(IO_board_one->GetRawButton(IOBoardOnePorts::STACK_ON_PLATFORM_SWITCH)) {
-		IO_board_one->SetOutput(IOBoardOnePorts::STACK_ON_FLOOR_INDICATOR,false);
-		IO_board_one->SetOutput(IOBoardOnePorts::STACK_ON_PLATFORM_INDICATOR,true);
-		IO_board_one->SetOutput(IOBoardOnePorts::STACK_ON_STEP_INDICATOR,false);
+	if (IO_board_one->GetRawButton(IOBoardOnePorts::STACK_ON_PLATFORM_SWITCH)) {
+		IO_board_one->SetOutput(IOBoardOnePorts::STACK_ON_FLOOR_INDICATOR, false);
+		IO_board_one->SetOutput(IOBoardOnePorts::STACK_ON_PLATFORM_INDICATOR, true);
+		IO_board_one->SetOutput(IOBoardOnePorts::STACK_ON_STEP_INDICATOR, false);
 	}
-	else if(IO_board_one->GetRawButton(IOBoardOnePorts::STACK_ON_STEP_SWITCH)) {
-		IO_board_one->SetOutput(IOBoardOnePorts::STACK_ON_FLOOR_INDICATOR,false);
-		IO_board_one->SetOutput(IOBoardOnePorts::STACK_ON_PLATFORM_INDICATOR,false);
-		IO_board_one->SetOutput(IOBoardOnePorts::STACK_ON_STEP_INDICATOR,true);
+	else if (IO_board_one->GetRawButton(IOBoardOnePorts::STACK_ON_STEP_SWITCH)) {
+		IO_board_one->SetOutput(IOBoardOnePorts::STACK_ON_FLOOR_INDICATOR, false);
+		IO_board_one->SetOutput(IOBoardOnePorts::STACK_ON_PLATFORM_INDICATOR, false);
+		IO_board_one->SetOutput(IOBoardOnePorts::STACK_ON_STEP_INDICATOR, true);
 	}
 	else {
-		IO_board_one->SetOutput(IOBoardOnePorts::STACK_ON_FLOOR_INDICATOR,true);
-		IO_board_one->SetOutput(IOBoardOnePorts::STACK_ON_PLATFORM_INDICATOR,false);
-		IO_board_one->SetOutput(IOBoardOnePorts::STACK_ON_STEP_INDICATOR,false);
+		IO_board_one->SetOutput(IOBoardOnePorts::STACK_ON_FLOOR_INDICATOR, true);
+		IO_board_one->SetOutput(IOBoardOnePorts::STACK_ON_PLATFORM_INDICATOR, false);
+		IO_board_one->SetOutput(IOBoardOnePorts::STACK_ON_STEP_INDICATOR, false);
 	}
 
 	// camera select indicators
-	if(IO_board_two->GetRawButton(IOBoardTwoPorts::BACK_CAMERA_SELECT)){
-		IO_board_one->SetOutput(IOBoardOnePorts::BACK_CAMERA_INDICATOR,true);
-		IO_board_one->SetOutput(IOBoardOnePorts::FRONT_CAMERA_INDICATOR,false);
+	if (IO_board_two->GetRawButton(IOBoardTwoPorts::BACK_CAMERA_SELECT)) {
+		IO_board_one->SetOutput(IOBoardOnePorts::BACK_CAMERA_INDICATOR, true);
+		IO_board_one->SetOutput(IOBoardOnePorts::FRONT_CAMERA_INDICATOR, false);
 	}
-	else if(IO_board_two->GetRawButton(IOBoardTwoPorts::FRONT_CAMERA_SELECT)){
-		IO_board_one->SetOutput(IOBoardOnePorts::BACK_CAMERA_INDICATOR,false);
-		IO_board_one->SetOutput(IOBoardOnePorts::FRONT_CAMERA_INDICATOR,true);
+	else if (IO_board_two->GetRawButton(IOBoardTwoPorts::FRONT_CAMERA_SELECT)) {
+		IO_board_one->SetOutput(IOBoardOnePorts::BACK_CAMERA_INDICATOR, false);
+		IO_board_one->SetOutput(IOBoardOnePorts::FRONT_CAMERA_INDICATOR, true);
 	}
 }
 
-void DS::doLevelLEDS(int level){
+void DS::doLevelLEDS(int level) {
 	// turns on all leds at or below level, turns off the others
 	switch (level) {
 	case 0:
-		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_0_INDICATOR,true);
-		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_1_INDICATOR,false);
-		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_2_INDICATOR,false);
-		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_3_INDICATOR,false);
-		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_4_INDICATOR,false);
-		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_5_INDICATOR,false);
+		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_0_INDICATOR, true);
+		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_1_INDICATOR, false);
+		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_2_INDICATOR, false);
+		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_3_INDICATOR, false);
+		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_4_INDICATOR, false);
+		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_5_INDICATOR, false);
 		break;
 	case 1:
-		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_0_INDICATOR,true);
-		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_1_INDICATOR,true);
-		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_2_INDICATOR,false);
-		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_3_INDICATOR,false);
-		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_4_INDICATOR,false);
-		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_5_INDICATOR,false);
+		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_0_INDICATOR, true);
+		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_1_INDICATOR, true);
+		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_2_INDICATOR, false);
+		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_3_INDICATOR, false);
+		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_4_INDICATOR, false);
+		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_5_INDICATOR, false);
 		break;
 	case 2:
-		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_0_INDICATOR,true);
-		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_1_INDICATOR,true);
-		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_2_INDICATOR,true);
-		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_3_INDICATOR,false);
-		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_4_INDICATOR,false);
-		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_5_INDICATOR,false);
+		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_0_INDICATOR, true);
+		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_1_INDICATOR, true);
+		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_2_INDICATOR, true);
+		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_3_INDICATOR, false);
+		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_4_INDICATOR, false);
+		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_5_INDICATOR, false);
 		break;
 	case 3:
-		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_0_INDICATOR,true);
-		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_1_INDICATOR,true);
-		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_2_INDICATOR,true);
-		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_3_INDICATOR,true);
-		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_4_INDICATOR,false);
-		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_5_INDICATOR,false);
+		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_0_INDICATOR, true);
+		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_1_INDICATOR, true);
+		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_2_INDICATOR, true);
+		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_3_INDICATOR, true);
+		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_4_INDICATOR, false);
+		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_5_INDICATOR, false);
 		break;
 	case 4:
-		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_0_INDICATOR,true);
-		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_1_INDICATOR,true);
-		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_2_INDICATOR,true);
-		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_3_INDICATOR,true);
-		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_4_INDICATOR,true);
-		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_5_INDICATOR,false);
+		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_0_INDICATOR, true);
+		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_1_INDICATOR, true);
+		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_2_INDICATOR, true);
+		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_3_INDICATOR, true);
+		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_4_INDICATOR, true);
+		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_5_INDICATOR, false);
 		break;
 	case 5:
-		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_0_INDICATOR,true);
-		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_1_INDICATOR,true);
-		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_2_INDICATOR,true);
-		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_3_INDICATOR,true);
-		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_4_INDICATOR,true);
-		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_5_INDICATOR,true);
+		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_0_INDICATOR, true);
+		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_1_INDICATOR, true);
+		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_2_INDICATOR, true);
+		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_3_INDICATOR, true);
+		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_4_INDICATOR, true);
+		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_5_INDICATOR, true);
 		break;
 	}
 }
-DS* DS::getInstance()
-{
-	if (INSTANCE == NULL)
-	{
+DS* DS::getInstance() {
+	if (INSTANCE == NULL) {
 		INSTANCE = new DS();
 	}
 	return INSTANCE;
