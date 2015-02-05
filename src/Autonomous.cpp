@@ -7,6 +7,9 @@
 #include "Manipulator.h"
 
 Autonomous* Autonomous::INSTANCE = NULL;
+// approximate speed while running at 0.5
+// if we can get an accurate value here then timers will provide a safety net if the ultrasonic fails
+const float Autonomous::INCHES_PER_SECOND = 18.0;
 
 Autonomous::Autonomous(int delay, int play, int location) {
 	current_step = 1;
@@ -21,6 +24,7 @@ Autonomous::Autonomous(int delay, int play, int location) {
 	log = Log::getInstance();
 
 	delay_timer->Start();
+	timer->Start();
 }
 
 void Autonomous::process() {
@@ -56,7 +60,7 @@ void Autonomous::moveToZone() {
 	switch (current_step) {
 	case 1:
 		//163 inches is the distance from the wall to the autozone
-		if (mobility->getUltrasonicDistance() < 163) {
+		if (mobility->getUltrasonicDistance() < 163 && !timer->HasPeriodPassed(163.0/INCHES_PER_SECOND)) {
 			mobility->setDirection(0.0, 0.75);
 		}
 		else {
@@ -74,44 +78,52 @@ void Autonomous::stackTote() {
 	switch (current_step) {
 	case 1:
 		// moving to the tote
-		// assumes the robot is at a -90 degree angle to the landmark (facing tote 1 from the right)
+		// assumes the robot is at a 90 degree angle to the landmark (facing tote 1 from the right)
 		manipulator->closeFlaps(false);
-		// 35 or 3 inches away from tote?
-		if (mobility->getUltrasonicDistance() > 3) {
+		if (mobility->getUltrasonicDistance() > 3 && !timer->HasPeriodPassed(12/INCHES_PER_SECOND)) {
 			mobility->setDirection(0.0, 0.5);
 		}
 		else {
 			mobility->setDirection(0.0, 0.0);
+			timer->Reset();
 			++current_step;
 		}
 		break;
 	case 2:
 		// picking up the tote
-		manipulator->closeFlaps(true);
-		manipulator->setTargetLevel(2);
-		// turn the robot so that it is facing the alliance wall
-		mobility->setRotationDegrees(90);
-		++current_step;
+		if(!timer->HasPeriodPassed(1.0)){
+			manipulator->pullTote();
+		}
+		else {
+			manipulator->closeFlaps(true);
+			manipulator->setTargetLevel(2);
+			timer->Reset();
+			// turn the robot so that it is facing the alliance wall
+			mobility->setRotationDegrees(90);
+			++current_step;
+		}
 		break;
 	case 3:
 		// moving to autozone
 		switch (starting_location) {
 		case FAR_LEFT:
 		case FAR_RIGHT:
-			if (mobility->getUltrasonicDistance() < 187) {
+			if (mobility->getUltrasonicDistance() < 187 && !timer->HasPeriodPassed(140/INCHES_PER_SECOND)) {
 				mobility->setDirection(0.0, -0.5);
 			}
 			else {
 				mobility->setDirection(0.0, 0.0);
+				timer->Reset();
 				++current_step;
 			}
 			break;
 		case CENTER:
-			if (mobility->getUltrasonicDistance() < 148) {
+			if (mobility->getUltrasonicDistance() < 148 && !timer->HasPeriodPassed(100/INCHES_PER_SECOND)) {
 				mobility->setDirection(0.0, -0.5);
 			}
 			else {
 				mobility->setDirection(0.0, 0.0);
+				timer->Reset();
 				++current_step;
 			}
 			break;

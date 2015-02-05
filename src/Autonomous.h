@@ -53,6 +53,8 @@ private:
 	int starting_location;
 	int delay;
 
+	static const float INCHES_PER_SECOND;
+
 };
 
 #endif // AUTONOMOUS_H_
