@@ -44,6 +44,8 @@ void Mobility::process()
 	float rate = gyro->GetRate();
 	float min_rate = 45.0f;
 	float max_rate = 345.0f;
+	float min_rot_speed = 0.2;
+	float max_rot_speed = 0.75;
 	if(rotating_degrees)
 	{
 		log->write(Log::ERROR_LEVEL, "Gyro: %f\n", angle);
@@ -54,10 +56,15 @@ void Mobility::process()
 			log->write(Log::ERROR_LEVEL, "Rotating finished\n");
 			rotating_degrees = false;
 		}
-		float var = ((((rate - min_rate)/(max_rate - min_rate))) - (max(min(fabs(target_degrees - angle),0.8f), 0.2f))) * 0.072f;
-		log->write(Log::ERROR_LEVEL, "Rotate Difference: %f\n", var);
-		log->write(Log::ERROR_LEVEL, "Rotation Speed: %f\n", rotation + var);
-		setRotationSpeed(rotation + var);
+		// float var = ((((rate - min_rate)/(max_rate - min_rate))) - (max(min(fabs(target_degrees - angle),0.8f), 0.2f))) * 0.072f;
+		// log->write(Log::ERROR_LEVEL, "Rotate Difference: %f\n", var);
+		// log->write(Log::ERROR_LEVEL, "Rotation Speed: %f\n", rotation + var);
+		// setRotationSpeed(rotation + var);
+		float accel = 0.072f * (min((target_degrees - angle) / (angle - start_degrees), 1.0f) - (gyro->GetRate() / max_rate));
+		log->write(Log::ERROR_LEVEL, "Rotation Speed: %f\n", rotation);
+		log->write(Log::ERROR_LEVEL, "Rotation Difference: %f\n", accel);
+		//setRotationSpeed((float)rotate_direction * max(min(rotation + accel, max_rot_speed), min_rot_speed));
+		rotation = (float)rotate_direction * max(min(rotation + accel, max_rot_speed), min_rot_speed);
 	}
 	if (field_centric) {
 		robot_drive->MecanumDrive_Cartesian(x_direction, y_direction, rotation, angle);
