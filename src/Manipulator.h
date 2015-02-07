@@ -106,7 +106,7 @@ private:
 	Encoder* encoder;
 	AnalogPotentiometer* potentiometer;
 	static const int PULSE_PER_REV;
-	static const float inch_per_rev;
+	static const float INCH_PER_REV;
 
 	// timers
 	Timer* flap_timer;

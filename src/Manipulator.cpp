@@ -16,7 +16,7 @@ const float Manipulator::WHEEL_TIMEOUT = 1.1;
 // lifter stuff
 const float Manipulator::LIFTER_RANGE = 0.3; // the acceptable height range for our presets
 const int Manipulator::PULSE_PER_REV = 64;
-const float Manipulator::inch_per_rev = 4;
+const float Manipulator::INCH_PER_REV = 4;
 
 const float Manipulator::TOTE_HEIGHT = 12.1;
 const float Manipulator::FLOOR = 0.0;
@@ -44,7 +44,7 @@ Manipulator::Manipulator()
 	lift_upper_limit = new DigitalInput(RobotPorts::LIFT_UPPER_LIMIT);
 	lift_lower_limit = new DigitalInput(RobotPorts::LIFT_LOWER_LIMIT);
 	encoder = new Encoder(RobotPorts::ENCODER_A, RobotPorts::ENCODER_B);
-	encoder->SetDistancePerPulse(inch_per_rev/PULSE_PER_REV);	//inches per revolution / pulses per revolution = inches per pulse
+	encoder->SetDistancePerPulse(INCH_PER_REV/PULSE_PER_REV);	//inches per revolution / pulses per revolution = inches per pulse
 	potentiometer= new AnalogPotentiometer(RobotPorts::FLAP_POTENTIOMETER, 270, 0); //270 = full range of positions; 0 = lowest position
 	lift_timer = new Timer();
 	current_height = 0; //starting height (floor level)
@@ -326,14 +326,6 @@ void Manipulator::spinTote(float direction)
 	left_wheel->Set(left_dir);
 	right_wheel->Set(right_dir);
 }
-
-/*void Manipulator::startConveyorBelt() {
-	belt_moving = true;
-}
-
-void Manipulator::stopConveyorBelt() {
-	belt_moving = false;
-}*/
 
 void Manipulator::honorLimits(bool to_use_or_not_to_use)
 {
