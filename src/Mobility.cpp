@@ -17,9 +17,13 @@ const float Mobility::MAX_ULTRASONIC_VOLTAGE = 5.5;
 Mobility::Mobility()//COMMIT NUMBER 100
 {
 	front_left_motor = new CANTalon(RobotPorts::FRONT_LEFT_MOTOR);
+	front_left_motor->SetFeedbackDevice(CANTalon::QuadEncoder);
 	front_right_motor = new CANTalon(RobotPorts::FRONT_RIGHT_MOTOR);
+	front_right_motor->SetFeedbackDevice(CANTalon::QuadEncoder);
 	rear_left_motor = new CANTalon(RobotPorts::REAR_LEFT_MOTOR);
+	rear_left_motor->SetFeedbackDevice(CANTalon::QuadEncoder);
 	rear_right_motor = new CANTalon(RobotPorts::REAR_RIGHT_MOTOR);
+	rear_right_motor->SetFeedbackDevice(CANTalon::QuadEncoder);
 	robot_drive = new RobotDrive(front_left_motor, rear_left_motor, front_right_motor, rear_right_motor);
 	robot_drive->SetInvertedMotor(RobotDrive::kFrontRightMotor, true);
 	robot_drive->SetInvertedMotor(RobotDrive::kRearRightMotor, true);

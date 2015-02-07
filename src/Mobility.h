@@ -5,6 +5,7 @@
 #include <Gyro.h>
 #include <AnalogInput.h>
 #include <CANTalon.h>
+#include <Encoder.h>
 #include "Log.h"
 
 class Mobility
