@@ -107,6 +107,20 @@ void DS::processManipulator() {
 		manipulator->setSurface(Manipulator::FLOOR);
 	}
 
+	// this assumes the max voltage for the flap position input to be 5
+	// also this assumes that we'll be getting this as analog input instead of as a few digital inputs
+	switch (Utils::convertFromVolts(IO_board_one->GetRawAxis(IOBoardOnePorts::FLAP_POSITION_KNOB),3,5.0)){
+	case 0:
+		manipulator->setFlapPosition(Manipulator::FLAP_LOW);
+		break;
+	case 1:
+		manipulator->setFlapPosition(Manipulator::FLAP_MID);
+		break;
+	case 2:
+		manipulator->setFlapPosition(Manipulator::FLAP_HIGH);
+		break;
+	}
+
 	// lifter preset buttons
 	if (IO_board_one->GetRawButton(IOBoardOnePorts::LIFTER_PRESET_1)) {
 		manipulator->setTargetLevel(0);

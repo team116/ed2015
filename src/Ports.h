@@ -86,6 +86,7 @@ namespace IOBoardOnePorts
 
 	//analog inputs
 	const unsigned int ROTATION_KNOB = 2;
+	const unsigned int FLAP_POSITION_KNOB = 3;
 }
 
 namespace IOBoardTwoPorts{
