@@ -25,6 +25,7 @@ private:
 	static Mobility* INSTANCE;
 	static const float DEFAULT_SPEED;
 	static const float MAX_SPEED;
+	static const float RAMP_RATE;
 	static const float MAX_ULTRASONIC_DISTANCE;
 	static const float MAX_ULTRASONIC_VOLTAGE;
 	CANTalon* front_left_motor;

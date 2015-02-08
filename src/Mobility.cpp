@@ -4,6 +4,7 @@
 #include <Gyro.h>
 #include <AnalogInput.h>
 #include <CANTalon.h>
+#include <CANSpeedController.h>
 #include "Log.h"
 
 using namespace std;
@@ -11,19 +12,32 @@ using namespace std;
 Mobility* Mobility::INSTANCE = NULL;
 const float Mobility::DEFAULT_SPEED = 0.5;
 const float Mobility::MAX_SPEED = 0.9;
+const float Mobility::RAMP_RATE = 6.0; // measured in volts, results in full speed by 2 seconds
 const float Mobility::MAX_ULTRASONIC_DISTANCE = 254.0;
 const float Mobility::MAX_ULTRASONIC_VOLTAGE = 5.5;
 
 Mobility::Mobility()//COMMIT NUMBER 100
 {
 	front_left_motor = new CANTalon(RobotPorts::FRONT_LEFT_MOTOR);
+	front_left_motor->SetVoltageRampRate(RAMP_RATE);
+	front_left_motor->Set(0.0);
 	front_left_motor->SetFeedbackDevice(CANTalon::QuadEncoder);
+
 	front_right_motor = new CANTalon(RobotPorts::FRONT_RIGHT_MOTOR);
+	front_right_motor->SetVoltageRampRate(RAMP_RATE);
+	front_right_motor->Set(0.0);
 	front_right_motor->SetFeedbackDevice(CANTalon::QuadEncoder);
+
 	rear_left_motor = new CANTalon(RobotPorts::REAR_LEFT_MOTOR);
+	rear_left_motor->SetVoltageRampRate(RAMP_RATE);
+	rear_left_motor->Set(0.0);
 	rear_left_motor->SetFeedbackDevice(CANTalon::QuadEncoder);
+
 	rear_right_motor = new CANTalon(RobotPorts::REAR_RIGHT_MOTOR);
+	rear_right_motor->SetVoltageRampRate(RAMP_RATE);
+	rear_right_motor->Set(0.0);
 	rear_right_motor->SetFeedbackDevice(CANTalon::QuadEncoder);
+
 	robot_drive = new RobotDrive(front_left_motor, rear_left_motor, front_right_motor, rear_right_motor);
 	robot_drive->SetInvertedMotor(RobotDrive::kFrontRightMotor, true);
 	robot_drive->SetInvertedMotor(RobotDrive::kRearRightMotor, true);
@@ -50,6 +64,10 @@ void Mobility::process()
 	float max_rate = 345.0f;
 	float min_rot_speed = 0.2;
 	float max_rot_speed = 0.75;
+	//rear_left_motor->Set(0.0);
+	//rear_right_motor->Set(0.0);
+	//front_left_motor->Set(0.0);
+	//front_right_motor->Set(0.0);
 	if(rotating_degrees)
 	{
 		log->write(Log::ERROR_LEVEL, "Gyro: %f\n", angle);
@@ -88,6 +106,7 @@ void Mobility::setDirection(float x, float y)//-1.0 through 1.0
 	x_direction = x * fabs(x) * MAX_SPEED;
 	y_direction = y * fabs(y) * MAX_SPEED;
 }
+
 void Mobility::setRotationSpeed(float rotation_)//-1.0 through 1.0
 {
 	rotation = rotation_ * fabs(rotation_) * MAX_SPEED;
@@ -98,6 +117,7 @@ void Mobility::toggleFieldCentric()
 	log->write(Log::INFO_LEVEL, "Toggling field centric\n");
 	field_centric = !field_centric;
 }
+
 float Mobility::getUltrasonicDistance()
 {
  	/*
@@ -124,6 +144,7 @@ float Mobility::getUltrasonicDistance()
 	//IDK how this is supposed to actually be but I'm going with this
 	return (ultrasonic->GetVoltage() * MAX_ULTRASONIC_DISTANCE)/MAX_ULTRASONIC_VOLTAGE;
 }
+
 void Mobility::setRotationDegrees(int degrees)
 {
 	start_degrees = gyro->GetAngle();
@@ -139,6 +160,7 @@ void Mobility::setRotationDegrees(int degrees)
 	rotating_degrees = true;
 	setRotationSpeed(rotate_direction);
 }
+
 Mobility* Mobility::getInstance()
 {
     if (INSTANCE == NULL) {
