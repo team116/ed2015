@@ -1,4 +1,5 @@
 #include <WPILib.h>
+#include <Encoder.h>
 #include "Ports.h"
 #include "DS.h"
 #include "Log.h"
@@ -7,6 +8,8 @@ DS* DS::INSTANCE = NULL;
 
 DS::DS()
 {
+	encoder = new Encoder(RobotPorts::ENCODER_A, RobotPorts::ENCODER_B);
+
 	front_left_wheel = new CANTalon(RobotPorts::FRONT_LEFT_MOTOR);
 	front_right_wheel = new CANTalon(RobotPorts::FRONT_RIGHT_MOTOR);
 	rear_left_wheel = new CANTalon(RobotPorts::REAR_LEFT_MOTOR);
@@ -21,6 +24,8 @@ DS::DS()
 	joystick_one = Joystick::GetStickForPort(DSPorts::DRIVER_ONE_JOYSTICK);
 	joystick_two = Joystick::GetStickForPort(DSPorts::DRIVER_TWO_JOYSTICK);
 	joystick_three = Joystick::GetStickForPort(DSPorts::BUTTONS_JOYSTICK);
+
+	log = Log::getInstance();
 }
 
 void DS::process()
@@ -176,6 +181,19 @@ void DS::process()
 		lifter_one->Set(0.0);
 		lifter_two->Set(0.0);
 	}
+
+	/*
+	log->write(Log::TRACE_LEVEL, "-----------Talon Encoder-------------\n");
+	log->write(Log::INFO_LEVEL, "Distance: %i\n", rear_left_wheel->GetEncPosition());
+	log->write(Log::INFO_LEVEL, "Velocity: %i\n", rear_left_wheel->GetEncVel());
+
+	log->write(Log::TRACE_LEVEL, "----------Digital Encoder------------\n");
+	*/
+	log->write(Log::INFO_LEVEL, "Get: %i\n", encoder->Get());
+	log->write(Log::INFO_LEVEL, "Get Raw: %i\n", encoder->GetRaw());
+	log->write(Log::INFO_LEVEL, "Rate: %f\n", encoder->GetRate());
+	log->write(Log::INFO_LEVEL, "Get Encoding Scale: %i\n", encoder->GetEncodingScale());
+}
 
 DS* DS::getInstance()
 {
