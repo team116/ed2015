@@ -12,7 +12,7 @@ using namespace std;
 Mobility* Mobility::INSTANCE = NULL;
 const float Mobility::DEFAULT_SPEED = 0.5;
 const float Mobility::MAX_SPEED = 0.9;
-const float Mobility::RAMP_RATE = 6.0; // measured in volts, results in full speed by 2 seconds
+const float Mobility::RAMP_RATE = 24.0; // measured in volts, ramps to full speed in 0.5 seconds
 const float Mobility::MAX_ULTRASONIC_DISTANCE = 254.0;
 const float Mobility::MAX_ULTRASONIC_VOLTAGE = 5.5;
 
