@@ -68,7 +68,7 @@ void DS::process()
 		front_right_wheel->Set(0.0);
 	}
 	else if (joystick_one->GetRawButton(JoystickPorts::GO_FORWARDS_FRONT_RIGHT_MOTOR)) {
-		front_right_wheel->Set(0.0);
+		front_right_wheel->Set(0.5);
 	}
 	else if (joystick_one->GetRawButton(JoystickPorts::GO_BACKWARDS_FRONT_RIGHT_MOTOR)) {
 		front_right_wheel->Set(-0.5);
