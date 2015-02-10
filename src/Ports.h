@@ -85,8 +85,7 @@ namespace IOBoardOnePorts
 	const unsigned int FRONT_CAMERA_INDICATOR = 23;
 
 	//analog inputs
-	const unsigned int ROTATION_KNOB = 2;
-	const unsigned int FLAP_POSITION_KNOB = 3;
+	const unsigned int FLAP_POSITION_KNOB = 1;
 }
 
 namespace IOBoardTwoPorts{

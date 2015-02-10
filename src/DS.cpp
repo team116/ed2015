@@ -81,8 +81,7 @@ void DS::processMobility() {
 		x = fabs(x) < 0.05 ? 0 : x;
 		y = fabs(y) < 0.05 ? 0 : y;
 		mobility->setDirection(x, y);
-		// mobility->setRotationSpeed(main_joystick->GetTwist());
-		mobility->setRotationSpeed(IO_board_one->GetRawAxis(IOBoardOnePorts::ROTATION_KNOB));
+		mobility->setRotationSpeed(main_joystick->GetTwist());
 	}
 	turn_degrees = main_joystick->GetRawButton(JoystickPorts::TURN_DEGREES);
 	if (turn_degrees && !turn_degrees_handled) {
