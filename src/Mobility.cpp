@@ -161,6 +161,18 @@ void Mobility::setRotationDegrees(int degrees)
 	setRotationSpeed(rotate_direction);
 }
 
+void Mobility::resetXEncoderDistance(){
+
+}
+void Mobility::resetYEncoderDistance(){
+
+}
+int Mobility::getYEncoderDistance(){
+	return 0;
+}
+int Mobility::getXEncoderDistance(){
+	return 0;
+}
 Mobility* Mobility::getInstance()
 {
     if (INSTANCE == NULL) {

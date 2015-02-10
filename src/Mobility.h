@@ -18,6 +18,10 @@ public:
 	void setRotationDegrees(int degrees);
 	float getUltrasonicDistance();
 	void toggleFieldCentric();
+	int getXEncoderDistance();
+	int getYEncoderDistance();
+	void resetXEncoderDistance();
+	void resetYEncoderDistance();
 
 private:
 	Mobility();
