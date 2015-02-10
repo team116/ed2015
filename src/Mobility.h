@@ -32,6 +32,7 @@ private:
 	static const float RAMP_RATE;
 	static const float MAX_ULTRASONIC_DISTANCE;
 	static const float MAX_ULTRASONIC_VOLTAGE;
+	static const float ODOMETRY_INCHES_PER_PULSE;
 	CANTalon* front_left_motor;
 	CANTalon* front_right_motor;
 	CANTalon* rear_left_motor;
@@ -39,6 +40,9 @@ private:
 	RobotDrive* robot_drive;
 	AnalogInput* ultrasonic;
 	Gyro* gyro;
+
+	Encoder* odometry_wheel_x_encoder;
+	Encoder* odometry_wheel_y_encoder;
 
 	Log* log;
 

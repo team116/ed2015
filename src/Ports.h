@@ -33,6 +33,10 @@ namespace RobotPorts
 
 	const unsigned int ENCODER_A = 6;
 	const unsigned int ENCODER_B = 7;
+	const unsigned int ODOMETRY_WHEEL_X_A = 8;
+	const unsigned int ODOMETRY_WHEEL_X_B = 9;
+	const unsigned int ODOMETRY_WHEEL_Y_A = 10;
+	const unsigned int ODOMETRY_WHEEL_Y_B = 11;
 
 }
 
@@ -56,33 +60,34 @@ namespace JoystickPorts
 namespace IOBoardOnePorts
 {
 	//digital inputs
-	const unsigned int LIFTER_PRESET_1 = 1;
-	const unsigned int LIFTER_PRESET_2 = 2;
-	const unsigned int LIFTER_PRESET_3 = 3;
-	const unsigned int LIFTER_PRESET_4 = 4;
-	const unsigned int LIFTER_PRESET_5 = 5;
-	const unsigned int LIFTER_PRESET_6 = 6;
+	const unsigned int LIFTER_PRESET_0 = 1;
+	const unsigned int LIFTER_PRESET_1 = 2;
+	const unsigned int LIFTER_PRESET_2 = 3;
+	const unsigned int LIFTER_PRESET_3 = 4;
+	const unsigned int LIFTER_PRESET_4 = 5;
+	const unsigned int LIFTER_PRESET_5 = 6;
+	const unsigned int LIFTER_PRESET_6 = 7;
 
-	const unsigned int STACK_ON_PLATFORM_SWITCH = 7;
-	const unsigned int STACK_ON_STEP_SWITCH = 8;
+	const unsigned int STACK_ON_PLATFORM_SWITCH = 8;
+	const unsigned int STACK_ON_STEP_SWITCH = 9;
 
-	const unsigned int LIFTER_UP_BUTTON = 9;
-	const unsigned int LIFTER_DOWN_BUTTON = 10;
+	const unsigned int LIFTER_UP_BUTTON = 10;
+	const unsigned int LIFTER_DOWN_BUTTON = 11;
 
 	//digital outputs
-	const unsigned int LEVEL_0_INDICATOR = 13;
-	const unsigned int LEVEL_1_INDICATOR = 14;
-	const unsigned int LEVEL_2_INDICATOR = 15;
-	const unsigned int LEVEL_3_INDICATOR = 16;
-	const unsigned int LEVEL_4_INDICATOR = 17;
-	const unsigned int LEVEL_5_INDICATOR = 18;
+	const unsigned int LEVEL_0_INDICATOR = 12;
+	const unsigned int LEVEL_1_INDICATOR = 13;
+	const unsigned int LEVEL_2_INDICATOR = 14;
+	const unsigned int LEVEL_3_INDICATOR = 15;
+	const unsigned int LEVEL_4_INDICATOR = 16;
+	const unsigned int LEVEL_5_INDICATOR = 17;
 
-	const unsigned int STACK_ON_FLOOR_INDICATOR = 19;
-	const unsigned int STACK_ON_PLATFORM_INDICATOR = 20;
-	const unsigned int STACK_ON_STEP_INDICATOR = 21;
+	const unsigned int STACK_ON_FLOOR_INDICATOR = 18;
+	const unsigned int STACK_ON_PLATFORM_INDICATOR = 19;
+	const unsigned int STACK_ON_STEP_INDICATOR = 20;
 
-	const unsigned int BACK_CAMERA_INDICATOR = 22;
-	const unsigned int FRONT_CAMERA_INDICATOR = 23;
+	const unsigned int BACK_CAMERA_INDICATOR = 21;
+	const unsigned int FRONT_CAMERA_INDICATOR = 22;
 
 	//analog inputs
 	const unsigned int FLAP_POSITION_KNOB = 1;

@@ -15,6 +15,7 @@ const float Mobility::MAX_SPEED = 0.9;
 const float Mobility::RAMP_RATE = 24.0; // measured in volts, ramps to full speed in 0.5 seconds
 const float Mobility::MAX_ULTRASONIC_DISTANCE = 254.0;
 const float Mobility::MAX_ULTRASONIC_VOLTAGE = 5.5;
+const float Mobility::ODOMETRY_INCHES_PER_PULSE = 3.0/360.0;
 
 Mobility::Mobility()//COMMIT NUMBER 100
 {
@@ -37,6 +38,12 @@ Mobility::Mobility()//COMMIT NUMBER 100
 	rear_right_motor->SetVoltageRampRate(RAMP_RATE);
 	rear_right_motor->Set(0.0);
 	rear_right_motor->SetFeedbackDevice(CANTalon::QuadEncoder);
+
+	odometry_wheel_x_encoder = new Encoder(RobotPorts::ODOMETRY_WHEEL_X_A,RobotPorts::ODOMETRY_WHEEL_X_B);
+	odometry_wheel_y_encoder = new Encoder(RobotPorts::ODOMETRY_WHEEL_Y_A,RobotPorts::ODOMETRY_WHEEL_Y_B);
+
+	odometry_wheel_x_encoder->SetDistancePerPulse(ODOMETRY_INCHES_PER_PULSE);
+	odometry_wheel_y_encoder->SetDistancePerPulse(ODOMETRY_INCHES_PER_PULSE);
 
 	robot_drive = new RobotDrive(front_left_motor, rear_left_motor, front_right_motor, rear_right_motor);
 	robot_drive->SetInvertedMotor(RobotDrive::kFrontRightMotor, true);
@@ -162,17 +169,18 @@ void Mobility::setRotationDegrees(int degrees)
 }
 
 void Mobility::resetXEncoderDistance(){
-
+	odometry_wheel_x_encoder->Reset();
 }
 void Mobility::resetYEncoderDistance(){
-
-}
-int Mobility::getYEncoderDistance(){
-	return 0;
+	odometry_wheel_y_encoder->Reset();
 }
 int Mobility::getXEncoderDistance(){
-	return 0;
+	return odometry_wheel_x_encoder->GetDistance();
 }
+int Mobility::getYEncoderDistance(){
+	return odometry_wheel_y_encoder->GetDistance();
+}
+
 Mobility* Mobility::getInstance()
 {
     if (INSTANCE == NULL) {
