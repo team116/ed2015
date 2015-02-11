@@ -10,17 +10,24 @@ DS::DS()
 {
 	encoder = new Encoder(RobotPorts::ENCODER_A, RobotPorts::ENCODER_B);
 
+	od_xaxis_encoder = new Encoder(RobotPorts::OD_XAXIS_ENCODER_A, RobotPorts::OD_XAXIS_ENCODER_B);
+	od_yaxis_encoder = new Encoder(RobotPorts::OD_YAXIS_ENCODER_A, RobotPorts::OD_YAXIS_ENCODER_B);
+
 	front_left_wheel = new CANTalon(RobotPorts::FRONT_LEFT_MOTOR);
 	front_right_wheel = new CANTalon(RobotPorts::FRONT_RIGHT_MOTOR);
 	rear_left_wheel = new CANTalon(RobotPorts::REAR_LEFT_MOTOR);
 	rear_right_wheel = new CANTalon(RobotPorts::REAR_RIGHT_MOTOR);
 	left_grabber_wheel = new CANTalon(RobotPorts::LEFT_WHEEL);
 	right_grabber_wheel = new CANTalon(RobotPorts::RIGHT_WHEEL);
+
 	lifter_one = new CANTalon(RobotPorts::LIFTER_ONE);
 	lifter_two = new CANTalon(RobotPorts::LIFTER_TWO);
+
 	rake_port = new CANTalon(RobotPorts::RAKE_PORT_MOTOR);
 	rake_starboard = new CANTalon(RobotPorts::RAKE_STARBOARD_MOTOR);
+
 	flaps = new CANTalon(RobotPorts::CLOSE_FLAPS_MOTOR);
+
 	joystick_one = Joystick::GetStickForPort(DSPorts::DRIVER_ONE_JOYSTICK);
 	joystick_two = Joystick::GetStickForPort(DSPorts::DRIVER_TWO_JOYSTICK);
 	joystick_three = Joystick::GetStickForPort(DSPorts::BUTTONS_JOYSTICK);
@@ -192,7 +199,31 @@ void DS::process()
 	log->write(Log::INFO_LEVEL, "Get: %i\n", encoder->Get());
 	log->write(Log::INFO_LEVEL, "Get Raw: %i\n", encoder->GetRaw());
 	log->write(Log::INFO_LEVEL, "Rate: %f\n", encoder->GetRate());
-	log->write(Log::INFO_LEVEL, "Get Encoding Scale: %i\n", encoder->GetEncodingScale());
+	//log->write(Log::INFO_LEVEL, "Get Encoding Scale: %i\n", encoder->GetEncodingScale());
+
+	log->write(Log::INFO_LEVEL, "Get: Front Left Encoder %i\n", od_xaxis_encoder->Get());
+	log->write(Log::INFO_LEVEL, "Get: Back Right Encoder %i\n", od_yaxis_encoder->Get());
+
+	log->write(Log::INFO_LEVEL, "Get: Front Left Wheel Velocity %i\n", front_left_wheel->GetEncVel());
+	log->write(Log::INFO_LEVEL, "Get: Front Right Wheel Velocity %i\n", front_right_wheel->GetEncVel());
+	log->write(Log::INFO_LEVEL, "Get: Back Left Wheel Velocity %i\n", rear_left_wheel->GetEncVel());
+	log->write(Log::INFO_LEVEL, "Get: Back Right Wheel Velocity %i\n", rear_right_wheel->GetEncVel());
+
+	log->write(Log::INFO_LEVEL, "Get: Lifter One Position %i\n", lifter_one->GetEncPosition());
+
+	log->write(Log::INFO_LEVEL, "Get: Rake Port Position %i\n", rake_port->GetEncPosition());
+	log->write(Log::INFO_LEVEL, "Get: Rake Starboard Position %i\n", rake_starboard->GetEncPosition());
+
+	log->write(Log::INFO_LEVEL, "Get: Arm Flippy Floppies Position %i\n", flaps->GetEncPosition());
+
+	log->write(Log::INFO_LEVEL, "Get: Upper Lifter Limit Switch %i\n", lifter_one->GetForwardLimitOK());
+	log->write(Log::INFO_LEVEL, "Get: Lower Lifter Limit Switch %i\n", lifter_one->GetReverseLimitOK());
+	log->write(Log::INFO_LEVEL, "Get: Upper Rake Port Limit Switch %i\n", rake_port->GetForwardLimitOK());
+	log->write(Log::INFO_LEVEL, "Get: Lower Rake Port Limit Switch %i\n", rake_port->GetReverseLimitOK());
+	log->write(Log::INFO_LEVEL, "Get: Upper Rake Starboard Limit Switch %i\n", rake_starboard->GetForwardLimitOK());
+	log->write(Log::INFO_LEVEL, "Get: Lower Rake Starboard Limit Switch %i\n", rake_starboard->GetReverseLimitOK());
+	log->write(Log::INFO_LEVEL, "Get: Upper Arm Flippy Floppies isOpen Limit Switch %i\n", flaps->GetForwardLimitOK());
+	log->write(Log::INFO_LEVEL, "Get: Lower Arm Flippy Floppies isClosed Limit Switch %i\n", flaps->GetReverseLimitOK());
 }
 
 DS* DS::getInstance()
