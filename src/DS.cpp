@@ -195,6 +195,74 @@ void DS::process()
 	log->write(Log::INFO_LEVEL, "Get Encoding Scale: %i\n", encoder->GetEncodingScale());
 }
 
+DS::Direction DS::frontRightMotorDirection()
+{
+	if (joystick_one->GetRawButton(JoystickPorts::GO_FORWARDS_FRONT_RIGHT_MOTOR) &&
+		joystick_one->GetRawButton(JoystickPorts::GO_BACKWARDS_FRONT_RIGHT_MOTOR)) {
+		return STILL;
+	}
+	else if (joystick_one->GetRawButton(JoystickPorts::GO_FORWARDS_FRONT_RIGHT_MOTOR)) {
+		return FORWARD;
+	}
+	else if (joystick_one->GetRawButton(JoystickPorts::GO_BACKWARDS_FRONT_RIGHT_MOTOR)) {
+		return BACKWARD;
+	}
+	else {
+		return STILL;
+	}
+}
+
+DS::Direction DS::frontLeftMotorDirection()
+{
+	if (joystick_one->GetRawButton(JoystickPorts::GO_FORWARDS_FRONT_LEFT_MOTOR) &&
+		joystick_one->GetRawButton(JoystickPorts::GO_BACKWARDS_FRONT_RIGHT_MOTOR)) {
+		return STILL;
+	}
+	else if (joystick_one->GetRawButton(JoystickPorts::GO_FORWARDS_FRONT_LEFT_MOTOR)) {
+		return FORWARD;
+	}
+	else if (joystick_one->GetRawButton(JoystickPorts::GO_BACKWARDS_FRONT_LEFT_MOTOR)) {
+		return BACKWARD;
+	}
+	else {
+		return STILL;
+	}
+}
+
+DS::Direction DS::rearRightMotorDirection()
+{
+	if (joystick_one->GetRawButton(JoystickPorts::GO_FORWARDS_REAR_RIGHT_MOTOR) &&
+		joystick_one->GetRawButton(JoystickPorts::GO_BACKWARDS_REAR_RIGHT_MOTOR)) {
+		return STILL;
+	}
+	else if (joystick_one->GetRawButton(JoystickPorts::GO_FORWARDS_REAR_RIGHT_MOTOR)) {
+		return FORWARD;
+	}
+	else if (joystick_one->GetRawButton(JoystickPorts::GO_BACKWARDS_REAR_RIGHT_MOTOR)) {
+		return BACKWARD;
+	}
+	else {
+		return STILL;
+	}
+}
+
+DS::Direction DS::rearLeftMotorDirection()
+{
+	if (joystick_one->GetRawButton(JoystickPorts::GO_FORWARDS_REAR_LEFT_MOTOR) &&
+		joystick_one->GetRawButton(JoystickPorts::GO_BACKWARDS_FRONT_RIGHT_MOTOR)) {
+		return STILL;
+	}
+	else if (joystick_one->GetRawButton(JoystickPorts::GO_FORWARDS_REAR_LEFT_MOTOR)) {
+		return FORWARD;
+	}
+	else if (joystick_one->GetRawButton(JoystickPorts::GO_BACKWARDS_REAR_LEFT_MOTOR)) {
+		return BACKWARD;
+	}
+	else {
+		return STILL;
+	}
+}
+
 DS* DS::getInstance()
 {
 	if (INSTANCE == NULL)

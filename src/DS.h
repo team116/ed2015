@@ -11,6 +11,22 @@ public:
 
 	void process();
 
+	enum Direction {
+		FORWARD = 1,
+		STILL = 0,
+		BACKWARD = -1
+	};
+
+	Direction frontLeftMotorDirection();
+	Direction frontRightMotorDirection();
+	Direction rearLeftMotorDirection();
+	Direction rearRightMotorDirection();
+
+	Direction lifterMotorDirection();
+	Direction armFlapMotorDirection();
+	Direction portRakeMotorDirection();
+	Direction starboardRakeMotorDirection();
+
 private:
 	DS();
 	static DS* INSTANCE;
