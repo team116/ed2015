@@ -103,7 +103,6 @@ private:
 	DigitalInput* port_rake_limit;
 	DigitalInput* starboard_rake_limit;
 
-	Encoder* encoder;
 	AnalogPotentiometer* potentiometer;
 	static const int PULSE_PER_REV;
 	static const float INCH_PER_REV;

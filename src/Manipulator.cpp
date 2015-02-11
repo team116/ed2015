@@ -43,12 +43,10 @@ Manipulator::Manipulator()
 	lifter_two = new CANTalon(RobotPorts::LIFTER_TWO);
 	lift_upper_limit = new DigitalInput(RobotPorts::LIFT_UPPER_LIMIT);
 	lift_lower_limit = new DigitalInput(RobotPorts::LIFT_LOWER_LIMIT);
-	encoder = new Encoder(RobotPorts::ENCODER_A, RobotPorts::ENCODER_B);
-	encoder->SetDistancePerPulse(INCH_PER_REV/PULSE_PER_REV);	//inches per revolution / pulses per revolution = inches per pulse
 	potentiometer= new AnalogPotentiometer(RobotPorts::FLAP_POTENTIOMETER, 270, 0); //270 = full range of positions; 0 = lowest position
 	lift_timer = new Timer();
-	current_height = 0; //starting height (floor level)
-	target_height = 0;
+	current_height = 0.0; // starting height (floor level)
+	target_height = 0.0;
 	lifter_timeout = 0.0;
 
 	// rake initializations
@@ -89,7 +87,8 @@ Manipulator* Manipulator::getInstance()
 
 void Manipulator::process()
 {
-	current_height = encoder->GetDistance();	//uses data from encoder to determine current height of lift
+	// use data from encoder on lifter motor to determine current height. GetEncPosition() measures in 4x
+	current_height = lifter_one->GetEncPosition()*INCH_PER_REV/(4*PULSE_PER_REV);
 	log->write(Log::TRACE_LEVEL, "%s\tCurrent Height: %f \nTarget Height: %f\n", Utils::getCurrentTime(), current_height,target_height);
 
 	if(pushToteDone()) {
@@ -157,10 +156,12 @@ void Manipulator::process()
 	}
 
 
-	if (lift_lower_limit->Get()){		//reset encoder to 0 every time lift hits lower limit switch
+	if (lift_lower_limit->Get()){
 		log->write(Log::TRACE_LEVEL, "%s\tHit bottom of lift: encoder set to 0\n", Utils::getCurrentTime());
-		encoder->Reset();
+		// resets the encoder to 0 when we've hit the bottom limit
+		lifter_one->SetPosition(0.0);
 	}
+
 
 	if (rakeUpMotionDone()){ 	//TODO: get real times
 		log->write(Log::TRACE_LEVEL, "%s\tRake finished moving up\n", Utils::getCurrentTime());
