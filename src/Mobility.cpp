@@ -107,15 +107,6 @@ void Mobility::process()
 	}
 }
 
-void Mobility::balanceVoltages()
-{
-	/*I'm not exactly certain that the motors don't do this themselves. It's possible that they adjust voltage to real speed
-	 * automatically after we set the Control Mode to speed and the feedback device to the corresponding encoder ((see the constructor). In any case,
-	 * the documentation I found (both from the WPILib and the manufacturer's manual) was totally indecipherable. So... shrug.
-	 * I will keep trying.
-	 */
-}
-
 void Mobility::setDirection(float x, float y)//-1.0 through 1.0
 {
 	x_direction = x * fabs(x) * MAX_SPEED;

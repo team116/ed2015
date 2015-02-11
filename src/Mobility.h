@@ -25,7 +25,6 @@ public:
 
 private:
 	Mobility();
-	void balanceVoltages();
 	static Mobility* INSTANCE;
 	static const float DEFAULT_SPEED;
 	static const float MAX_SPEED;
