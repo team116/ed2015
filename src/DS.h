@@ -34,6 +34,8 @@ private:
 	Log* log;
 
 	Encoder* encoder;
+	Encoder* od_xaxis_encoder;
+	Encoder* od_yaxis_encoder;
 
 	CANTalon* front_left_wheel;
 	CANTalon* front_right_wheel;
@@ -46,6 +48,7 @@ private:
 	CANTalon* rake_port;
 	CANTalon* rake_starboard;
 	CANTalon* flaps;
+
 	Joystick* joystick_one;
 	Joystick* joystick_two;
 	Joystick* joystick_three;

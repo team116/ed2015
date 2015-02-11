@@ -36,6 +36,10 @@ namespace RobotPorts
 	const unsigned int ENCODER_A = 0;
 	const unsigned int ENCODER_B = 1;
 
+	const unsigned int OD_XAXIS_ENCODER_A = 0;
+	const unsigned int OD_XAXIS_ENCODER_B = 1;
+	const unsigned int OD_YAXIS_ENCODER_A = 0;
+	const unsigned int OD_YAXIS_ENCODER_B = 1;
 }
 
 namespace DSPorts
