@@ -108,7 +108,7 @@ void DS::processManipulator() {
 
 	// this assumes the max voltage for the flap position input to be 5
 	// also this assumes that we'll be getting this as analog input instead of as a few digital inputs
-	switch (Utils::convertFromVolts(IO_board_one->GetRawAxis(IOBoardOnePorts::FLAP_POSITION_KNOB),3,5.0)){
+	switch (Utils::convertFromVolts(IO_board_one->GetRawAxis(IOBoardOnePorts::FLAP_POSITION_KNOB), 3, 5.0)) {
 	case 0:
 		manipulator->setFlapPosition(Manipulator::FLAP_LOW);
 		break;
@@ -121,23 +121,26 @@ void DS::processManipulator() {
 	}
 
 	// lifter preset buttons
-	if (IO_board_one->GetRawButton(IOBoardOnePorts::LIFTER_PRESET_1)) {
+	if (IO_board_one->GetRawButton(IOBoardOnePorts::LIFTER_PRESET_0)) {
 		manipulator->setTargetLevel(0);
 	}
-	else if (IO_board_one->GetRawButton(IOBoardOnePorts::LIFTER_PRESET_2)) {
+	else if (IO_board_one->GetRawButton(IOBoardOnePorts::LIFTER_PRESET_1)) {
 		manipulator->setTargetLevel(1);
 	}
-	else if (IO_board_one->GetRawButton(IOBoardOnePorts::LIFTER_PRESET_3)) {
+	else if (IO_board_one->GetRawButton(IOBoardOnePorts::LIFTER_PRESET_2)) {
 		manipulator->setTargetLevel(2);
 	}
-	else if (IO_board_one->GetRawButton(IOBoardOnePorts::LIFTER_PRESET_4)) {
+	else if (IO_board_one->GetRawButton(IOBoardOnePorts::LIFTER_PRESET_3)) {
 		manipulator->setTargetLevel(3);
 	}
-	else if (IO_board_one->GetRawButton(IOBoardOnePorts::LIFTER_PRESET_5)) {
+	else if (IO_board_one->GetRawButton(IOBoardOnePorts::LIFTER_PRESET_4)) {
 		manipulator->setTargetLevel(4);
 	}
-	else if (IO_board_one->GetRawButton(IOBoardOnePorts::LIFTER_PRESET_6)) {
+	else if (IO_board_one->GetRawButton(IOBoardOnePorts::LIFTER_PRESET_5)) {
 		manipulator->setTargetLevel(5);
+	}
+	else if (IO_board_one->GetRawButton(IOBoardOnePorts::LIFTER_PRESET_6)) {
+		manipulator->setTargetLevel(6);
 	}
 	else {
 		// do nothing
@@ -217,6 +220,7 @@ void DS::doLevelLEDS(int level) {
 		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_3_INDICATOR, false);
 		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_4_INDICATOR, false);
 		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_5_INDICATOR, false);
+		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_6_INDICATOR, false);
 		break;
 	case 1:
 		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_0_INDICATOR, true);
@@ -225,6 +229,7 @@ void DS::doLevelLEDS(int level) {
 		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_3_INDICATOR, false);
 		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_4_INDICATOR, false);
 		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_5_INDICATOR, false);
+		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_6_INDICATOR, false);
 		break;
 	case 2:
 		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_0_INDICATOR, true);
@@ -233,6 +238,7 @@ void DS::doLevelLEDS(int level) {
 		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_3_INDICATOR, false);
 		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_4_INDICATOR, false);
 		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_5_INDICATOR, false);
+		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_6_INDICATOR, false);
 		break;
 	case 3:
 		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_0_INDICATOR, true);
@@ -241,6 +247,7 @@ void DS::doLevelLEDS(int level) {
 		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_3_INDICATOR, true);
 		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_4_INDICATOR, false);
 		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_5_INDICATOR, false);
+		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_6_INDICATOR, false);
 		break;
 	case 4:
 		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_0_INDICATOR, true);
@@ -249,6 +256,7 @@ void DS::doLevelLEDS(int level) {
 		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_3_INDICATOR, true);
 		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_4_INDICATOR, true);
 		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_5_INDICATOR, false);
+		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_6_INDICATOR, false);
 		break;
 	case 5:
 		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_0_INDICATOR, true);
@@ -257,6 +265,16 @@ void DS::doLevelLEDS(int level) {
 		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_3_INDICATOR, true);
 		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_4_INDICATOR, true);
 		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_5_INDICATOR, true);
+		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_6_INDICATOR, false);
+		break;
+	case 6:
+		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_0_INDICATOR, true);
+		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_1_INDICATOR, true);
+		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_2_INDICATOR, true);
+		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_3_INDICATOR, true);
+		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_4_INDICATOR, true);
+		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_5_INDICATOR, true);
+		IO_board_one->SetOutput(IOBoardOnePorts::LEVEL_6_INDICATOR, true);
 		break;
 	}
 }

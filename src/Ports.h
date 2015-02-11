@@ -81,13 +81,14 @@ namespace IOBoardOnePorts
 	const unsigned int LEVEL_3_INDICATOR = 15;
 	const unsigned int LEVEL_4_INDICATOR = 16;
 	const unsigned int LEVEL_5_INDICATOR = 17;
+	const unsigned int LEVEL_6_INDICATOR = 18;
 
-	const unsigned int STACK_ON_FLOOR_INDICATOR = 18;
-	const unsigned int STACK_ON_PLATFORM_INDICATOR = 19;
-	const unsigned int STACK_ON_STEP_INDICATOR = 20;
+	const unsigned int STACK_ON_FLOOR_INDICATOR = 19;
+	const unsigned int STACK_ON_PLATFORM_INDICATOR = 20;
+	const unsigned int STACK_ON_STEP_INDICATOR = 21;
 
-	const unsigned int BACK_CAMERA_INDICATOR = 21;
-	const unsigned int FRONT_CAMERA_INDICATOR = 22;
+	const unsigned int BACK_CAMERA_INDICATOR = 22;
+	const unsigned int FRONT_CAMERA_INDICATOR = 23;
 
 	//analog inputs
 	const unsigned int FLAP_POSITION_KNOB = 1;
