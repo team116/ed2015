@@ -6,6 +6,7 @@
  */
 
 #include <Motors.h>
+#include "Ports.h"
 
 Motors::Motors() {
 	// TODO Auto-generated constructor stub
@@ -42,7 +43,7 @@ void Motors::process() {
 	else if(direction == DS::BACKWARD) {
 		front_left_wheel->Set(-0.5);
 	}
-	DS::Direction direction = ds->frontRightMotorDirection();
+	direction = ds->frontRightMotorDirection();
 	if(direction == DS::FORWARD) {
 		front_right_wheel->Set(0.5);
 	}
@@ -52,7 +53,7 @@ void Motors::process() {
 	else if(direction == DS::BACKWARD) {
 		front_right_wheel->Set(-0.5);
 	}
-	DS::Direction direction = ds->rearLeftMotorDirection();
+	direction = ds->rearLeftMotorDirection();
 	if(direction == DS::FORWARD) {
 		rear_left_wheel->Set(0.5);
 	}
@@ -62,7 +63,7 @@ void Motors::process() {
 	else if(direction == DS::BACKWARD) {
 		rear_left_wheel->Set(-0.5);
 	}
-	DS::Direction direction = ds->rearRightMotorDirection();
+	direction = ds->rearRightMotorDirection();
 	if(direction == DS::FORWARD) {
 		rear_right_wheel->Set(0.5);
 	}

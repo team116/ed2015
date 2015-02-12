@@ -13,6 +13,21 @@ DS::DS()
 	od_xaxis_encoder = new Encoder(RobotPorts::OD_XAXIS_ENCODER_A, RobotPorts::OD_XAXIS_ENCODER_B);
 	od_yaxis_encoder = new Encoder(RobotPorts::OD_YAXIS_ENCODER_A, RobotPorts::OD_YAXIS_ENCODER_B);
 
+    front_left_wheel = new CANTalon(RobotPorts::FRONT_LEFT_MOTOR);
+    front_right_wheel = new CANTalon(RobotPorts::FRONT_RIGHT_MOTOR);
+    rear_left_wheel = new CANTalon(RobotPorts::REAR_LEFT_MOTOR);
+    rear_right_wheel = new CANTalon(RobotPorts::REAR_RIGHT_MOTOR);
+    left_grabber_wheel = new CANTalon(RobotPorts::LEFT_WHEEL);
+    right_grabber_wheel = new CANTalon(RobotPorts::RIGHT_WHEEL);
+
+    lifter_one = new CANTalon(RobotPorts::LIFTER_ONE);
+    lifter_two = new CANTalon(RobotPorts::LIFTER_TWO);
+
+    rake_port = new CANTalon(RobotPorts::RAKE_PORT_MOTOR);
+    rake_starboard = new CANTalon(RobotPorts::RAKE_STARBOARD_MOTOR);
+
+    flaps = new CANTalon(RobotPorts::CLOSE_FLAPS_MOTOR);
+
 	joystick_one = Joystick::GetStickForPort(DSPorts::DRIVER_ONE_JOYSTICK);
 	joystick_two = Joystick::GetStickForPort(DSPorts::DRIVER_TWO_JOYSTICK);
 	joystick_three = Joystick::GetStickForPort(DSPorts::BUTTONS_JOYSTICK);

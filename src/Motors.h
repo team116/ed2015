@@ -8,6 +8,9 @@
 #ifndef SRC_MOTORS_H_
 #define SRC_MOTORS_H_
 
+#include <CANTalon.h>
+#include "DS.h"
+
 class Motors {
 public:
 	Motors();
