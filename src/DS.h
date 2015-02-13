@@ -5,14 +5,20 @@
 #include "Manipulator.h"
 #include <CameraServer.h>
 
-class DS
-{
+class DS {
 public:
 	static DS* getInstance();
 	void process();
 	void processMobility();
 	void processManipulator();
 	void processLEDS();
+	void processCameras();
+	bool StopCamera(int cameraNum);
+	bool StartCamera(int cameraNum);
+	bool StartFrontCamera();
+	bool StartBackCamera();
+	bool StopFrontCamera();
+	bool StopBackCamera();
 
 private:
 	DS();
@@ -37,6 +43,14 @@ private:
 	void doLevelLEDS(int level);
 
 	const static float LIFTER_BUTTON_CHANGE;
+
+	IMAQdxSession sessionFrontCam;
+	IMAQdxSession sessionBackCam;
+
+	Image *frameFrontCam;
+	Image *frameBackCam;
+
+	IMAQdxError imaqError;
 
 };
 

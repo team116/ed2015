@@ -6,6 +6,8 @@
 #include <CameraServer.h>
 #include <cmath>
 DS* DS::INSTANCE = NULL;
+const int kCam0Button = 1;
+const int kCam1Button = 2;
 
 DS::DS() {
 	mobility = Mobility::getInstance();
@@ -17,9 +19,11 @@ DS::DS() {
 	IO_board_one = Joystick::GetStickForPort(DSPorts::DIGITAL_IO_BOARD);
 	IO_board_two = Joystick::GetStickForPort(DSPorts::SECOND_IO_BOARD);
 
-	server = CameraServer::GetInstance();
-	server->SetQuality(50);
-	server->StartAutomaticCapture("cam0");
+	/*server = CameraServer::GetInstance();
+	 server->SetQuality(50);
+	 server->StartAutomaticCapture("cam0");*/
+	frameFrontCam = imaqCreateImage(IMAQ_IMAGE_RGB, 0);
+	frameBackCam = imaqCreateImage(IMAQ_IMAGE_RGB, 0);
 
 	on_step = false;
 	override = false;
@@ -29,6 +33,7 @@ DS::DS() {
 	turn_degrees_handled = false;
 
 	IO_board_one->SetOutputs(0);
+
 }
 
 void DS::process() {
@@ -38,16 +43,10 @@ void DS::process() {
 		override = !override;
 	}
 
-	if (IO_board_two->GetRawButton(IOBoardTwoPorts::BACK_CAMERA_SELECT)) {
-		// switch to back camera
-	}
-	else if (IO_board_two->GetRawButton(IOBoardTwoPorts::FRONT_CAMERA_SELECT)) {
-		// switch to front camera
-	}
-
 	processMobility();
 	processManipulator();
 	processLEDS();
+	processCameras();
 
 }
 
@@ -57,8 +56,7 @@ void DS::processMobility() {
 	// we might just remove this because the override button is a dumb idea
 	if (override) {
 		log->write(Log::TRACE_LEVEL, "%s\tIn override mode\n", Utils::getCurrentTime());
-		mobility->setDirection(secondary_joystick->GetX() / 2.0, secondary_joystick->GetY()
-				/ 2.0);
+		mobility->setDirection(secondary_joystick->GetX() / 2.0, secondary_joystick->GetY() / 2.0);
 		mobility->setRotationSpeed(secondary_joystick->GetTwist() / 2.0);
 	}
 
@@ -278,6 +276,119 @@ void DS::doLevelLEDS(int level) {
 		break;
 	}
 }
+
+void DS::processCameras() {
+	bool frontCamLatched = false;
+	bool backCamLatched = false;
+	bool frontCamFirstTime = true;
+	bool backCamFirstTime = true;
+	if (IO_board_two->GetRawButton(IOBoardTwoPorts::FRONT_CAMERA_SELECT) || frontCamLatched) {
+		if (backCamLatched) {
+			if (StopCamera(1)) {
+				StartCamera(0);
+				frontCamFirstTime = false;
+				backCamLatched = false;
+			}
+
+			if (frontCamFirstTime) {
+				if (StartCamera(0)) {
+					frontCamFirstTime = false;
+				}
+			}
+
+			imaqError = IMAQdxGrab(sessionFrontCam, frameFrontCam, true, NULL);
+			if (imaqError != IMAQdxErrorSuccess) {
+				log->write(Log::ERROR_LEVEL, "front camera IMAQdxGrab error: %ld\n", (long) imaqError);
+			}
+			else {
+				CameraServer::GetInstance()->SetImage(frameFrontCam);
+			}
+			backCamLatched = true;
+		}
+	}
+	else if (IO_board_two->GetRawButton(IOBoardTwoPorts::BACK_CAMERA_SELECT) || backCamLatched) {
+		if (frontCamLatched) {
+			if (StopCamera(0)) {
+				StartCamera(1);
+				backCamFirstTime = false;
+				frontCamLatched = false;
+			}
+		}
+
+		if (backCamFirstTime) {
+			if (StartCamera(1)) {
+				backCamFirstTime = false;
+			}
+
+		}
+
+		imaqError = IMAQdxGrab(sessionBackCam, frameBackCam, true, NULL);
+		if (imaqError != IMAQdxErrorSuccess) {
+			log->write(Log::ERROR_LEVEL, "back cam IMAQdxGrab error: %ld\n", (long) imaqError);
+		}
+		else {
+			CameraServer::GetInstance()->SetImage(frameBackCam);
+		}
+		backCamLatched = true;
+	}
+}
+
+bool DS::StopCamera(int cameraNum) {
+	if (cameraNum == 1) {
+		// stop image acquisition
+		IMAQdxStopAcquisition(sessionBackCam);
+		//the camera name (ex "cam0") can be found through the roborio web interface
+		imaqError = IMAQdxCloseCamera(sessionBackCam);
+		if (imaqError != IMAQdxErrorSuccess) {
+			log->write(Log::ERROR_LEVEL, "backcamera IMAQdxCloseCamera error: %ld\n", (long) imaqError);
+			return false;
+		}
+	}
+	else if (cameraNum == 0) {
+		IMAQdxStopAcquisition(sessionFrontCam);
+		imaqError = IMAQdxCloseCamera(sessionFrontCam);
+		if (imaqError != IMAQdxErrorSuccess) {
+			log->write(Log::ERROR_LEVEL, "front camera IMAQdxCloseCamera error: %ld\n", (long) imaqError);
+			return false;
+		}
+	}
+	return true;
+}
+
+bool DS::StartCamera(int cameraNum) {
+	if (cameraNum == 1) {
+		imaqError = IMAQdxOpenCamera("backCam", IMAQdxCameraControlModeController, &sessionBackCam);
+		if (imaqError != IMAQdxErrorSuccess) {
+			log->write(Log::ERROR_LEVEL, "back camera IMAQdxOpenCamera error: %ld\n", (long) imaqError);
+			return false;
+		}
+		imaqError = IMAQdxConfigureGrab(sessionBackCam);
+		if (imaqError != IMAQdxErrorSuccess) {
+			log->write(Log::ERROR_LEVEL, "back camera IMAQdxConfigureGrab error: %ld\n", (long) imaqError);
+			return false;
+		}
+		// acquire images
+		IMAQdxStartAcquisition(sessionBackCam);
+
+	}
+	else if (cameraNum == 0) {
+		imaqError = IMAQdxOpenCamera("backCam", IMAQdxCameraControlModeController, &sessionFrontCam);
+		if (imaqError != IMAQdxErrorSuccess) {
+			log->write(Log::ERROR_LEVEL, "back camera IMAQdxOpenCamera error: %ld\n", (long) imaqError);
+			return false;
+		}
+		imaqError = IMAQdxConfigureGrab(sessionFrontCam);
+		if (imaqError != IMAQdxErrorSuccess) {
+			log->write(Log::ERROR_LEVEL, "front cam IMAQdxConfigureGrab error: %ld\n", (long) imaqError);
+			return false;
+		}
+		// acquire images
+		IMAQdxStartAcquisition(sessionFrontCam);
+
+	}
+	return true;
+}
+
 DS* DS::getInstance() {
 	if (INSTANCE == NULL) {
 		INSTANCE = new DS();
