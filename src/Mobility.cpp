@@ -22,26 +22,37 @@ Mobility::Mobility()//COMMIT NUMBER 100
 	front_left_motor = new CANTalon(RobotPorts::FRONT_LEFT_MOTOR);
 	front_left_motor->SetVoltageRampRate(RAMP_RATE);
 	front_left_motor->Set(0.0);
-	front_left_motor->SetFeedbackDevice(CANTalon::QuadEncoder);
-	front_left_motor->SetControlMode(CANTalon::kSpeed);
+	//front_left_motor->SetFeedbackDevice(CANTalon::QuadEncoder);
+	//front_left_motor->SetControlMode(CANTalon::kSpeed);
 
 	front_right_motor = new CANTalon(RobotPorts::FRONT_RIGHT_MOTOR);
 	front_right_motor->SetVoltageRampRate(RAMP_RATE);
 	front_right_motor->Set(0.0);
-	front_right_motor->SetFeedbackDevice(CANTalon::QuadEncoder);
-	front_right_motor->SetControlMode(CANTalon::kSpeed);
+	//front_right_motor->SetFeedbackDevice(CANTalon::QuadEncoder);
+	//front_right_motor->SetControlMode(CANTalon::kSpeed);
 
 	rear_left_motor = new CANTalon(RobotPorts::REAR_LEFT_MOTOR);
 	rear_left_motor->SetVoltageRampRate(RAMP_RATE);
 	rear_left_motor->Set(0.0);
 	rear_left_motor->SetFeedbackDevice(CANTalon::QuadEncoder);
+	rear_left_motor->SetPosition(0.0);
 	rear_left_motor->SetControlMode(CANTalon::kSpeed);
+	//rear_left_motor->SetControlMode(CANTalon::kPosition);
+	rear_left_motor->Set(0.0);
+	rear_left_motor->SetPID(0.9, 0.0, 0.0, 0.0);
+	rear_left_motor->SetIzone(0);
+	rear_left_motor->SetSensorDirection(false);
+	rear_left_motor->SetCloseLoopRampRate(12.0);
+	//rear_left_motor->ClearError();
+	rear_left_motor->ClearIaccum();
+	//rear_left_motor->Set(1.0);
+	rear_left_motor->Set(400.0);
 
 	rear_right_motor = new CANTalon(RobotPorts::REAR_RIGHT_MOTOR);
 	rear_right_motor->SetVoltageRampRate(RAMP_RATE);
 	rear_right_motor->Set(0.0);
-	rear_right_motor->SetFeedbackDevice(CANTalon::QuadEncoder);
-	rear_right_motor->SetControlMode(CANTalon::kSpeed);
+	//rear_right_motor->SetFeedbackDevice(CANTalon::QuadEncoder);
+	//rear_right_motor->SetControlMode(CANTalon::kSpeed);
 
 	odometry_wheel_x_encoder = new Encoder(RobotPorts::ODOMETRY_WHEEL_X_A,RobotPorts::ODOMETRY_WHEEL_X_B);
 	odometry_wheel_y_encoder = new Encoder(RobotPorts::ODOMETRY_WHEEL_Y_A,RobotPorts::ODOMETRY_WHEEL_Y_B);
@@ -49,7 +60,8 @@ Mobility::Mobility()//COMMIT NUMBER 100
 	odometry_wheel_x_encoder->SetDistancePerPulse(ODOMETRY_INCHES_PER_PULSE);
 	odometry_wheel_y_encoder->SetDistancePerPulse(ODOMETRY_INCHES_PER_PULSE);
 
-	robot_drive = new RobotDrive(front_left_motor, rear_left_motor, front_right_motor, rear_right_motor);
+	//robot_drive = new RobotDrive(front_left_motor, rear_left_motor, front_right_motor, rear_right_motor);
+	robot_drive = new RobotDrive(front_left_motor, front_left_motor, front_right_motor, rear_right_motor);
 	robot_drive->SetInvertedMotor(RobotDrive::kFrontRightMotor, true);
 	robot_drive->SetInvertedMotor(RobotDrive::kRearRightMotor, true);
 	robot_drive->SetSafetyEnabled(false);
