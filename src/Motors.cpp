@@ -29,113 +29,93 @@ Motors::Motors() {
 	rake_starboard = new CANTalon(RobotPorts::RAKE_STARBOARD_MOTOR);
 
 	flaps = new CANTalon(RobotPorts::CLOSE_FLAPS_MOTOR);
+	log = Log::getInstance();
 
 }
 void Motors::process() {
 	//mobility
 	//front left wheel
-	DS::Direction direction = ds->frontLeftMotorDirection();
-	if (direction == DS::FORWARD) {
-		front_left_wheel->Set(0.5);
-	}
-	else if (direction == DS::STILL) {
-		front_left_wheel->Set(0.0);
-	}
-	else if (direction == DS::BACKWARD) {
-		front_left_wheel->Set(-0.5);
-	}
+	setMotorDirection(ds->front_left_motor, front_left_wheel);
+	setMotorDirection(ds->front_right_motor, front_right_wheel);
+	setMotorDirection(ds->rear_left_motor, rear_left_wheel);
+	setMotorDirection(ds->rear_right_motor, rear_right_wheel);
+	setMotorDirection(ds->flap_motor, flaps);
+	setMotorDirection(ds->port_rake_motor, rake_port);
+	setMotorDirection(ds->starboard_rake_motor, rake_starboard);
 
-	//front right wheel
-	direction = ds->frontRightMotorDirection();
-	if (direction == DS::FORWARD) {
-		front_right_wheel->Set(0.5);
-	}
-	else if (direction == DS::STILL) {
-		front_right_wheel->Set(0.0);
-	}
-	else if (direction == DS::BACKWARD) {
-		front_right_wheel->Set(-0.5);
-	}
+	moveLifter();
 
-	//rear left wheel
-	direction = ds->rearLeftMotorDirection();
-	if (direction == DS::FORWARD) {
-		rear_left_wheel->Set(0.5);
-	}
-	else if (direction == DS::STILL) {
-		rear_left_wheel->Set(0.0);
-	}
-	else if (direction == DS::BACKWARD) {
-		rear_left_wheel->Set(-0.5);
-	}
 
-	//rear right wheel
-	direction = ds->rearRightMotorDirection();
-	if (direction == DS::FORWARD) {
-		rear_right_wheel->Set(0.5);
-	}
-	else if (direction == DS::STILL) {
-		rear_right_wheel->Set(0.0);
-	}
-	else if (direction == DS::BACKWARD) {
-		rear_right_wheel->Set(-0.5);
-	}
+	log->write(Log::INFO_LEVEL, "Get: Front Left Wheel Velocity %i\n",
+			front_left_wheel->GetEncVel());
+	log->write(Log::INFO_LEVEL, "Get: Front Right Wheel Velocity %i\n",
+			front_right_wheel->GetEncVel());
+	log->write(Log::INFO_LEVEL, "Get: Back Left Wheel Velocity %i\n",
+			rear_left_wheel->GetEncVel());
+	log->write(Log::INFO_LEVEL, "Get: Back Right Wheel Velocity %i\n",
+			rear_right_wheel->GetEncVel());
 
-	//flaps
-	direction = ds->armFlapMotorDirection();
-	if (direction == DS::FORWARD) {
-		flaps->Set(0.5);
-		//closing
-	}
-	else if (direction == DS::BACKWARD) {
-		flaps->Set(-0.5);
-		//opening
-	}
-	else if (direction == DS::STILL) {
-		flaps->Set(0.0);
-	}
+	log->write(Log::INFO_LEVEL, "Get: Lifter One Position %i\n",
+			lifter_one->GetEncPosition());
 
-	//port rake
-	direction = ds->portRakeMotorDirection();
-	if (direction == DS::FORWARD) {
-		rake_port->Set(0.5);
-	}
-	else if (direction == DS::BACKWARD) {
-		rake_port->Set(-0.5);
-	}
-	else if (direction == DS::STILL) {
-		rake_port->Set(0.0);
-	}
+	log->write(Log::INFO_LEVEL, "Get: Rake Port Position %i\n",
+			rake_port->GetEncPosition());
+	log->write(Log::INFO_LEVEL, "Get: Rake Starboard Position %i\n",
+			rake_starboard->GetEncPosition());
 
-	//port starboard
-	direction = ds->starboardRakeMotorDirection();
-	if (direction == DS::FORWARD) {
-		rake_starboard->Set(0.5);
-	}
-	else if (direction == DS::BACKWARD) {
-		rake_starboard->Set(-0.5);
-	}
-	else if (direction == DS::STILL) {
-		rake_starboard->Set(0.0);
-	}
+	log->write(Log::INFO_LEVEL, "Get: Arm Flippy Floppies Position %i\n",
+			flaps->GetEncPosition());
 
-	//lifter
-	direction = ds->lifterMotorDirection();
-	if (direction == DS::FORWARD) {
-		moveLifter(0.5);
-	}
-	else if (direction == DS::BACKWARD) {
-		moveLifter(-0.5);
-	}
-	else if (direction == DS::STILL) {
-		moveLifter(0.0);
-	}
+	log->write(Log::INFO_LEVEL, "Get: Upper Lifter Limit Switch %i\n",
+			lifter_one->GetForwardLimitOK());
+	log->write(Log::INFO_LEVEL, "Get: Lower Lifter Limit Switch %i\n",
+			lifter_one->GetReverseLimitOK());
+	log->write(Log::INFO_LEVEL, "Get: Upper Rake Port Limit Switch %i\n",
+			rake_port->GetForwardLimitOK());
+	log->write(Log::INFO_LEVEL, "Get: Lower Rake Port Limit Switch %i\n",
+			rake_port->GetReverseLimitOK());
+	log->write(Log::INFO_LEVEL, "Get: Upper Rake Starboard Limit Switch %i\n",
+			rake_starboard->GetForwardLimitOK());
+	log->write(Log::INFO_LEVEL, "Get: Lower Rake Starboard Limit Switch %i\n",
+			rake_starboard->GetReverseLimitOK());
+	log->write(Log::INFO_LEVEL,
+			"Get: Upper Arm Flippy Floppies isOpen Limit Switch %i\n",
+			flaps->GetForwardLimitOK());
+	log->write(Log::INFO_LEVEL,
+			"Get: Lower Arm Flippy Floppies isClosed Limit Switch %i\n",
+			flaps->GetReverseLimitOK());
+	log->write(Log::INFO_LEVEL, "Get: Arm potentiometer %i\n",
+			flaps->GetAnalogIn());
 
 }
 
-void Motors::moveLifter(float volts) {
-	lifter_one->Set(volts);
-	lifter_two->Set(volts);
+void Motors::moveLifter() {
+	PortsByMotor::Direction direction = ds->lift_motor->getDirection();
+	if (direction == PortsByMotor::FORWARD) {
+		lifter_one->Set(0.5);
+		lifter_two->Set(0.5);
+	}
+	else if (direction == PortsByMotor::STILL) {
+		lifter_one->Set(0.0);
+		lifter_two->Set(0.0);
+	}
+	else if (direction == PortsByMotor::BACKWARD) {
+		lifter_one->Set(-0.5);
+		lifter_two->Set(-0.5);
+	}
+}
+
+void Motors::setMotorDirection(PortsByMotor* ports, CANTalon* motor) {
+	PortsByMotor::Direction direction = ports->getDirection();
+	if (direction == PortsByMotor::FORWARD) {
+		motor->Set(0.5);
+	}
+	else if (direction == PortsByMotor::STILL) {
+		motor->Set(0.0);
+	}
+	else if (direction == PortsByMotor::BACKWARD) {
+		motor->Set(-0.5);
+	}
 }
 
 Motors* Motors::getInstance() {

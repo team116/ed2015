@@ -10,6 +10,7 @@
 
 #include <CANTalon.h>
 #include "DS.h"
+#include "PortsByMotor.h"
 
 class Motors {
 public:
@@ -23,8 +24,10 @@ private:
 	static Motors* INSTANCE;
 
 	DS* ds;
+	Log* log;
 
-	void moveLifter(float volts);
+	void moveLifter();
+	void setMotorDirection(PortsByMotor* ports, CANTalon* motor);	//doesn't work for lifter, because lifter needs 2 motors to move
 
 	CANTalon* front_left_wheel;
 	CANTalon* front_right_wheel;

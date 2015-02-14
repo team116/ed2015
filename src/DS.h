@@ -4,6 +4,7 @@
 #include <Encoder.h>
 #include <Joystick.h>
 #include "Log.h"
+#include "PortsByMotor.h"
 
 class DS
 {
@@ -12,13 +13,26 @@ public:
 
 	void process();
 
-	enum Direction {
+	/*enum Direction {
 		FORWARD = 1,
 		STILL = 0,
 		BACKWARD = -1
-	};
+	};*/
 
-	Direction frontLeftMotorDirection();
+	PortsByMotor* front_left_motor;
+	PortsByMotor* front_right_motor;
+	PortsByMotor* rear_left_motor;
+	PortsByMotor* rear_right_motor;
+
+	PortsByMotor* lift_motor;
+	PortsByMotor* flap_motor;
+	PortsByMotor* port_rake_motor;
+	PortsByMotor* starboard_rake_motor;
+	PortsByMotor* left_tote_motor;
+	PortsByMotor* right_tote_motor;
+
+	//Direction getDirection(PortsByMotor* motor);	//moved to PortsByMotor
+	/*Direction frontLeftMotorDirection();
 	Direction frontRightMotorDirection();
 	Direction rearLeftMotorDirection();
 	Direction rearRightMotorDirection();
@@ -28,7 +42,7 @@ public:
 	Direction portRakeMotorDirection();
 	Direction starboardRakeMotorDirection();
 	Direction leftToteWheel();
-	Direction rightToteWheel();
+	Direction rightToteWheel();*/
 
 private:
 	DS();
@@ -39,18 +53,6 @@ private:
 	Encoder* encoder;
 	Encoder* od_xaxis_encoder;
 	Encoder* od_yaxis_encoder;
-
-    CANTalon* front_left_wheel;
-    CANTalon* front_right_wheel;
-    CANTalon* rear_left_wheel;
-    CANTalon* rear_right_wheel;
-    CANTalon* left_grabber_wheel;
-    CANTalon* right_grabber_wheel;
-    CANTalon* lifter_one;
-    CANTalon* lifter_two;
-    CANTalon* rake_port;
-    CANTalon* rake_starboard;
-    CANTalon* flaps;
 
 	Joystick* joystick_one;
 	Joystick* joystick_two;
