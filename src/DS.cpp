@@ -2,6 +2,7 @@
 #include "Ports.h"
 #include "DS.h"
 #include "Mobility.h"
+#include "Manipulator.h"
 #include "Log.h"
 #include <CameraServer.h>
 #include <cmath>

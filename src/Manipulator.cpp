@@ -279,7 +279,7 @@ void Manipulator::setTargetLevel(int level)
 	lift_timer->Reset();
 }
 
-void Manipulator::setFlapPosition(flap_position p){
+void Manipulator::setFlapPosition(flap_positions p){
 	log->write(Log::TRACE_LEVEL, "flaps set to position %i\n", p);
 	flap_pos = p;
 }
@@ -338,7 +338,7 @@ void Manipulator::honorLimits(bool to_use_or_not_to_use)
 	using_limits = to_use_or_not_to_use;
 }
 
-void Manipulator::liftLifters(lifter_direction direction)
+void Manipulator::liftLifters(lifter_directions direction)
 {
 	if (direction == MOVING_UP && (!lift_upper_limit->Get() || !using_limits) ) {
 		log->write(Log::TRACE_LEVEL, "%s\tLift moving up\n", Utils::getCurrentTime());
@@ -381,6 +381,13 @@ void Manipulator::liftRakes(bool going_up)
 	//controls moving rakes up/down
 	rake_timer->Start();
 	rake_timer->Reset();
+}
+
+void Manipulator::moveLeftRake(rake_directions direction){
+
+}
+void Manipulator::moveRightRake(rake_directions direction){
+
 }
 
 bool Manipulator::isInsignificantChange(float first, float second)
