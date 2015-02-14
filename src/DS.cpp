@@ -56,6 +56,7 @@ void DS::process()
 
 
 	//wheels
+	/*
 	if (joystick_one->GetRawButton(JoystickPorts::GO_FORWARDS_FRONT_LEFT_MOTOR) &&
 		joystick_one->GetRawButton(JoystickPorts::GO_BACKWARDS_FRONT_LEFT_MOTOR)) {
 		front_left_wheel->Set(0.0);
@@ -111,7 +112,7 @@ void DS::process()
 	else {
 		rear_right_wheel->Set(0.0);
 	}
-
+	*/
 	//joystick two
 	//rakes
 	if (joystick_two->GetRawButton(JoystickPorts::LIFT_STARBOARD_RAKE) &&
@@ -224,6 +225,7 @@ void DS::process()
 	log->write(Log::INFO_LEVEL, "Get: Lower Rake Starboard Limit Switch %i\n", rake_starboard->GetReverseLimitOK());
 	log->write(Log::INFO_LEVEL, "Get: Upper Arm Flippy Floppies isOpen Limit Switch %i\n", flaps->GetForwardLimitOK());
 	log->write(Log::INFO_LEVEL, "Get: Lower Arm Flippy Floppies isClosed Limit Switch %i\n", flaps->GetReverseLimitOK());
+	log->write(Log::INFO_LEVEL, "Get: Arm potentiometer %i\n", flaps->GetAnalogIn());
 }
 
 DS::Direction DS::frontRightMotorDirection()

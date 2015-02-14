@@ -13,10 +13,14 @@
 
 class Motors {
 public:
-	Motors();
+	static Motors* getInstance();
+
 	void process();
 
 private:
+
+	Motors();
+	static Motors* INSTANCE;
 
 	DS* ds;
 

@@ -3,11 +3,13 @@
 #include "Ports.h"
 #include "Log.h"
 #include "DS.h"
+#include "Motors.h"
 
 class Robot : public IterativeRobot
 {
 private:
 	DS* ds;
+	Motors* motors;
 	Log* log;
 	AnalogInput* autonomous_delay_switch;
 	AnalogInput* autonomous_play_switch;
@@ -17,6 +19,7 @@ public:
 	{
 		ds = DS::getInstance();
 		log = Log::getInstance();
+		motors = Motors::getInstance();
 		autonomous_delay_switch = new AnalogInput(RobotPorts::AUTONOMOUS_DELAY_SWITCH);
 		autonomous_location_switch = new AnalogInput(RobotPorts::AUTONOMOUS_LOCATION_SWITCH);
 		autonomous_play_switch = new AnalogInput(RobotPorts::AUTONOMOUS_PLAY_SWITCH);
@@ -67,6 +70,7 @@ public:
 
     void TeleopPeriodic()
     {
+    	motors->process();
     	ds->process();
     }
 

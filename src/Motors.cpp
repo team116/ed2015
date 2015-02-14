@@ -5,8 +5,10 @@
  *      Author: Lenovo
  */
 
-#include <Motors.h>
+#include "Motors.h"
 #include "Ports.h"
+
+Motors* Motors::INSTANCE = NULL;
 
 Motors::Motors() {
 	// TODO Auto-generated constructor stub
@@ -76,7 +78,10 @@ void Motors::process() {
 
 }
 
-
-
-
-
+Motors* Motors::getInstance()
+{
+	if (INSTANCE == NULL) {
+		INSTANCE = new Motors();
+	}
+	return INSTANCE;
+}
