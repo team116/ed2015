@@ -85,12 +85,18 @@ void DS::processMobility() {
 	}
 	turn_degrees = main_joystick->GetRawButton(JoystickPorts::TURN_DEGREES);
 	if (turn_degrees && !turn_degrees_handled) {
-		log->write(Log::ERROR_LEVEL, "Starting turn Degrees\n");
+//		log->write(Log::ERROR_LEVEL, "Starting turn Degrees\n");
 		turn_degrees_handled = true;
 		mobility->setRotationDegrees(90);
 	}
 	else if (!turn_degrees && turn_degrees_handled) {
 		turn_degrees_handled = false;
+	}
+	if(main_joystick->GetRawButton(3)){
+		mobility->useClosedLoop(true);
+	}
+	else if(main_joystick->GetRawButton(4)){
+		mobility->useClosedLoop(false);
 	}
 }
 
