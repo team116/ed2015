@@ -31,6 +31,10 @@ DS::DS() {
 	drive_type_handled = false;
 	turn_degrees = false;
 	turn_degrees_handled = false;
+	frontCamLatched = false;
+	backCamLatched = false;
+	frontCamFirstTime = true;
+	backCamFirstTime = true;
 
 	IO_board_one->SetOutputs(0);
 
@@ -279,11 +283,22 @@ void DS::doLevelLEDS(int level) {
 }
 
 void DS::processCameras() {
-	bool frontCamLatched = false;
-	bool backCamLatched = false;
-	bool frontCamFirstTime = true;
-	bool backCamFirstTime = true;
-	if (IO_board_two->GetRawButton(IOBoardTwoPorts::FRONT_CAMERA_SELECT) || frontCamLatched) {
+
+	if (IO_board_two->GetRawButton(IOBoardTwoPorts::FRONT_CAMERA_SELECT)) {
+		frontCamSelect = true;
+		backCamSelect = false;
+	}
+	else if (IO_board_two->GetRawButton(IOBoardTwoPorts::BACK_CAMERA_SELECT)) {
+		frontCamSelect = false;
+		backCamSelect = true;
+	}
+	// if, somehow, neither switch is on, we'll use the front camera
+	else {
+		frontCamSelect = true;
+		backCamSelect = false;
+	}
+
+	if (frontCamSelect || frontCamLatched) {
 		if (backCamLatched) {
 			if (StopCamera(1)) {
 				StartCamera(0);
@@ -297,7 +312,7 @@ void DS::processCameras() {
 				}
 			}
 
-			imaqError = IMAQdxGrab(sessionFrontCam, frameFrontCam, true, NULL);
+			imaqError = IMAQdxGrab(sessionCam0, frameFrontCam, true, NULL);
 			if (imaqError != IMAQdxErrorSuccess) {
 				log->write(Log::ERROR_LEVEL, "front camera IMAQdxGrab error: %ld\n", (long) imaqError);
 			}
@@ -307,7 +322,8 @@ void DS::processCameras() {
 			backCamLatched = true;
 		}
 	}
-	else if (IO_board_two->GetRawButton(IOBoardTwoPorts::BACK_CAMERA_SELECT) || backCamLatched) {
+
+	else if (backCamSelect || backCamLatched) {
 		if (frontCamLatched) {
 			if (StopCamera(0)) {
 				StartCamera(1);
@@ -323,7 +339,7 @@ void DS::processCameras() {
 
 		}
 
-		imaqError = IMAQdxGrab(sessionBackCam, frameBackCam, true, NULL);
+		imaqError = IMAQdxGrab(sessionCam1, frameBackCam, true, NULL);
 		if (imaqError != IMAQdxErrorSuccess) {
 			log->write(Log::ERROR_LEVEL, "back cam IMAQdxGrab error: %ld\n", (long) imaqError);
 		}
@@ -334,59 +350,59 @@ void DS::processCameras() {
 	}
 }
 
-bool DS::StopCamera(int cameraNum) {
-	if (cameraNum == 1) {
-		// stop image acquisition
-		IMAQdxStopAcquisition(sessionBackCam);
-		//the camera name (ex "cam0") can be found through the roborio web interface
-		imaqError = IMAQdxCloseCamera(sessionBackCam);
+bool DS::StartCamera(int cameraNum) {
+	if (cameraNum == 0) {
+		imaqError = IMAQdxOpenCamera("cam0", IMAQdxCameraControlModeController, &sessionCam0);
 		if (imaqError != IMAQdxErrorSuccess) {
-			log->write(Log::ERROR_LEVEL, "backcamera IMAQdxCloseCamera error: %ld\n", (long) imaqError);
+			log->write(Log::ERROR_LEVEL, "front camera IMAQdxOpenCamera error: %ld\n", (long) imaqError);
 			return false;
 		}
+		imaqError = IMAQdxConfigureGrab(sessionCam0);
+		if (imaqError != IMAQdxErrorSuccess) {
+			log->write(Log::ERROR_LEVEL, "front camera IMAQdxConfigureGrab error: %ld\n", (long) imaqError);
+			return false;
+		}
+		// acquire images
+		IMAQdxStartAcquisition(sessionCam0);
 	}
-	else if (cameraNum == 0) {
-		IMAQdxStopAcquisition(sessionFrontCam);
-		imaqError = IMAQdxCloseCamera(sessionFrontCam);
+
+	else if (cameraNum == 1) {
+		imaqError = IMAQdxOpenCamera("cam1", IMAQdxCameraControlModeController, &sessionCam1);
+		if (imaqError != IMAQdxErrorSuccess) {
+			log->write(Log::ERROR_LEVEL, "back camera IMAQdxOpenCamera error: %ld\n", (long) imaqError);
+			return false;
+		}
+		imaqError = IMAQdxConfigureGrab(sessionCam1);
+		if (imaqError != IMAQdxErrorSuccess) {
+			log->write(Log::ERROR_LEVEL, "back camera IMAQdxConfigureGrab error: %ld\n", (long) imaqError);
+			return false;
+		}
+		IMAQdxStartAcquisition(sessionCam1);
+
+	}
+
+	return true;
+}
+
+bool DS::StopCamera(int cameraNum) {
+	if (cameraNum == 0) {
+		IMAQdxStopAcquisition(sessionCam0);
+		imaqError = IMAQdxCloseCamera(sessionCam0);
 		if (imaqError != IMAQdxErrorSuccess) {
 			log->write(Log::ERROR_LEVEL, "front camera IMAQdxCloseCamera error: %ld\n", (long) imaqError);
 			return false;
 		}
 	}
-	return true;
-}
 
-bool DS::StartCamera(int cameraNum) {
-	if (cameraNum == 1) {
-		imaqError = IMAQdxOpenCamera("backCam", IMAQdxCameraControlModeController, &sessionBackCam);
+	else if (cameraNum == 1) {
+		IMAQdxStopAcquisition(sessionCam1);
+		imaqError = IMAQdxCloseCamera(sessionCam1);
 		if (imaqError != IMAQdxErrorSuccess) {
-			log->write(Log::ERROR_LEVEL, "back camera IMAQdxOpenCamera error: %ld\n", (long) imaqError);
+			log->write(Log::ERROR_LEVEL, "back camera IMAQdxCloseCamera error: %ld\n", (long) imaqError);
 			return false;
 		}
-		imaqError = IMAQdxConfigureGrab(sessionBackCam);
-		if (imaqError != IMAQdxErrorSuccess) {
-			log->write(Log::ERROR_LEVEL, "back camera IMAQdxConfigureGrab error: %ld\n", (long) imaqError);
-			return false;
-		}
-		// acquire images
-		IMAQdxStartAcquisition(sessionBackCam);
-
 	}
-	else if (cameraNum == 0) {
-		imaqError = IMAQdxOpenCamera("backCam", IMAQdxCameraControlModeController, &sessionFrontCam);
-		if (imaqError != IMAQdxErrorSuccess) {
-			log->write(Log::ERROR_LEVEL, "back camera IMAQdxOpenCamera error: %ld\n", (long) imaqError);
-			return false;
-		}
-		imaqError = IMAQdxConfigureGrab(sessionFrontCam);
-		if (imaqError != IMAQdxErrorSuccess) {
-			log->write(Log::ERROR_LEVEL, "front cam IMAQdxConfigureGrab error: %ld\n", (long) imaqError);
-			return false;
-		}
-		// acquire images
-		IMAQdxStartAcquisition(sessionFrontCam);
 
-	}
 	return true;
 }
 

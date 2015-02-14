@@ -39,13 +39,21 @@ private:
 	bool drive_type_handled;
 	bool turn_degrees;
 	bool turn_degrees_handled;
+	bool frontCamLatched;
+	bool backCamLatched;
+	bool frontCamFirstTime;
+	bool backCamFirstTime;
+	bool frontCamSelect;
+	bool backCamSelect;
+
 
 	void doLevelLEDS(int level);
 
 	const static float LIFTER_BUTTON_CHANGE;
 
-	IMAQdxSession sessionFrontCam;
-	IMAQdxSession sessionBackCam;
+	//cam0 is the front camera, cam1 is the back camera
+	IMAQdxSession sessionCam0;
+	IMAQdxSession sessionCam1;
 
 	Image *frameFrontCam;
 	Image *frameBackCam;
