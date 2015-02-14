@@ -109,13 +109,13 @@ void Mobility::process()
 
 void Mobility::setDirection(float x, float y)//-1.0 through 1.0
 {
-	x_direction = x * fabs(x) * MAX_SPEED;
-	y_direction = y * fabs(y) * MAX_SPEED;
+	x_direction = x * MAX_SPEED;
+	y_direction = y * MAX_SPEED;
 }
 
 void Mobility::setRotationSpeed(float rotation_)//-1.0 through 1.0
 {
-	rotation = rotation_ * fabs(rotation_) * MAX_SPEED;
+	rotation = rotation_ * MAX_SPEED;
 }
 
 void Mobility::toggleFieldCentric()
