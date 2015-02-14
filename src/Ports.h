@@ -98,8 +98,10 @@ namespace IOBoardTwoPorts{
 	const unsigned int FRONT_CAMERA_SELECT = 1;
 	const unsigned int BACK_CAMERA_SELECT = 2;
 
-	const unsigned int RAKES_UP_BUTTON = 3;
-	const unsigned int RAKES_DOWN_BUTTON = 4;
+	const unsigned int LEFT_RAKE_UP_BUTTON = 3;
+	const unsigned int LEFT_RAKE_DOWN_BUTTON = 4;
+	const unsigned int RIGHT_RAKE_UP_BUTTON = 5;
+	const unsigned int RIGHT_RAKE_DOWN_BUTTON = 6;
 }
 
 namespace Utils

@@ -6,8 +6,6 @@
 #include <CameraServer.h>
 #include <cmath>
 DS* DS::INSTANCE = NULL;
-const int kCam0Button = 1;
-const int kCam1Button = 2;
 
 DS::DS() {
 	mobility = Mobility::getInstance();
@@ -161,22 +159,37 @@ void DS::processManipulator() {
 	}
 
 	// rake control buttons
-	if (IO_board_one->GetRawButton(IOBoardTwoPorts::RAKES_UP_BUTTON)) {
-		manipulator->liftRakes(true);
+	if (IO_board_one->GetRawButton(IOBoardTwoPorts::LEFT_RAKE_UP_BUTTON)) {
+		manipulator->moveLeftRake(Manipulator::RAKE_LIFTING);
 	}
-	else if (IO_board_one->GetRawButton(IOBoardTwoPorts::RAKES_DOWN_BUTTON)) {
-		manipulator->liftRakes(false);
+	else if (IO_board_one->GetRawButton(IOBoardTwoPorts::LEFT_RAKE_DOWN_BUTTON)) {
+		manipulator->moveLeftRake(Manipulator::RAKE_LOWERING);
+	}
+	else {
+		manipulator->moveLeftRake(Manipulator::RAKE_STILL);
+	}
+
+	if(IO_board_one->GetRawButton(IOBoardTwoPorts::RIGHT_RAKE_UP_BUTTON)){
+		manipulator->moveRightRake(Manipulator::RAKE_LIFTING);
+	}
+	else if(IO_board_one->GetRawButton(IOBoardTwoPorts::RIGHT_RAKE_DOWN_BUTTON)){
+		manipulator->moveRightRake(Manipulator::RAKE_LOWERING);
+	}
+	else {
+		manipulator->moveRightRake(Manipulator::RAKE_STILL);
 	}
 
 	// normal control of manipulator by driver two
 	if (!override) {
-		if (secondary_joystick->GetY() > 0.25) {
+		if (secondary_joystick->GetY() > 0.4) {
 			manipulator->pushTote();
 		}
-		else if (secondary_joystick->GetY() < -0.25) {
+		else if (secondary_joystick->GetY() < -0.4) {
 			manipulator->pullTote();
 		}
 
+		float t = secondary_joystick->GetTwist();
+		t = fabs(t) < 0.1 ? 0 : t * fabs(t);
 		manipulator->spinTote(secondary_joystick->GetTwist());
 	}
 }

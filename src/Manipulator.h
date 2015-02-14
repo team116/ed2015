@@ -69,6 +69,8 @@ public:
 	float getHeight();
 
 	void liftRakes(bool going_up);
+	void moveLeftRake(rake_direction direction);
+	void moveRightRake(rake_direction direction);
 
 	void honorLimits(bool to_use_or_not_to_use);
 
