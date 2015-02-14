@@ -8,6 +8,7 @@
 #include <Encoder.h>
 #include "Sensors.h"
 #include "Log.h"
+#include "Ports.h"
 
 Sensors* Sensors::INSTANCE = NULL;
 
@@ -15,6 +16,8 @@ Sensors::Sensors()
 {
 	od_xaxis_encoder = new Encoder(RobotPorts::OD_XAXIS_ENCODER_A, RobotPorts::OD_XAXIS_ENCODER_B);
 	od_yaxis_encoder = new Encoder(RobotPorts::OD_YAXIS_ENCODER_A, RobotPorts::OD_YAXIS_ENCODER_B);
+
+	log = Log::getInstance();
 }
 
 void Sensors::process()

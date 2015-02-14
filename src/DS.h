@@ -24,9 +24,11 @@ public:
 	Direction rearRightMotorDirection();
 
 	Direction lifterMotorDirection();
-	Direction armFlapMotorDirection();
+	Direction armFlapMotorDirection();	//note: forward = closing, backward = opening
 	Direction portRakeMotorDirection();
 	Direction starboardRakeMotorDirection();
+	Direction leftToteWheel();
+	Direction rightToteWheel();
 
 private:
 	DS();

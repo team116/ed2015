@@ -26,6 +26,8 @@ private:
 
 	Encoder* od_xaxis_encoder;
 	Encoder* od_yaxis_encoder;
+
+	Log* log;
 };
 
 #endif /* SRC_SENSORS_H_ */

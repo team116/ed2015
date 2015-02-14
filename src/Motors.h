@@ -24,6 +24,8 @@ private:
 
 	DS* ds;
 
+	void moveLifter(float volts);
+
 	CANTalon* front_left_wheel;
 	CANTalon* front_right_wheel;
 	CANTalon* rear_left_wheel;
