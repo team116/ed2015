@@ -13,6 +13,7 @@ public:
 	void processManipulator();
 	void processLEDS();
 	void processCameras();
+	void processCamerasButton(); // to be removed -- DO NOT KEEP, DO NOT SAVE
 	bool StopCamera(int cameraNum);
 	bool StartCamera(int cameraNum);
 	bool StartFrontCamera();

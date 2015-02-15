@@ -35,6 +35,8 @@ DS::DS() {
 	backCamLatched = false;
 	frontCamFirstTime = true;
 	backCamFirstTime = true;
+	frontCamSelect = true;
+	backCamSelect = false;
 
 	IO_board_one->SetOutputs(0);
 
@@ -323,6 +325,12 @@ void DS::processCameras() {
 		frontCamSelect = true;
 		backCamSelect = false;
 	}
+	/*
+	if(main_joystick->GetRawButton(JoystickPorts::TEMP_CAMERA_TOGGLE_TEST)){
+		frontCamSelect = !frontCamSelect;
+		backCamSelect = !backCamSelect;
+	}
+	*/
 
 	if (frontCamSelect || frontCamLatched) {
 		if (backCamLatched) {
@@ -331,22 +339,22 @@ void DS::processCameras() {
 				frontCamFirstTime = false;
 				backCamLatched = false;
 			}
-
-			if (frontCamFirstTime) {
-				if (StartCamera(0)) {
-					frontCamFirstTime = false;
-				}
-			}
-
-			imaqError = IMAQdxGrab(sessionCam0, frameFrontCam, true, NULL);
-			if (imaqError != IMAQdxErrorSuccess) {
-				log->write(Log::ERROR_LEVEL, "front camera IMAQdxGrab error: %ld\n", (long) imaqError);
-			}
-			else {
-				CameraServer::GetInstance()->SetImage(frameFrontCam);
-			}
-			backCamLatched = true;
 		}
+
+		if (frontCamFirstTime) {
+			if (StartCamera(0)) {
+				frontCamFirstTime = false;
+			}
+		}
+
+		imaqError = IMAQdxGrab(sessionCam0, frameFrontCam, true, NULL);
+		if (imaqError != IMAQdxErrorSuccess) {
+			log->write(Log::ERROR_LEVEL, "front camera IMAQdxGrab error: %ld\n", (long) imaqError);
+		}
+		else {
+			CameraServer::GetInstance()->SetImage(frameFrontCam);
+		}
+		backCamLatched = true;
 	}
 
 	else if (backCamSelect || backCamLatched) {
@@ -431,6 +439,7 @@ bool DS::StopCamera(int cameraNum) {
 
 	return true;
 }
+
 
 DS* DS::getInstance() {
 	if (INSTANCE == NULL) {
