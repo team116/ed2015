@@ -22,10 +22,11 @@ const float Mobility::RAMP_RATE = 24.0f; // measured in volts, ramps to full spe
 const float Mobility::MAX_ULTRASONIC_DISTANCE = 254.0f;
 const float Mobility::MAX_ULTRASONIC_VOLTAGE = 5.5f;
 const float Mobility::ODOMETRY_INCHES_PER_PULSE = 3.0f/360.0f;
-const float Mobility::MAX_VELOCITY = 600.0f;
+const float Mobility::MAX_VELOCITY = 1750.0f;
 
 Mobility::Mobility()//COMMIT NUMBER 100
 {
+	log = Log::getInstance();
 	front_left_motor = new CANTalon(RobotPorts::FRONT_LEFT_MOTOR);
 	front_left_motor->SetVoltageRampRate(RAMP_RATE);
 	front_left_motor->Set(0.0);
@@ -78,8 +79,9 @@ Mobility::Mobility()//COMMIT NUMBER 100
 	robot_drive->SetSafetyEnabled(false);
 
 	// closed loop initialization, change this to false if we don't want to default to closed loop
-	using_closed_loop = true;
-	if (using_closed_loop) {
+	using_closed_loop = false;
+	useClosedLoop(true);
+/*	if (using_closed_loop) {
 			front_left_motor->SetPID(P_VALUE, I_VALUE, D_VALUE);
 			front_left_motor->SetControlMode(CANTalon::kSpeed);
 			front_left_motor->Set(0.0f);
@@ -97,8 +99,8 @@ Mobility::Mobility()//COMMIT NUMBER 100
 			rear_right_motor->Set(0.0f);
 
 			robot_drive->SetMaxOutput(MAX_VELOCITY);
-			rear_left_motor->Set(0.2 * MAX_VELOCITY);
-			rear_right_motor->Set(-0.2 * MAX_VELOCITY);
+			rear_left_motor->Set(0.5 * MAX_VELOCITY);
+			rear_right_motor->Set(-0.5 * MAX_VELOCITY);
 	}
 	else {
 		front_left_motor->SetPID(0.0, 0.0, 0.0);
@@ -114,11 +116,10 @@ Mobility::Mobility()//COMMIT NUMBER 100
 		rear_right_motor->SetControlMode(CANTalon::kPercentVbus);
 
 		robot_drive->SetMaxOutput(1.0);
-		rear_left_motor->Set(0.2);
-		rear_right_motor->Set(-0.2);
-	}
+		rear_left_motor->Set(0.5);
+		rear_right_motor->Set(-0.5);
+	}*/
 
-	log = Log::getInstance();
 	x_direction = 0;
 	y_direction = 0;
 	rotation = 0;
@@ -149,6 +150,7 @@ void Mobility::process()
 	float max_rate = 345.0f;
 	float min_rot_speed = 0.2;
 	float max_rot_speed = 0.75;
+	log->write(Log::INFO_LEVEL, "Rate: %f\n", rate);
 	//rear_left_motor->Set(0.0);
 	//rear_right_motor->Set(0.0);
 	//front_left_motor->Set(0.0);
@@ -263,6 +265,7 @@ void Mobility::useClosedLoop(bool use)
 	if (use != using_closed_loop) {
 		using_closed_loop = use;
 		if (use) {
+			log->write(Log::INFO_LEVEL, "Closed Loop\n");
 			front_left_motor->SetPID(P_VALUE, I_VALUE, D_VALUE);
 			front_left_motor->SetControlMode(CANTalon::kSpeed);
 			front_left_motor->Set(0.0f);
@@ -280,10 +283,11 @@ void Mobility::useClosedLoop(bool use)
 			rear_right_motor->Set(0.0f);
 
 			robot_drive->SetMaxOutput(MAX_VELOCITY);
-			rear_left_motor->Set(0.2 * MAX_VELOCITY);
-			rear_right_motor->Set(-0.2 * MAX_VELOCITY);
+			rear_left_motor->Set(0.5 * MAX_VELOCITY);
+			rear_right_motor->Set(-0.5 * MAX_VELOCITY);
 		}
 		else {
+			log->write(Log::INFO_LEVEL, "Open Loop\n");
 			front_left_motor->SetPID(0.0, 0.0, 0.0);
 			front_left_motor->SetControlMode(CANTalon::kPercentVbus);
 
@@ -297,8 +301,8 @@ void Mobility::useClosedLoop(bool use)
 			rear_right_motor->SetControlMode(CANTalon::kPercentVbus);
 
 			robot_drive->SetMaxOutput(1.0);
-			rear_left_motor->Set(0.2);
-			rear_right_motor->Set(-0.2);
+			rear_left_motor->Set(0.5);
+			rear_right_motor->Set(-0.5);
 		}
 	}
 }
