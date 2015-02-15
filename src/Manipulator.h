@@ -17,35 +17,35 @@ public:
 	Mobility* mobility;
 	Log* log;
 
-	enum lifter_direction
+	enum lifter_directions
 	{
 		MOVING_UP,
 		MOVING_DOWN,
 		NOT_MOVING,
 	};
 
-	enum rake_direction
+	enum rake_directions
 	{
 		RAKE_LIFTING,
 		RAKE_LOWERING,
 		RAKE_STILL
 	};
 
-	enum flap_direction
+	enum flap_directions
 	{
 		FLAP_OPENING,
 		FLAP_CLOSING,
 		FLAP_STILL
 	};
 
-	enum flap_position
+	enum flap_positions
 	{
 		FLAP_LOW,
 		FLAP_MID,
 		FLAP_HIGH
 	};
 
-	enum wheel_direction
+	enum wheel_directions
 	{
 		WHEELS_PULLING,
 		WHEELS_PUSHING,
@@ -62,13 +62,15 @@ public:
 
 	void setSurface(float s);
 	void setTargetLevel(int level);
-	void setFlapPosition(flap_position p);	//see flap_position enum in private section
+	void setFlapPosition(flap_positions p);	//see flap_positions enum in private section
 	void changeHeight(float change);
-	void liftLifters(lifter_direction direction);
+	void liftLifters(lifter_directions direction);
 	int getLevel();
 	float getHeight();
 
 	void liftRakes(bool going_up);
+	void moveLeftRake(rake_directions direction);
+	void moveRightRake(rake_directions direction);
 
 	void honorLimits(bool to_use_or_not_to_use);
 
@@ -134,10 +136,10 @@ private:
 	bool pushToteDone();
 	bool pullToteDone();
 
-	rake_direction rake_direction;
-	flap_direction flap_state;
-	flap_position flap_pos;
-	wheel_direction wheel_state;
+	rake_directions rake_direction;
+	flap_directions flap_state;
+	flap_positions flap_pos;
+	wheel_directions wheel_state;
 
 	// stores potentiometer values for the diff. positions for the flaps
 	static const float FLAP_ANGLE_LOW;	//closed

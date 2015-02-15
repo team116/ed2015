@@ -55,6 +55,7 @@ namespace JoystickPorts
 	const unsigned int FIELD_CENTRIC_TOGGLE = 2;
 	const unsigned int OVERRIDE_BUTTON = 7;
 	const unsigned int TURN_DEGREES = 5;
+	const unsigned int FLIP_ORIENTATION = 11;
 }
 
 namespace IOBoardOnePorts
@@ -98,8 +99,10 @@ namespace IOBoardTwoPorts{
 	const unsigned int FRONT_CAMERA_SELECT = 1;
 	const unsigned int BACK_CAMERA_SELECT = 2;
 
-	const unsigned int RAKES_UP_BUTTON = 3;
-	const unsigned int RAKES_DOWN_BUTTON = 4;
+	const unsigned int LEFT_RAKE_UP_BUTTON = 3;
+	const unsigned int LEFT_RAKE_DOWN_BUTTON = 4;
+	const unsigned int RIGHT_RAKE_UP_BUTTON = 5;
+	const unsigned int RIGHT_RAKE_DOWN_BUTTON = 6;
 }
 
 namespace Utils

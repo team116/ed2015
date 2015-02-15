@@ -2,6 +2,7 @@
 #include "Ports.h"
 #include "DS.h"
 #include "Mobility.h"
+#include "Manipulator.h"
 #include "Log.h"
 #include <CameraServer.h>
 #include <cmath>
@@ -17,9 +18,11 @@ DS::DS() {
 	IO_board_one = Joystick::GetStickForPort(DSPorts::DIGITAL_IO_BOARD);
 	IO_board_two = Joystick::GetStickForPort(DSPorts::SECOND_IO_BOARD);
 
-	server = CameraServer::GetInstance();
-	server->SetQuality(50);
-	server->StartAutomaticCapture("cam0");
+	/*server = CameraServer::GetInstance();
+	 server->SetQuality(50);
+	 server->StartAutomaticCapture("cam0");*/
+	frameFrontCam = imaqCreateImage(IMAQ_IMAGE_RGB, 0);
+	frameBackCam = imaqCreateImage(IMAQ_IMAGE_RGB, 0);
 
 	on_step = false;
 	override = false;
@@ -27,8 +30,14 @@ DS::DS() {
 	drive_type_handled = false;
 	turn_degrees = false;
 	turn_degrees_handled = false;
+	flip_orientation_handled = false;
+	frontCamLatched = false;
+	backCamLatched = false;
+	frontCamFirstTime = true;
+	backCamFirstTime = true;
 
 	IO_board_one->SetOutputs(0);
+
 }
 
 void DS::process() {
@@ -38,16 +47,10 @@ void DS::process() {
 		override = !override;
 	}
 
-	if (IO_board_two->GetRawButton(IOBoardTwoPorts::BACK_CAMERA_SELECT)) {
-		// switch to back camera
-	}
-	else if (IO_board_two->GetRawButton(IOBoardTwoPorts::FRONT_CAMERA_SELECT)) {
-		// switch to front camera
-	}
-
 	processMobility();
 	processManipulator();
 	processLEDS();
+	processCameras();
 
 }
 
@@ -57,8 +60,7 @@ void DS::processMobility() {
 	// we might just remove this because the override button is a dumb idea
 	if (override) {
 		log->write(Log::TRACE_LEVEL, "%s\tIn override mode\n", Utils::getCurrentTime());
-		mobility->setDirection(secondary_joystick->GetX() / 2.0, secondary_joystick->GetY()
-				/ 2.0);
+		mobility->setDirection(secondary_joystick->GetX() / 2.0, secondary_joystick->GetY() / 2.0);
 		mobility->setRotationSpeed(secondary_joystick->GetTwist() / 2.0);
 	}
 
@@ -76,12 +78,14 @@ void DS::processMobility() {
 			drive_type_handled = false;
 		}
 
-		float x = main_joystick->GetX(), y = main_joystick->GetY();
-		// small deadzones for the x and y movement of the joystick
-		x = fabs(x) < 0.05 ? 0 : x;
-		y = fabs(y) < 0.05 ? 0 : y;
+		float x = main_joystick->GetX(), y = main_joystick->GetY(), t = main_joystick->GetRawAxis(5);
+		// shaping and deadzones
+		x = fabs(x) < 0.1 ? 0 : x * fabs(x);
+		y = fabs(y) < 0.1 ? 0 : y * fabs(y);
+		t = fabs(t) < 0.1 ? 0 : t * fabs(t);
 		mobility->setDirection(x, y);
-		mobility->setRotationSpeed(main_joystick->GetTwist());
+		// the rotation is really fast, halve the speed
+		mobility->setRotationSpeed(t / 2.0);
 	}
 	turn_degrees = main_joystick->GetRawButton(JoystickPorts::TURN_DEGREES);
 	if (turn_degrees && !turn_degrees_handled) {
@@ -97,6 +101,15 @@ void DS::processMobility() {
 	}
 	else if(main_joystick->GetRawButton(4)){
 		mobility->useClosedLoop(false);
+	}
+	if (main_joystick->GetRawButton(JoystickPorts::FLIP_ORIENTATION)) {
+		if (!flip_orientation_handled) {
+			flip_orientation_handled = true;
+			mobility->flipOrientation();
+		}
+	}
+	else {
+		flip_orientation_handled = false;
 	}
 }
 
@@ -164,22 +177,37 @@ void DS::processManipulator() {
 	}
 
 	// rake control buttons
-	if (IO_board_one->GetRawButton(IOBoardTwoPorts::RAKES_UP_BUTTON)) {
-		manipulator->liftRakes(true);
+	if (IO_board_one->GetRawButton(IOBoardTwoPorts::LEFT_RAKE_UP_BUTTON)) {
+		manipulator->moveLeftRake(Manipulator::RAKE_LIFTING);
 	}
-	else if (IO_board_one->GetRawButton(IOBoardTwoPorts::RAKES_DOWN_BUTTON)) {
-		manipulator->liftRakes(false);
+	else if (IO_board_one->GetRawButton(IOBoardTwoPorts::LEFT_RAKE_DOWN_BUTTON)) {
+		manipulator->moveLeftRake(Manipulator::RAKE_LOWERING);
+	}
+	else {
+		manipulator->moveLeftRake(Manipulator::RAKE_STILL);
+	}
+
+	if(IO_board_one->GetRawButton(IOBoardTwoPorts::RIGHT_RAKE_UP_BUTTON)){
+		manipulator->moveRightRake(Manipulator::RAKE_LIFTING);
+	}
+	else if(IO_board_one->GetRawButton(IOBoardTwoPorts::RIGHT_RAKE_DOWN_BUTTON)){
+		manipulator->moveRightRake(Manipulator::RAKE_LOWERING);
+	}
+	else {
+		manipulator->moveRightRake(Manipulator::RAKE_STILL);
 	}
 
 	// normal control of manipulator by driver two
 	if (!override) {
-		if (secondary_joystick->GetY() > 0.25) {
+		if (secondary_joystick->GetY() > 0.4) {
 			manipulator->pushTote();
 		}
-		else if (secondary_joystick->GetY() < -0.25) {
+		else if (secondary_joystick->GetY() < -0.4) {
 			manipulator->pullTote();
 		}
 
+		float t = secondary_joystick->GetTwist();
+		t = fabs(t) < 0.1 ? 0 : t * fabs(t);
 		manipulator->spinTote(secondary_joystick->GetTwist());
 	}
 }
@@ -284,6 +312,131 @@ void DS::doLevelLEDS(int level) {
 		break;
 	}
 }
+
+void DS::processCameras() {
+
+	if (IO_board_two->GetRawButton(IOBoardTwoPorts::FRONT_CAMERA_SELECT)) {
+		frontCamSelect = true;
+		backCamSelect = false;
+	}
+	else if (IO_board_two->GetRawButton(IOBoardTwoPorts::BACK_CAMERA_SELECT)) {
+		frontCamSelect = false;
+		backCamSelect = true;
+	}
+	// if, somehow, neither switch is on, we'll use the front camera
+	else {
+		frontCamSelect = true;
+		backCamSelect = false;
+	}
+
+	if (frontCamSelect || frontCamLatched) {
+		if (backCamLatched) {
+			if (StopCamera(1)) {
+				StartCamera(0);
+				frontCamFirstTime = false;
+				backCamLatched = false;
+			}
+
+			if (frontCamFirstTime) {
+				if (StartCamera(0)) {
+					frontCamFirstTime = false;
+				}
+			}
+
+			imaqError = IMAQdxGrab(sessionCam0, frameFrontCam, true, NULL);
+			if (imaqError != IMAQdxErrorSuccess) {
+				log->write(Log::ERROR_LEVEL, "front camera IMAQdxGrab error: %ld\n", (long) imaqError);
+			}
+			else {
+				CameraServer::GetInstance()->SetImage(frameFrontCam);
+			}
+			backCamLatched = true;
+		}
+	}
+
+	else if (backCamSelect || backCamLatched) {
+		if (frontCamLatched) {
+			if (StopCamera(0)) {
+				StartCamera(1);
+				backCamFirstTime = false;
+				frontCamLatched = false;
+			}
+		}
+
+		if (backCamFirstTime) {
+			if (StartCamera(1)) {
+				backCamFirstTime = false;
+			}
+
+		}
+
+		imaqError = IMAQdxGrab(sessionCam1, frameBackCam, true, NULL);
+		if (imaqError != IMAQdxErrorSuccess) {
+			log->write(Log::ERROR_LEVEL, "back cam IMAQdxGrab error: %ld\n", (long) imaqError);
+		}
+		else {
+			CameraServer::GetInstance()->SetImage(frameBackCam);
+		}
+		backCamLatched = true;
+	}
+}
+
+bool DS::StartCamera(int cameraNum) {
+	if (cameraNum == 0) {
+		imaqError = IMAQdxOpenCamera("cam0", IMAQdxCameraControlModeController, &sessionCam0);
+		if (imaqError != IMAQdxErrorSuccess) {
+			log->write(Log::ERROR_LEVEL, "front camera IMAQdxOpenCamera error: %ld\n", (long) imaqError);
+			return false;
+		}
+		imaqError = IMAQdxConfigureGrab(sessionCam0);
+		if (imaqError != IMAQdxErrorSuccess) {
+			log->write(Log::ERROR_LEVEL, "front camera IMAQdxConfigureGrab error: %ld\n", (long) imaqError);
+			return false;
+		}
+		// acquire images
+		IMAQdxStartAcquisition(sessionCam0);
+	}
+
+	else if (cameraNum == 1) {
+		imaqError = IMAQdxOpenCamera("cam1", IMAQdxCameraControlModeController, &sessionCam1);
+		if (imaqError != IMAQdxErrorSuccess) {
+			log->write(Log::ERROR_LEVEL, "back camera IMAQdxOpenCamera error: %ld\n", (long) imaqError);
+			return false;
+		}
+		imaqError = IMAQdxConfigureGrab(sessionCam1);
+		if (imaqError != IMAQdxErrorSuccess) {
+			log->write(Log::ERROR_LEVEL, "back camera IMAQdxConfigureGrab error: %ld\n", (long) imaqError);
+			return false;
+		}
+		IMAQdxStartAcquisition(sessionCam1);
+
+	}
+
+	return true;
+}
+
+bool DS::StopCamera(int cameraNum) {
+	if (cameraNum == 0) {
+		IMAQdxStopAcquisition(sessionCam0);
+		imaqError = IMAQdxCloseCamera(sessionCam0);
+		if (imaqError != IMAQdxErrorSuccess) {
+			log->write(Log::ERROR_LEVEL, "front camera IMAQdxCloseCamera error: %ld\n", (long) imaqError);
+			return false;
+		}
+	}
+
+	else if (cameraNum == 1) {
+		IMAQdxStopAcquisition(sessionCam1);
+		imaqError = IMAQdxCloseCamera(sessionCam1);
+		if (imaqError != IMAQdxErrorSuccess) {
+			log->write(Log::ERROR_LEVEL, "back camera IMAQdxCloseCamera error: %ld\n", (long) imaqError);
+			return false;
+		}
+	}
+
+	return true;
+}
+
 DS* DS::getInstance() {
 	if (INSTANCE == NULL) {
 		INSTANCE = new DS();

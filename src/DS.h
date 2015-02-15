@@ -5,14 +5,20 @@
 #include "Manipulator.h"
 #include <CameraServer.h>
 
-class DS
-{
+class DS {
 public:
 	static DS* getInstance();
 	void process();
 	void processMobility();
 	void processManipulator();
 	void processLEDS();
+	void processCameras();
+	bool StopCamera(int cameraNum);
+	bool StartCamera(int cameraNum);
+	bool StartFrontCamera();
+	bool StartBackCamera();
+	bool StopFrontCamera();
+	bool StopBackCamera();
 
 private:
 	DS();
@@ -33,10 +39,27 @@ private:
 	bool drive_type_handled;
 	bool turn_degrees;
 	bool turn_degrees_handled;
+	bool flip_orientation_handled;
+	bool frontCamLatched;
+	bool backCamLatched;
+	bool frontCamFirstTime;
+	bool backCamFirstTime;
+	bool frontCamSelect;
+	bool backCamSelect;
+
 
 	void doLevelLEDS(int level);
 
 	const static float LIFTER_BUTTON_CHANGE;
+
+	//cam0 is the front camera, cam1 is the back camera
+	IMAQdxSession sessionCam0;
+	IMAQdxSession sessionCam1;
+
+	Image *frameFrontCam;
+	Image *frameBackCam;
+
+	IMAQdxError imaqError;
 
 };
 

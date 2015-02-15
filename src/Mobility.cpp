@@ -31,13 +31,13 @@ Mobility::Mobility()//COMMIT NUMBER 100
 	front_left_motor->SetVoltageRampRate(RAMP_RATE);
 	front_left_motor->Set(0.0);
 	front_left_motor->SetFeedbackDevice(CANTalon::QuadEncoder);
-	//front_left_motor->SetControlMode(CANTalon::kSpeed);
+	// front_left_motor->SetControlMode(CANTalon::kSpeed);
 
 	front_right_motor = new CANTalon(RobotPorts::FRONT_RIGHT_MOTOR);
 	front_right_motor->SetVoltageRampRate(RAMP_RATE);
 	front_right_motor->Set(0.0);
 	front_right_motor->SetFeedbackDevice(CANTalon::QuadEncoder);
-	//front_right_motor->SetControlMode(CANTalon::kSpeed);
+	// front_right_motor->SetControlMode(CANTalon::kSpeed);
 
 	// speed_timer = new Timer();
 	// past_ramping = false;
@@ -64,7 +64,7 @@ Mobility::Mobility()//COMMIT NUMBER 100
 	rear_right_motor->SetVoltageRampRate(RAMP_RATE);
 	rear_right_motor->Set(0.0);
 	rear_right_motor->SetFeedbackDevice(CANTalon::QuadEncoder);
-	//rear_right_motor->SetControlMode(CANTalon::kSpeed);
+	// rear_right_motor->SetControlMode(CANTalon::kSpeed);
 
 	odometry_wheel_x_encoder = new Encoder(RobotPorts::ODOMETRY_WHEEL_X_A,RobotPorts::ODOMETRY_WHEEL_X_B);
 	odometry_wheel_y_encoder = new Encoder(RobotPorts::ODOMETRY_WHEEL_Y_A,RobotPorts::ODOMETRY_WHEEL_Y_B);
@@ -73,9 +73,17 @@ Mobility::Mobility()//COMMIT NUMBER 100
 	odometry_wheel_y_encoder->SetDistancePerPulse(ODOMETRY_INCHES_PER_PULSE);
 
 	robot_drive = new RobotDrive(front_left_motor, rear_left_motor, front_right_motor, rear_right_motor);
-	// robot_drive = new RobotDrive(front_left_motor, front_right_motor, front_right_motor, rear_right_motor);
-	robot_drive->SetInvertedMotor(RobotDrive::kFrontRightMotor, true);
-	robot_drive->SetInvertedMotor(RobotDrive::kRearRightMotor, true);
+	// set to true is this is the software bot
+	real_orientation = true;
+	useRealOrientation(real_orientation);
+	//if (false) {
+	//	robot_drive->SetInvertedMotor(RobotDrive::kFrontRightMotor, true);
+	//	robot_drive->SetInvertedMotor(RobotDrive::kRearRightMotor, true);
+	//}
+	//else {
+	//	robot_drive->SetInvertedMotor(RobotDrive::kFrontLeftMotor, true);
+	//	robot_drive->SetInvertedMotor(RobotDrive::kRearLeftMotor, true);
+	//}
 	robot_drive->SetSafetyEnabled(false);
 
 	// closed loop initialization, change this to false if we don't want to default to closed loop
@@ -155,6 +163,13 @@ void Mobility::process()
 	//rear_right_motor->Set(0.0);
 	//front_left_motor->Set(0.0);
 	//front_right_motor->Set(0.0);
+
+	// spam the logs...
+	log->write(Log::INFO_LEVEL, "%s\tfront left encoder: %i\n", Utils::getCurrentTime(), front_left_motor->GetEncPosition());
+	log->write(Log::INFO_LEVEL, "%s\tfront right encoder: %i\n", Utils::getCurrentTime(), front_right_motor->GetEncPosition());
+	log->write(Log::INFO_LEVEL, "%s\trear left encoder: %i\n", Utils::getCurrentTime(), rear_left_motor->GetEncPosition());
+	log->write(Log::INFO_LEVEL, "%s\trear right encoder: %i\n", Utils::getCurrentTime(), rear_right_motor->GetEncPosition());
+
 	if(rotating_degrees)
 	{
 		log->write(Log::ERROR_LEVEL, "Gyro: %f\n", angle);
@@ -185,13 +200,13 @@ void Mobility::process()
 
 void Mobility::setDirection(float x, float y)//-1.0 through 1.0
 {
-	x_direction = x * fabs(x) * MAX_SPEED;
-	y_direction = y * fabs(y) * MAX_SPEED;
+	x_direction = x * MAX_SPEED;
+	y_direction = y * MAX_SPEED;
 }
 
 void Mobility::setRotationSpeed(float rotation_)//-1.0 through 1.0
 {
-	rotation = rotation_ * fabs(rotation_) * MAX_SPEED;
+	rotation = rotation_ * MAX_SPEED;
 }
 
 void Mobility::toggleFieldCentric()
@@ -307,6 +322,32 @@ void Mobility::useClosedLoop(bool use)
 	}
 }
 
+void Mobility::useRealOrientation(bool real)
+{
+	real_orientation = real;
+	if (real) {
+		robot_drive->SetInvertedMotor(RobotDrive::kFrontLeftMotor, true);
+		robot_drive->SetInvertedMotor(RobotDrive::kRearLeftMotor, true);
+		robot_drive->SetInvertedMotor(RobotDrive::kFrontRightMotor, false);
+		robot_drive->SetInvertedMotor(RobotDrive::kRearRightMotor, false);
+	}
+	else {
+		robot_drive->SetInvertedMotor(RobotDrive::kFrontLeftMotor, false);
+		robot_drive->SetInvertedMotor(RobotDrive::kRearLeftMotor, false);
+		robot_drive->SetInvertedMotor(RobotDrive::kFrontRightMotor, true);
+		robot_drive->SetInvertedMotor(RobotDrive::kRearRightMotor, true);
+	}
+}
+
+void Mobility::flipOrientation()
+{
+	if (real_orientation) {
+		useRealOrientation(false);
+	}
+	else {
+		useRealOrientation(true);
+	}
+}
 
 Mobility* Mobility::getInstance()
 {
