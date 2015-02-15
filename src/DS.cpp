@@ -78,7 +78,7 @@ void DS::processMobility() {
 			drive_type_handled = false;
 		}
 
-		float x = main_joystick->GetX(), y = main_joystick->GetY(), t = main_joystick->GetTwist();
+		float x = main_joystick->GetX(), y = main_joystick->GetY(), t = main_joystick->GetRawAxis(5);
 		// shaping and deadzones
 		x = fabs(x) < 0.1 ? 0 : x * fabs(x);
 		y = fabs(y) < 0.1 ? 0 : y * fabs(y);
