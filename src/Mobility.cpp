@@ -14,7 +14,7 @@ Mobility* Mobility::INSTANCE = NULL;
 
 const float Mobility::P_VALUE = 0.9f;
 const float Mobility::I_VALUE = 0.0f;
-const float Mobility::D_VALUE = 0.0f;
+const float Mobility::D_VALUE = 3.0f;
 
 const float Mobility::DEFAULT_SPEED = 0.5f;
 const float Mobility::MAX_SPEED = 0.9f;
@@ -176,10 +176,10 @@ void Mobility::process()
 		rotation = (float)rotate_direction * max(min(rotation + accel, max_rot_speed), min_rot_speed);
 	}
 	if (field_centric) {
-//		robot_drive->MecanumDrive_Cartesian(x_direction, y_direction, rotation, angle);
+		robot_drive->MecanumDrive_Cartesian(x_direction, y_direction, rotation, angle);
 	}
 	else {
-//		robot_drive->MecanumDrive_Cartesian(x_direction, y_direction, rotation);
+		robot_drive->MecanumDrive_Cartesian(x_direction, y_direction, rotation);
 	}
 }
 
@@ -283,8 +283,8 @@ void Mobility::useClosedLoop(bool use)
 			rear_right_motor->Set(0.0f);
 
 			robot_drive->SetMaxOutput(MAX_VELOCITY);
-			rear_left_motor->Set(0.5 * MAX_VELOCITY);
-			rear_right_motor->Set(-0.5 * MAX_VELOCITY);
+			rear_left_motor->Set(0.0 * MAX_VELOCITY);
+			rear_right_motor->Set(-0.0 * MAX_VELOCITY);
 		}
 		else {
 			log->write(Log::INFO_LEVEL, "Open Loop\n");
@@ -301,8 +301,8 @@ void Mobility::useClosedLoop(bool use)
 			rear_right_motor->SetControlMode(CANTalon::kPercentVbus);
 
 			robot_drive->SetMaxOutput(1.0);
-			rear_left_motor->Set(0.5);
-			rear_right_motor->Set(-0.5);
+			rear_left_motor->Set(0.0);
+			rear_right_motor->Set(-0.0);
 		}
 	}
 }
