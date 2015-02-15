@@ -30,6 +30,7 @@ DS::DS() {
 	drive_type_handled = false;
 	turn_degrees = false;
 	turn_degrees_handled = false;
+	flip_orientation_handled = false;
 	frontCamLatched = false;
 	backCamLatched = false;
 	frontCamFirstTime = true;
@@ -93,6 +94,16 @@ void DS::processMobility() {
 	}
 	else if (!turn_degrees && turn_degrees_handled) {
 		turn_degrees_handled = false;
+	}
+
+	if (main_joystick->GetRawButton(JoystickPorts::FLIP_ORIENTATION)) {
+		if (!flip_orientation_handled) {
+			flip_orientation_handled = true;
+			mobility->flipOrientation();
+		}
+	}
+	else {
+		flip_orientation_handled = false;
 	}
 }
 

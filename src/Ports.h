@@ -55,6 +55,7 @@ namespace JoystickPorts
 	const unsigned int FIELD_CENTRIC_TOGGLE = 2;
 	const unsigned int OVERRIDE_BUTTON = 7;
 	const unsigned int TURN_DEGREES = 5;
+	const unsigned int FLIP_ORIENTATION = 11;
 }
 
 namespace IOBoardOnePorts

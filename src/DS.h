@@ -39,6 +39,7 @@ private:
 	bool drive_type_handled;
 	bool turn_degrees;
 	bool turn_degrees_handled;
+	bool flip_orientation_handled;
 	bool frontCamLatched;
 	bool backCamLatched;
 	bool frontCamFirstTime;

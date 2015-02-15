@@ -22,6 +22,8 @@ public:
 	int getYEncoderDistance();
 	void resetXEncoderDistance();
 	void resetYEncoderDistance();
+	void useRealOrientation(bool real);
+	void flipOrientation();
 
 private:
 	Mobility();
@@ -44,6 +46,8 @@ private:
 	Encoder* odometry_wheel_y_encoder;
 
 	Log* log;
+
+	bool real_orientation;
 
 	bool field_centric;
 	bool rotating_degrees;
