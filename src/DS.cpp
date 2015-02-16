@@ -179,23 +179,23 @@ void DS::processManipulator() {
 
 	// rake control buttons
 	if (IO_board_one->GetRawButton(IOBoardTwoPorts::LEFT_RAKE_UP_BUTTON)) {
-		manipulator->moveLeftRake(Manipulator::RAKE_LIFTING);
+		manipulator->movePortRake(Manipulator::RAKE_LIFTING);
 	}
 	else if (IO_board_one->GetRawButton(IOBoardTwoPorts::LEFT_RAKE_DOWN_BUTTON)) {
-		manipulator->moveLeftRake(Manipulator::RAKE_LOWERING);
+		manipulator->movePortRake(Manipulator::RAKE_LOWERING);
 	}
 	else {
-		manipulator->moveLeftRake(Manipulator::RAKE_STILL);
+		manipulator->movePortRake(Manipulator::RAKE_STILL);
 	}
 
 	if(IO_board_one->GetRawButton(IOBoardTwoPorts::RIGHT_RAKE_UP_BUTTON)){
-		manipulator->moveRightRake(Manipulator::RAKE_LIFTING);
+		manipulator->moveStarboardRake(Manipulator::RAKE_LIFTING);
 	}
 	else if(IO_board_one->GetRawButton(IOBoardTwoPorts::RIGHT_RAKE_DOWN_BUTTON)){
-		manipulator->moveRightRake(Manipulator::RAKE_LOWERING);
+		manipulator->moveStarboardRake(Manipulator::RAKE_LOWERING);
 	}
 	else {
-		manipulator->moveRightRake(Manipulator::RAKE_STILL);
+		manipulator->moveStarboardRake(Manipulator::RAKE_STILL);
 	}
 
 	// normal control of manipulator by driver two

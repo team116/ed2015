@@ -31,6 +31,14 @@ public:
 		RAKE_STILL
 	};
 
+	enum rake_positions
+	{
+		//note: low != absolute bottom (will not hit limit switch)
+		RAKE_LOW,
+		RAKE_MID,
+		RAKE_HIGH
+	};
+
 	enum flap_directions
 	{
 		FLAP_OPENING,
@@ -62,15 +70,16 @@ public:
 
 	void setSurface(float s);
 	void setTargetLevel(int level);
-	void setFlapPosition(flap_positions p);	//see flap_positions enum in private section
-	void changeHeight(float change);
+	void setFlapPosition(flap_positions p);	//see flap_position enum in private section
+	void setRakePosition(rake_positions p);	//see rake_position enum in private section
 	void liftLifters(lifter_directions direction);
 	int getLevel();
 	float getHeight();
 
 	void liftRakes(bool going_up);
-	void moveLeftRake(rake_directions direction);
-	void moveRightRake(rake_directions direction);
+	void movePortRake(rake_directions direction);
+	void moveStarboardRake(rake_directions direction);
+
 
 	void honorLimits(bool to_use_or_not_to_use);
 
@@ -98,15 +107,14 @@ private:
 	//hydrangeas
 	//hydrangeas
 	// sensors
-	DigitalInput* lift_upper_limit;
+	/*DigitalInput* lift_upper_limit;
 	DigitalInput* lift_lower_limit;
 	DigitalInput* flaps_closed_limit;
 	DigitalInput* flaps_opened_limit;
 	DigitalInput* port_rake_limit;
-	DigitalInput* starboard_rake_limit;
+	DigitalInput* starboard_rake_limit;*/
 
-	Encoder* encoder;
-	AnalogPotentiometer* potentiometer;
+	//AnalogPotentiometer* potentiometer;	//TODO: rewrite potentiometer to go through Talon
 	static const int PULSE_PER_REV;
 	static const float INCH_PER_REV;
 
@@ -114,16 +122,18 @@ private:
 	Timer* flap_timer;
 	static const float FLAP_TIMEOUT;
 	Timer* rake_timer;
-	static const float RAKE_TIMEOUT;
+	static const float RAKE_TIMEOUT_LOW_TO_MID;
+	static const float RAKE_TIMEOUT_LOW_TO_HIGH;
+	static const float RAKE_TIMEOUT_MID_TO_HIGH;
 	Timer* lift_timer;
 	static const float LEVEL_TIMEOUT;
+	float lifter_timeout;
 	Timer* wheel_timer;
 	static const float WHEEL_TIMEOUT;
 
 	// lifter stuff --inches for everything
 	float current_height;
 	float target_height;
-	float lifter_timeout;
 
 	static const float TOTE_HEIGHT;
 	static const float LIFTER_RANGE;
@@ -131,12 +141,14 @@ private:
 	bool isInsignificantChange(float first, float second); // the order of the parameters doesn't matter
 	bool canMoveLifter();
 	bool flapMotionDone();
-	bool rakeUpMotionDone();
-	bool rakeDownMotionDone();
+	bool rakeMotionDone();
 	bool pushToteDone();
 	bool pullToteDone();
 
-	rake_directions rake_direction;
+	rake_directions port_rake_direction;
+	rake_directions starboard_rake_direction;
+	rake_positions rake_pos;	//note: useless during teleop, do not attempt to use!!!
+	rake_positions rake_pos_prev;
 	flap_directions flap_state;
 	flap_positions flap_pos;
 	wheel_directions wheel_state;

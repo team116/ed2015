@@ -24,12 +24,13 @@ namespace RobotPorts
 	const unsigned int FLAP_POTENTIOMETER = 5;
 
 	// digital sensors
-	const unsigned int LIFT_UPPER_LIMIT = 0;
+	//limits run through motors, not RoboRio
+	/*const unsigned int LIFT_UPPER_LIMIT = 0;
 	const unsigned int LIFT_LOWER_LIMIT = 1;
 	const unsigned int FLAPS_UPPER_LIMIT = 2;
 	const unsigned int FLAPS_LOWER_LIMIT = 3;
 	const unsigned int PORT_RAKE_LIMIT = 4;
-	const unsigned int STARBOARD_RAKE_LIMIT = 5;
+	const unsigned int STARBOARD_RAKE_LIMIT = 5;*/
 
 	const unsigned int ENCODER_A = 6;
 	const unsigned int ENCODER_B = 7;
