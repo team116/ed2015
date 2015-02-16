@@ -12,15 +12,17 @@ using namespace std;
 Mobility* Mobility::INSTANCE = NULL;
 const float Mobility::DEFAULT_SPEED = 0.5;
 const float Mobility::MAX_SPEED = 0.9;
-const float Mobility::RAMP_RATE = 24.0; // measured in volts, ramps to full speed in 0.5 seconds
+// measured in volts, ramps to full speed in 0.5 seconds
+const float Mobility::RAMP_RATE = 24.0;
 const float Mobility::MAX_ULTRASONIC_DISTANCE = 254.0;
 const float Mobility::MAX_ULTRASONIC_VOLTAGE = 5.5;
-const float Mobility::X_ODOMETRY_INCHES_PER_PULSE = 3.0/360.0;
-const float Mobility::Y_ODOMETRY_INCHES_PER_PULSE = 3.0/250.0;
+const float Mobility::X_ODOMETRY_INCHES_PER_PULSE = 3.0 / 360.0;
+const float Mobility::Y_ODOMETRY_INCHES_PER_PULSE = 3.0 / 250.0;
 
 
-Mobility::Mobility()//COMMIT NUMBER 100
+Mobility::Mobility()
 {
+	log = Log::getInstance();
 	front_left_motor = new CANTalon(RobotPorts::FRONT_LEFT_MOTOR);
 	front_left_motor->SetVoltageRampRate(RAMP_RATE);
 	front_left_motor->Set(0.0);
@@ -64,7 +66,6 @@ Mobility::Mobility()//COMMIT NUMBER 100
 	//	robot_drive->SetInvertedMotor(RobotDrive::kRearLeftMotor, true);
 	//}
 	robot_drive->SetSafetyEnabled(false);
-	log = Log::getInstance();
 	x_direction = 0;
 	y_direction = 0;
 	rotation = 0;
@@ -92,29 +93,30 @@ void Mobility::process()
 	//front_right_motor->Set(0.0);
 
 	// spam the logs...
-	log->write(Log::INFO_LEVEL, "%s\tfront left encoder: %i\n", Utils::getCurrentTime(), front_left_motor->GetEncPosition());
-	log->write(Log::INFO_LEVEL, "%s\tfront right encoder: %i\n", Utils::getCurrentTime(), front_right_motor->GetEncPosition());
-	log->write(Log::INFO_LEVEL, "%s\trear left encoder: %i\n", Utils::getCurrentTime(), rear_left_motor->GetEncPosition());
-	log->write(Log::INFO_LEVEL, "%s\trear right encoder: %i\n", Utils::getCurrentTime(), rear_right_motor->GetEncPosition());
+	log->write(Log::TRACE_LEVEL, "%s\tfront left encoder: %i\n", Utils::getCurrentTime(), front_left_motor->GetEncPosition());
+	log->write(Log::TRACE_LEVEL, "%s\tfront right encoder: %i\n", Utils::getCurrentTime(), front_right_motor->GetEncPosition());
+	log->write(Log::TRACE_LEVEL, "%s\trear left encoder: %i\n", Utils::getCurrentTime(), rear_left_motor->GetEncPosition());
+	log->write(Log::TRACE_LEVEL, "%s\trear right encoder: %i\n", Utils::getCurrentTime(), rear_right_motor->GetEncPosition());
 
 	if(rotating_degrees)
 	{
-		log->write(Log::ERROR_LEVEL, "Gyro: %f\n", angle);
+		float accel = 0.0;
+		log->write(Log::ERROR_LEVEL, "%s\tGyro: %f\n", Utils::getCurrentTime(), angle);
 		if(((rotate_direction == 1) && (angle >= target_degrees)) || ((rotate_direction == -1) && (angle <= target_degrees))) {
 			rotate_direction = 0;
 		}
 		if (rotate_direction == 0) {
-			log->write(Log::ERROR_LEVEL, "Rotating finished\n");
+			log->write(Log::ERROR_LEVEL, "%s\tRotating finished\n", Utils::getCurrentTime());
 			rotating_degrees = false;
 		}
 		// float var = ((((rate - min_rate)/(max_rate - min_rate))) - (max(min(fabs(target_degrees - angle),0.8f), 0.2f))) * 0.072f;
 		// log->write(Log::ERROR_LEVEL, "Rotate Difference: %f\n", var);
 		// log->write(Log::ERROR_LEVEL, "Rotation Speed: %f\n", rotation + var);
 		// setRotationSpeed(rotation + var);
-		float accel = 0.072f * (min((target_degrees - angle) / (angle - start_degrees), 1.0f) - (gyro->GetRate() / max_rate));
-		log->write(Log::ERROR_LEVEL, "Rotation Speed: %f\n", rotation);
-		log->write(Log::ERROR_LEVEL, "Rotation Difference: %f\n", accel);
-		//setRotationSpeed((float)rotate_direction * max(min(rotation + accel, max_rot_speed), min_rot_speed));
+		accel = 0.072f * (min((target_degrees - angle) / (angle - start_degrees), 1.0f) - (gyro->GetRate() / max_rate));
+		log->write(Log::ERROR_LEVEL, "%s\tRotation Speed: %f\n", Utils::getCurrentTime(), rotation);
+		log->write(Log::ERROR_LEVEL, "%s\tRotation Difference: %f\n", Utils::getCurrentTime(), accel);
+		// setRotationSpeed((float)rotate_direction * max(min(rotation + accel, max_rot_speed), min_rot_speed));
 		rotation = (float)rotate_direction * max(min(rotation + accel, max_rot_speed), min_rot_speed);
 	}
 	if (field_centric) {
@@ -138,7 +140,7 @@ void Mobility::setRotationSpeed(float rotation_)//-1.0 through 1.0
 
 void Mobility::toggleFieldCentric()
 {
-	log->write(Log::INFO_LEVEL, "Toggling field centric\n");
+	log->write(Log::INFO_LEVEL, "%s\tToggling field centric\n", Utils::getCurrentTime());
 	field_centric = !field_centric;
 }
 
@@ -165,8 +167,8 @@ float Mobility::getUltrasonicDistance()
 	currentDistance = (volts * maxDistance)/maxVoltage;
 	return currentDistance;
 	*/
-	//IDK how this is supposed to actually be but I'm going with this
-	return (ultrasonic->GetVoltage() * MAX_ULTRASONIC_DISTANCE)/MAX_ULTRASONIC_VOLTAGE;
+	// IDK how this is supposed to actually be but I'm going with this
+	return (ultrasonic->GetVoltage() * MAX_ULTRASONIC_DISTANCE) / MAX_ULTRASONIC_VOLTAGE;
 }
 
 void Mobility::setRotationDegrees(int degrees)
@@ -180,24 +182,28 @@ void Mobility::setRotationDegrees(int degrees)
 		rotate_direction = -1;
 	}
 	target_degrees = start_degrees + degrees;
-	log->write(Log::ERROR_LEVEL, "Start Degrees: %f\n", start_degrees);
+	log->write(Log::ERROR_LEVEL, "%s\tStart Degrees: %f\n", Utils::getCurrentTime(), start_degrees);
 	rotating_degrees = true;
 	setRotationSpeed(rotate_direction);
 }
 
-void Mobility::resetXEncoderDistance(){
+void Mobility::resetXEncoderDistance()
+{
 	odometry_wheel_x_encoder->Reset();
 }
 
-void Mobility::resetYEncoderDistance(){
+void Mobility::resetYEncoderDistance()
+{
 	odometry_wheel_y_encoder->Reset();
 }
 
-int Mobility::getXEncoderDistance(){
+int Mobility::getXEncoderDistance()
+{
 	return odometry_wheel_x_encoder->GetDistance();
 }
 
-int Mobility::getYEncoderDistance(){
+int Mobility::getYEncoderDistance()
+{
 	return odometry_wheel_y_encoder->GetDistance();
 }
 
