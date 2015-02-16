@@ -18,9 +18,8 @@ DS::DS() {
 	IO_board_one = Joystick::GetStickForPort(DSPorts::DIGITAL_IO_BOARD);
 	IO_board_two = Joystick::GetStickForPort(DSPorts::SECOND_IO_BOARD);
 
-	/*server = CameraServer::GetInstance();
-	 server->SetQuality(50);
-	 server->StartAutomaticCapture("cam0");*/
+	server = CameraServer::GetInstance();
+	server->SetQuality(30);
 	frameFrontCam = imaqCreateImage(IMAQ_IMAGE_RGB, 0);
 	frameBackCam = imaqCreateImage(IMAQ_IMAGE_RGB, 0);
 
@@ -356,7 +355,7 @@ void DS::processCameras() {
 			log->write(Log::ERROR_LEVEL, "front camera IMAQdxGrab error: %ld\n", (long) imaqError);
 		}
 		else {
-			CameraServer::GetInstance()->SetImage(frameFrontCam);
+			server->SetImage(frameFrontCam);
 			IMAQdxDispose(frameFrontCam);
 		}
 		backCamLatched = true;
@@ -383,7 +382,7 @@ void DS::processCameras() {
 			log->write(Log::ERROR_LEVEL, "back cam IMAQdxGrab error: %ld\n", (long) imaqError);
 		}
 		else {
-			CameraServer::GetInstance()->SetImage(frameBackCam);
+			server->SetImage(frameBackCam);
 			IMAQdxDispose(frameBackCam);
 		}
 		backCamLatched = true;
