@@ -222,7 +222,7 @@ bool Manipulator::rakeMotionDone() {	//only for use of presets during atonomous
 					}
 					break;
 				case RAKE_HIGH:
-					if (rake_timer->HasPeriodPassed(RAKE_TIMEOUT_LOW_TO_HIGH)) {
+					if (rake_timer->HasPeriodPassed(RAKE_TIMEOUT_LOW_TO_HIGH) || rake_port->IsFwdLimitSwitchClosed() == 1) {
 						rake_timer->Start();
 						rake_timer->Reset();
 						return true;
@@ -245,7 +245,7 @@ bool Manipulator::rakeMotionDone() {	//only for use of presets during atonomous
 					return true;
 					break;
 				case RAKE_HIGH:
-					if (rake_timer->HasPeriodPassed(RAKE_TIMEOUT_MID_TO_HIGH)) {
+					if (rake_timer->HasPeriodPassed(RAKE_TIMEOUT_MID_TO_HIGH) || rake_port->IsFwdLimitSwitchClosed() == 1) {
 						rake_timer->Start();
 						rake_timer->Reset();
 						return true;
