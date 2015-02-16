@@ -6,7 +6,7 @@
  */
 
 #include <cmath>
-#include <SensorStick.h>
+#include "SensorStick.h"
 #include <Timer.h>
 
 SensorStick* SensorStick::INSTANCE = NULL;
