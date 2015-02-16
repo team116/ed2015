@@ -132,6 +132,7 @@ void Motors::process() {
 		moveLifter(0.0);
 	}
 
+	/*
 	log->write(Log::INFO_LEVEL, "Get: Front Left Wheel Velocity %i\n", front_left_wheel->GetEncVel());
 	log->write(Log::INFO_LEVEL, "Get: Front Right Wheel Velocity %i\n", front_right_wheel->GetEncVel());
 	log->write(Log::INFO_LEVEL, "Get: Back Left Wheel Velocity %i\n", rear_left_wheel->GetEncVel());
@@ -153,7 +154,7 @@ void Motors::process() {
 	log->write(Log::INFO_LEVEL, "Get: Upper Arm Flippy Floppies isOpen Limit Switch %i\n", flaps->GetForwardLimitOK());
 	log->write(Log::INFO_LEVEL, "Get: Lower Arm Flippy Floppies isClosed Limit Switch %i\n", flaps->GetReverseLimitOK());
 	log->write(Log::INFO_LEVEL, "Get: Arm potentiometer %i\n", flaps->GetAnalogIn());
-
+	*/
 }
 
 void Motors::moveLifter(float volts) {
