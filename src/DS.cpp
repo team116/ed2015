@@ -1,12 +1,16 @@
 #include <WPILib.h>
 #include <Encoder.h>
+#include <Timer.h>
 #include "Ports.h"
 #include "DS.h"
 #include "Log.h"
 #include <CameraServer.h>
 DS* DS::INSTANCE = NULL;
 
-DS::DS() {
+DS::DS()
+{
+	log = Log::getInstance();
+
 	encoder = new Encoder(RobotPorts::ENCODER_A, RobotPorts::ENCODER_B);
 
 	od_xaxis_encoder = new Encoder(RobotPorts::OD_XAXIS_ENCODER_A, RobotPorts::OD_XAXIS_ENCODER_B);
@@ -16,7 +20,8 @@ DS::DS() {
 	joystick_two = Joystick::GetStickForPort(DSPorts::DRIVER_TWO_JOYSTICK);
 	joystick_three = Joystick::GetStickForPort(DSPorts::BUTTONS_JOYSTICK);
 
-	log = Log::getInstance();
+	log_timer = new Timer();
+	log_timer->Start();
 }
 
 void DS::process() {
@@ -27,19 +32,21 @@ void DS::process() {
 
 	 log->write(Log::TRACE_LEVEL, "----------Digital Encoder------------\n");
 	 */
-	log->write(Log::INFO_LEVEL, "Get: %i\n", encoder->Get());
-	log->write(Log::INFO_LEVEL, "Get Raw: %i\n", encoder->GetRaw());
-	log->write(Log::INFO_LEVEL, "Rate: %f\n", encoder->GetRate());
-	//log->write(Log::INFO_LEVEL, "Get Encoding Scale: %i\n", encoder->GetEncodingScale());
+	if (log_timer->HasPeriodPassed(5.0)) {
+		log->write(Log::INFO_LEVEL, "Get: %i\n", encoder->Get());
+		log->write(Log::INFO_LEVEL, "Get Raw: %i\n", encoder->GetRaw());
+		log->write(Log::INFO_LEVEL, "Rate: %f\n", encoder->GetRate());
+	}
+	// log->write(Log::INFO_LEVEL, "Get Encoding Scale: %i\n", encoder->GetEncodingScale());
 
-	log->write(Log::INFO_LEVEL, "Get: Front Left Encoder %i\n", od_xaxis_encoder->Get());
-	log->write(Log::INFO_LEVEL, "Get: Back Right Encoder %i\n", od_yaxis_encoder->Get());
+	// log->write(Log::INFO_LEVEL, "Get: Front Left Encoder %i\n", od_xaxis_encoder->Get());
+	// log->write(Log::INFO_LEVEL, "Get: Back Right Encoder %i\n", od_yaxis_encoder->Get());
 
 }
 
 DS::Direction DS::getDirection(Joystick* joystick, int port_1, int port_2) {
 	if (joystick->GetRawButton(port_1)) {
-		if (joystick->GetRawButton(port_2)) {
+		if (!joystick->GetRawButton(port_2)) {
 			return FORWARD;
 		}
 	}

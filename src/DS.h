@@ -3,6 +3,7 @@
 #include <CANTalon.h>
 #include <Encoder.h>
 #include <Joystick.h>
+#include <Timer.h>
 #include "Log.h"
 
 class DS {
@@ -41,6 +42,8 @@ private:
 	Joystick* joystick_one;
 	Joystick* joystick_two;
 	Joystick* joystick_three;
+
+	Timer* log_timer;
 };
 
 #endif // DS_H_
