@@ -46,6 +46,7 @@ Mobility::Mobility()//COMMIT NUMBER 100
 	rear_left_motor->SetVoltageRampRate(RAMP_RATE);
 	rear_left_motor->Set(0.0);
 	rear_left_motor->SetFeedbackDevice(CANTalon::QuadEncoder);
+	rear_left_motor->SetSensorDirection(false);
 //	rear_left_motor->SetPosition(0.0);
 	// speed_timer->Start();
 	// rear_left_motor->Set(0.9);
@@ -53,7 +54,7 @@ Mobility::Mobility()//COMMIT NUMBER 100
 	// rear_left_motor->SetControlMode(CANTalon::kPosition);
 //	rear_left_motor->SetPID(0.9, 0.0, 0.0, 0.0);
 	// rear_left_motor->SetIzone(0);
-	rear_left_motor->SetSensorDirection(false);
+
 	// rear_left_motor->SetCloseLoopRampRate(12.0);
 	// rear_left_motor->ClearError();
 	// rear_left_motor->ClearIaccum();
@@ -194,7 +195,7 @@ void Mobility::process()
 		robot_drive->MecanumDrive_Cartesian(x_direction, y_direction, rotation, angle);
 	}
 	else {
-		robot_drive->MecanumDrive_Cartesian(x_direction, y_direction, rotation);
+//		robot_drive->MecanumDrive_Cartesian(x_direction, y_direction, rotation);
 	}
 }
 
@@ -298,8 +299,8 @@ void Mobility::useClosedLoop(bool use)
 			rear_right_motor->Set(0.0f);
 
 			robot_drive->SetMaxOutput(MAX_VELOCITY);
-			rear_left_motor->Set(0.0 * MAX_VELOCITY);
-			rear_right_motor->Set(-0.0 * MAX_VELOCITY);
+			rear_left_motor->Set(0.1 * MAX_VELOCITY);
+			rear_right_motor->Set(-0.1 * MAX_VELOCITY);
 		}
 		else {
 			log->write(Log::INFO_LEVEL, "Open Loop\n");
@@ -316,8 +317,8 @@ void Mobility::useClosedLoop(bool use)
 			rear_right_motor->SetControlMode(CANTalon::kPercentVbus);
 
 			robot_drive->SetMaxOutput(1.0);
-			rear_left_motor->Set(0.0);
-			rear_right_motor->Set(-0.0);
+			rear_left_motor->Set(0.1);
+			rear_right_motor->Set(-0.1);
 		}
 	}
 }
