@@ -58,12 +58,16 @@ void DS::process() {
 
 void DS::processMobility() {
 	// secondary driver has overridden so that they can control movement
-	// I'm halving all input because this is for precision
 	// we might just remove this because the override button is a dumb idea
 	if (override) {
 		log->write(Log::TRACE_LEVEL, "%s\tIn override mode\n", Utils::getCurrentTime());
-		mobility->setDirection(secondary_joystick->GetX() / 2.0, secondary_joystick->GetY() / 2.0);
-		mobility->setRotationSpeed(secondary_joystick->GetTwist() / 2.0);
+		float x = secondary_joystick->GetX(), y = secondary_joystick->GetY(), t = secondary_joystick->GetRawAxis(5);
+		// shaping is cubic because we want fine control
+		x = fabs(x) < 0.1 ? 0 : x * fabs(x) * fabs(x);
+		y = fabs(y) < 0.1 ? 0 : y * fabs(y) * fabs(y);
+		t = fabs(t) < 0.1 ? 0 : t * fabs(t) * fabs(t);
+		mobility->setDirection(x, y);
+		mobility->setRotationSpeed(t * 0.75);
 	}
 
 	// normal control by first driver
@@ -205,7 +209,7 @@ void DS::processManipulator() {
 
 		float t = secondary_joystick->GetTwist();
 		t = fabs(t) < 0.1 ? 0 : t * fabs(t);
-		manipulator->spinTote(secondary_joystick->GetTwist());
+		manipulator->spinTote(t);
 	}
 }
 
@@ -353,6 +357,7 @@ void DS::processCameras() {
 		}
 		else {
 			CameraServer::GetInstance()->SetImage(frameFrontCam);
+			IMAQdxDispose(frameFrontCam);
 		}
 		backCamLatched = true;
 	}
@@ -379,6 +384,7 @@ void DS::processCameras() {
 		}
 		else {
 			CameraServer::GetInstance()->SetImage(frameBackCam);
+			IMAQdxDispose(frameBackCam);
 		}
 		backCamLatched = true;
 	}
