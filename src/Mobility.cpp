@@ -15,7 +15,9 @@ const float Mobility::MAX_SPEED = 0.9;
 const float Mobility::RAMP_RATE = 24.0; // measured in volts, ramps to full speed in 0.5 seconds
 const float Mobility::MAX_ULTRASONIC_DISTANCE = 254.0;
 const float Mobility::MAX_ULTRASONIC_VOLTAGE = 5.5;
-const float Mobility::ODOMETRY_INCHES_PER_PULSE = 3.0/360.0;
+const float Mobility::X_ODOMETRY_INCHES_PER_PULSE = 3.0/360.0;
+const float Mobility::Y_ODOMETRY_INCHES_PER_PULSE = 3.0/250.0;
+
 
 Mobility::Mobility()//COMMIT NUMBER 100
 {
@@ -46,8 +48,8 @@ Mobility::Mobility()//COMMIT NUMBER 100
 	odometry_wheel_x_encoder = new Encoder(RobotPorts::ODOMETRY_WHEEL_X_A,RobotPorts::ODOMETRY_WHEEL_X_B);
 	odometry_wheel_y_encoder = new Encoder(RobotPorts::ODOMETRY_WHEEL_Y_A,RobotPorts::ODOMETRY_WHEEL_Y_B);
 
-	odometry_wheel_x_encoder->SetDistancePerPulse(ODOMETRY_INCHES_PER_PULSE);
-	odometry_wheel_y_encoder->SetDistancePerPulse(ODOMETRY_INCHES_PER_PULSE);
+	odometry_wheel_x_encoder->SetDistancePerPulse(X_ODOMETRY_INCHES_PER_PULSE);
+	odometry_wheel_y_encoder->SetDistancePerPulse(Y_ODOMETRY_INCHES_PER_PULSE);
 
 	robot_drive = new RobotDrive(front_left_motor, rear_left_motor, front_right_motor, rear_right_motor);
 	// set to true is this is the software bot

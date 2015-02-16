@@ -33,7 +33,8 @@ private:
 	static const float RAMP_RATE;
 	static const float MAX_ULTRASONIC_DISTANCE;
 	static const float MAX_ULTRASONIC_VOLTAGE;
-	static const float ODOMETRY_INCHES_PER_PULSE;
+	static const float X_ODOMETRY_INCHES_PER_PULSE;
+	static const float Y_ODOMETRY_INCHES_PER_PULSE;
 	CANTalon* front_left_motor;
 	CANTalon* front_right_motor;
 	CANTalon* rear_left_motor;
