@@ -42,6 +42,9 @@ namespace RobotPorts
 	//PWM
 	const unsigned int LEFT_TREX_ARM = 0;
 	const unsigned int RIGHT_TREX_ARM = 1;
+	const unsigned int LEFT_RAKE_STABILIZER = 2;
+	const unsigned int RIGHT_RAKE_STABILIZER = 3;
+	//const unsigned int
 }
 
 namespace DSPorts

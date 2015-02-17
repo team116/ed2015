@@ -90,7 +90,8 @@ public:
 
 	void honorLimits(bool to_use_or_not_to_use);
 
-	void moveTrexArms (servos_position trex_arm_position);
+	void moveTrexArms(servos_position trex_arm_position);
+	void moveRakeStabilizers(servos_position trex_arm_position);
 
 
 	static const float FLOOR;
@@ -130,6 +131,17 @@ private:
 	//servos
 	Servo* left_trex_arm;
 	Servo* right_trex_arm;
+	static const float LEFT_TREX_DOWN;
+	static const float RIGHT_TREX_DOWN;
+	static const float LEFT_TREX_UP;
+	static const float RIGHT_TREX_UP;
+
+	Servo* left_rake_stabilizer;
+	Servo* right_rake_stabilizer;
+	static const float LEFT_RAKE_STABILIZER_DOWN;
+	static const float RIGHT_RAKE_STABILIZER_DOWN;
+	static const float LEFT_RAKE_STABILIZER_UP;
+	static const float RIGHT_RAKE_STABILIZER_UP;
 
 	// timers
 	Timer* flap_timer;

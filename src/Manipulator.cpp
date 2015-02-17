@@ -19,7 +19,7 @@ const float Manipulator::WHEEL_TIMEOUT = 1.1;
 // lifter stuff
 const float Manipulator::LIFTER_RANGE = 0.3; // the acceptable height range for our presets
 const int Manipulator::PULSE_PER_REV = 64;
-const float Manipulator::INCH_PER_REV = 4;
+const float Manipulator::INCH_PER_REV = 4.0;
 
 const float Manipulator::TOTE_HEIGHT = 12.1;
 const float Manipulator::FLOOR = 0.0;
@@ -29,6 +29,16 @@ const float Manipulator::FLAP_ANGLE_HIGH = 270;
 const float Manipulator::FLAP_ANGLE_MID = 135; //note: this will change probably
 const float Manipulator::FLAP_ANGLE_LOW = 0;
 const float Manipulator::FLAP_RANGE = 10; 	//note: this will change probably
+
+const float Manipulator::LEFT_TREX_DOWN = 90.0;
+const float Manipulator::LEFT_TREX_UP = 0.0;
+const float Manipulator::RIGHT_TREX_DOWN = 150.0;
+const float Manipulator::RIGHT_TREX_UP = 60.0;
+// TODO: find actual values for rake stabilizer positions
+const float Manipulator::LEFT_RAKE_STABILIZER_DOWN = 0.0;
+const float Manipulator::LEFT_RAKE_STABILIZER_UP = 0.0;
+const float Manipulator::RIGHT_RAKE_STABILIZER_DOWN = 0.0;
+const float Manipulator::RIGHT_RAKE_STABILIZER_UP = 0.0;
 
 Manipulator::Manipulator() {
 	// subsystem instance getting
@@ -81,6 +91,8 @@ Manipulator::Manipulator() {
 	//servos
 	left_trex_arm = new Servo(RobotPorts::LEFT_TREX_ARM);
 	right_trex_arm = new Servo(RobotPorts::RIGHT_TREX_ARM);
+	left_rake_stabilizer = new Servo(RobotPorts::LEFT_RAKE_STABILIZER);
+	right_rake_stabilizer = new Servo(RobotPorts::RIGHT_RAKE_STABILIZER);
 }
 
 Manipulator::~Manipulator() {
@@ -195,6 +207,9 @@ bool Manipulator::flapMotionDone() {	//TODO: add timeouts to flap positions
 			return (fabs(posi - FLAP_ANGLE_MID) < FLAP_RANGE);
 		case FLAP_HIGH:
 			return (fabs(posi - FLAP_ANGLE_HIGH) < FLAP_RANGE);
+		default:
+			// shouldn't ever happen, but this gets rid of a warning
+			return false;
 	}
 	/*
 	 if (flap_state == FLAP_CLOSING) {
@@ -479,14 +494,26 @@ bool Manipulator::isInsignificantChange(float first, float second) {
 	return fabs(first - second) < LIFTER_RANGE;
 }
 
-void Manipulator::moveTrexArms(servos_position trex_arm_position) {
+void Manipulator::moveTrexArms(servos_position trex_arm_position)
+{
 	if (trex_arm_position == DOWN) {
-		left_trex_arm ->SetAngle(90.0);
-		right_trex_arm ->SetAngle(150.0);
+		left_trex_arm->SetAngle(LEFT_TREX_DOWN);
+		right_trex_arm->SetAngle(RIGHT_TREX_DOWN);
 	}
-	else  {
-		left_trex_arm ->SetAngle(0.0);
-		right_trex_arm ->SetAngle(60.0);
+	else {
+		left_trex_arm->SetAngle(LEFT_TREX_UP);
+		right_trex_arm->SetAngle(RIGHT_TREX_UP);
 	}
+}
 
+void Manipulator::moveRakeStabilizers(servos_position trex_arm_position)
+{
+	if (trex_arm_position == DOWN) {
+		left_rake_stabilizer->SetAngle(LEFT_RAKE_STABILIZER_DOWN);
+		right_rake_stabilizer->SetAngle(RIGHT_RAKE_STABILIZER_DOWN);
+	}
+	else {
+		left_rake_stabilizer->SetAngle(LEFT_RAKE_STABILIZER_UP);
+		right_rake_stabilizer->SetAngle(RIGHT_RAKE_STABILIZER_UP);
+	}
 }
