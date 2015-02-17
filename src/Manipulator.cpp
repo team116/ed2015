@@ -482,11 +482,11 @@ bool Manipulator::isInsignificantChange(float first, float second) {
 void Manipulator::moveTrexArms(servos_position trex_arm_position) {
 	if (trex_arm_position == DOWN) {
 		left_trex_arm ->SetAngle(90.0);
-		right_trex_arm ->SetAngle(90.0);
+		right_trex_arm ->SetAngle(150.0);
 	}
 	else  {
 		left_trex_arm ->SetAngle(0.0);
-		right_trex_arm ->SetAngle(180.0);
+		right_trex_arm ->SetAngle(60.0);
 	}
 
 }
