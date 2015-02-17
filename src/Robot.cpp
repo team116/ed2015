@@ -5,6 +5,7 @@
 #include "Mobility.h"
 #include "Autonomous.h"
 #include "Manipulator.h"
+#include "SensorStick.h"
 
 class Robot : public IterativeRobot
 {
@@ -20,6 +21,7 @@ private:
 	Autonomous* autonomous;
 	Manipulator* manipulator;
 	Log* log;
+	SensorStick* sensorstick;
 
 public:
 	Robot(void)
@@ -39,6 +41,7 @@ public:
 		autonomous = Autonomous::getInstance(Utils::convertFromVolts(delay_volt, 0, max_volt), Utils::convertFromVolts(play_volt, 0, max_volt), Utils::convertFromVolts(location_volt, 0, max_volt));
 		manipulator = Manipulator::getInstance();
 		log = Log::getInstance();
+		sensorstick = SensorStick::getInstance();
 	}
 
     ////////////////////////////////////////////////////////////////////////////
@@ -79,6 +82,7 @@ public:
     	autonomous->process();
     	mobility->process();
     	manipulator->process();
+    	sensorstick ->process();
     }
 
     void TeleopPeriodic()
@@ -86,6 +90,12 @@ public:
     	ds->process();
     	mobility->process();
     	manipulator->process();
+    	sensorstick ->process();
+
+    	log ->write(Log::INFO_LEVEL, "AccelX: %i\n");
+    	log ->write(Log::INFO_LEVEL, "AccelY: %i\n");
+		log ->write(Log::INFO_LEVEL, "AccelX: %i\n");
+    	log -> write(Log::INFO_LEVEL, "Compass Yaw: %f\n");
     }
 
 	void TestPeriodic()
