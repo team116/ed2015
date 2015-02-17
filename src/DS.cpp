@@ -19,7 +19,7 @@ DS::DS() {
 	IO_board_two = Joystick::GetStickForPort(DSPorts::SECOND_IO_BOARD);
 
 	server = CameraServer::GetInstance();
-	server->SetQuality(30);
+	server->SetQuality(5);
 	frameFrontCam = imaqCreateImage(IMAQ_IMAGE_RGB, 0);
 	frameBackCam = imaqCreateImage(IMAQ_IMAGE_RGB, 0);
 
@@ -34,8 +34,8 @@ DS::DS() {
 	backCamLatched = false;
 	frontCamFirstTime = true;
 	backCamFirstTime = true;
-	frontCamSelect = true;
-	backCamSelect = false;
+	frontCamSelect = false;
+	backCamSelect = true;
 
 	IO_board_one->SetOutputs(0);
 
@@ -315,7 +315,7 @@ void DS::doLevelLEDS(int level) {
 
 void DS::processCameras() {
 
-	if (IO_board_two->GetRawButton(IOBoardTwoPorts::FRONT_CAMERA_SELECT)) {
+	/*if (IO_board_two->GetRawButton(IOBoardTwoPorts::FRONT_CAMERA_SELECT)) {
 		frontCamSelect = true;
 		backCamSelect = false;
 	}
@@ -325,15 +325,16 @@ void DS::processCameras() {
 	}
 	// if, somehow, neither switch is on, we'll use the front camera
 	else {
-		frontCamSelect = true;
-		backCamSelect = false;
-	}
-	/*
+		frontCamSelect = false;
+		backCamSelect = true;
+	}*/
+
 	if(main_joystick->GetRawButton(JoystickPorts::TEMP_CAMERA_TOGGLE_TEST)){
+		log->write(Log::INFO_LEVEL,"Swapped cameras at %s\n",Utils::getCurrentTime());
 		frontCamSelect = !frontCamSelect;
 		backCamSelect = !backCamSelect;
 	}
-	*/
+
 
 	if (frontCamSelect || frontCamLatched) {
 		if (backCamLatched) {
@@ -391,6 +392,7 @@ void DS::processCameras() {
 
 bool DS::StartCamera(int cameraNum) {
 	if (cameraNum == 0) {
+		log->write(Log::INFO_LEVEL,"Starting cam 0");
 		imaqError = IMAQdxOpenCamera("cam0", IMAQdxCameraControlModeController, &sessionCam0);
 		if (imaqError != IMAQdxErrorSuccess) {
 			log->write(Log::ERROR_LEVEL, "front camera IMAQdxOpenCamera error: %ld\n", (long) imaqError);
