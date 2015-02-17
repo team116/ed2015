@@ -24,6 +24,8 @@ void Sensors::process()
 {
 	// log->write(Log::INFO_LEVEL, "Get: Front Left Encoder %i\n", od_xaxis_encoder->Get());
 	// log->write(Log::INFO_LEVEL, "Get: Back Right Encoder %i\n", od_yaxis_encoder->Get());
+	log ->write(Log::INFO_LEVEL, "X Axis Encoder: %i\n", od_xaxis_encoder ->Get());
+	log ->write(Log::INFO_LEVEL, "Y Axis Encoder: %i\n", od_yaxis_encoder ->Get());
 }
 
 Sensors* Sensors::getInstance()
