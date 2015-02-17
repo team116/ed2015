@@ -40,6 +40,10 @@ namespace RobotPorts
 	const unsigned int OD_XAXIS_ENCODER_B = 1;
 	const unsigned int OD_YAXIS_ENCODER_A = 0;
 	const unsigned int OD_YAXIS_ENCODER_B = 1;
+
+	//PWM
+	const unsigned int LEFT_SERVOS = 0;
+	const unsigned int RIGHT_SERVOS = 1;
 }
 
 namespace DSPorts

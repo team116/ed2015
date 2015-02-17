@@ -7,6 +7,7 @@
 
 #ifndef SRC_MOTORS_H_
 #define SRC_MOTORS_H_
+#include <Servo.h>
 
 #include <CANTalon.h>
 #include "DS.h"
@@ -39,6 +40,9 @@ private:
 	CANTalon* rake_port;
 	CANTalon* rake_starboard;
 	CANTalon* flaps;
+
+	Servo* left_servos;
+	Servo* right_servos;
 };
 
 #endif /* SRC_MOTORS_H_ */

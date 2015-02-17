@@ -7,6 +7,7 @@
 
 #include "Motors.h"
 #include "Ports.h"
+#include <Servo.h>
 
 Motors* Motors::INSTANCE = NULL;
 
@@ -30,6 +31,10 @@ Motors::Motors() {
 
 	flaps = new CANTalon(RobotPorts::CLOSE_FLAPS_MOTOR);
 	log = Log::getInstance();
+
+	left_servos = new Servo(RobotPorts::LEFT_SERVOS);
+	right_servos = new Servo(RobotPorts::RIGHT_SERVOS);
+
 
 }
 void Motors::process() {
@@ -131,6 +136,12 @@ void Motors::process() {
 	else if (direction == DS::STILL) {
 		moveLifter(0.0);
 	}
+	//0 = all the way to the left
+	//90 = down
+	// 180 = to the right
+
+
+	left_servos ->SetAngle(180.0);
 
 	/*
 	log->write(Log::INFO_LEVEL, "Get: Front Left Wheel Velocity %i\n", front_left_wheel->GetEncVel());
