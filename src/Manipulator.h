@@ -7,6 +7,7 @@
 #include "Mobility.h"
 #include "Log.h"
 #include <ctime>
+#include <Servo.h>
 
 class Manipulator {
 public:
@@ -60,6 +61,12 @@ public:
 		WHEELS_STILL
 	};
 
+	enum servos_position
+	{
+		OUT,
+		DOWN
+	};
+
 	void process();
 
 	void pullTote();
@@ -82,6 +89,8 @@ public:
 
 
 	void honorLimits(bool to_use_or_not_to_use);
+
+	void moveTrexArms (servos_position trex_arm_position);
 
 
 	static const float FLOOR;
@@ -117,6 +126,10 @@ private:
 	//AnalogPotentiometer* potentiometer;	//TODO: rewrite potentiometer to go through Talon
 	static const int PULSE_PER_REV;
 	static const float INCH_PER_REV;
+
+	//servos
+	Servo* left_trex_arm;
+	Servo* right_trex_arm;
 
 	// timers
 	Timer* flap_timer;

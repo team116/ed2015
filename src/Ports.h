@@ -34,11 +34,14 @@ namespace RobotPorts
 
 	const unsigned int ENCODER_A = 6;
 	const unsigned int ENCODER_B = 7;
-	const unsigned int ODOMETRY_WHEEL_X_A = 8;
-	const unsigned int ODOMETRY_WHEEL_X_B = 9;
-	const unsigned int ODOMETRY_WHEEL_Y_A = 10;
-	const unsigned int ODOMETRY_WHEEL_Y_B = 11;
+	const unsigned int ODOMETRY_WHEEL_X_A = 0;
+	const unsigned int ODOMETRY_WHEEL_X_B = 1;
+	const unsigned int ODOMETRY_WHEEL_Y_A = 2;
+	const unsigned int ODOMETRY_WHEEL_Y_B = 3;
 
+	//PWM
+	const unsigned int LEFT_TREX_ARM = 0;
+	const unsigned int RIGHT_TREX_ARM = 1;
 }
 
 namespace DSPorts

@@ -4,6 +4,7 @@
 #include "Ports.h"
 #include <cmath>
 #include <ctime>
+#include <Servo.h>
 
 Manipulator* Manipulator::INSTANCE = NULL;
 
@@ -76,6 +77,10 @@ Manipulator::Manipulator() {
 	using_limits = true;
 	//belt_moving = false;
 	surface = 0;
+
+	//servos
+	left_trex_arm = new Servo(RobotPorts::LEFT_TREX_ARM);
+	right_trex_arm = new Servo(RobotPorts::RIGHT_TREX_ARM);
 }
 
 Manipulator::~Manipulator() {
@@ -472,4 +477,16 @@ void Manipulator::moveStarboardRake(rake_directions direction) {
 
 bool Manipulator::isInsignificantChange(float first, float second) {
 	return fabs(first - second) < LIFTER_RANGE;
+}
+
+void Manipulator::moveTrexArms(servos_position trex_arm_position) {
+	if (trex_arm_position == DOWN) {
+		left_trex_arm ->SetAngle(90.0);
+		right_trex_arm ->SetAngle(90.0);
+	}
+	else  {
+		left_trex_arm ->SetAngle(0.0);
+		right_trex_arm ->SetAngle(180.0);
+	}
+
 }
