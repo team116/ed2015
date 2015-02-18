@@ -124,9 +124,14 @@ private:
 	DigitalInput* port_rake_limit;
 	DigitalInput* starboard_rake_limit;*/
 
+	static float P_VALUE;
+	static float I_VALUE;
+	static float D_VALUE;
 	//AnalogPotentiometer* potentiometer;	//TODO: rewrite potentiometer to go through Talon
 	static const int PULSE_PER_REV;
 	static const float INCH_PER_REV;
+
+	static const float ENCODER_INCREMENT;
 
 	//servos
 	Servo* left_trex_arm;

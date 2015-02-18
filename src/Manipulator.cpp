@@ -8,6 +8,9 @@
 
 Manipulator* Manipulator::INSTANCE = NULL;
 
+float Manipulator::P_VALUE = 0.9;
+float Manipulator::I_VALUE = 0.0;
+float Manipulator::D_VALUE = 0.0;
 // TODO: get actual timeouts
 const float Manipulator::FLAP_TIMEOUT = 1.1;
 const float Manipulator::RAKE_TIMEOUT_LOW_TO_MID = 1.1;
@@ -20,6 +23,7 @@ const float Manipulator::WHEEL_TIMEOUT = 1.1;
 const float Manipulator::LIFTER_RANGE = 0.3; // the acceptable height range for our presets
 const int Manipulator::PULSE_PER_REV = 64;
 const float Manipulator::INCH_PER_REV = 4.0;
+const float Manipulator::ENCODER_INCREMENT = 1.0;
 
 const float Manipulator::TOTE_HEIGHT = 12.1;
 const float Manipulator::FLOOR = 0.0;
@@ -55,6 +59,8 @@ Manipulator::Manipulator() {
 	lifter_two = new CANTalon(RobotPorts::LIFTER_TWO);
 	//lift_upper_limit = new DigitalInput(RobotPorts::LIFT_UPPER_LIMIT);
 	//lift_lower_limit = new DigitalInput(RobotPorts::LIFT_LOWER_LIMIT);
+	lifter_one->SetControlMode(CANTalon::kPosition);
+	lifter_one->SetPID(P_VALUE, I_VALUE, D_VALUE);
 	lifter_one->SetFeedbackDevice(CANTalon::QuadEncoder);
 	//TODO: figure out what this means: "When using quadrature, each unit is a quadrature edge (4X) mode."
 	lifter_one->ConfigEncoderCodesPerRev(INCH_PER_REV / PULSE_PER_REV);	//inches per revolution / pulses per revolution = inches per pulse
@@ -156,27 +162,31 @@ void Manipulator::process() {
 
 	if (isInsignificantChange(current_height, target_height)) {
 		log->write(Log::TRACE_LEVEL, "%s\tChange insignificant: lift motors stopped\n", Utils::getCurrentTime());
-		lifter_one->Set(0);
-		lifter_two->Set(0);
+		double current_position = lifter_one->GetPosition();
+		lifter_one->Set(current_position);
+		lifter_two->Set(current_position);
 	}
 	else {
 		if (canMoveLifter()) {
 			if (current_height < target_height) {
 				log->write(Log::TRACE_LEVEL, "%s\tMoving lift up\n", Utils::getCurrentTime());
-				lifter_one->Set(0.5);
-				lifter_two->Set(0.5);
+				double next_position = lifter_one->GetPosition() + ENCODER_INCREMENT;
+				lifter_one->Set(next_position);
+				lifter_two->Set(next_position);
 			}
 			else {
 				log->write(Log::TRACE_LEVEL, "%s\tMoving lift down\n", Utils::getCurrentTime());
-				lifter_one->Set(-0.5);
-				lifter_two->Set(-0.5);
+				double next_position = lifter_one->GetPosition() - ENCODER_INCREMENT;
+				lifter_one->Set(next_position);
+				lifter_two->Set(next_position);
 			}
 		}
 	}
 
-	if (lifter_one->IsFwdLimitSwitchClosed() == 1) {	//reset encoder to 0 every time lift hits lower limit switch
+	if (lifter_one->IsFwdLimitSwitchClosed() == 1) {//reset encoder to 0 every time lift hits lower limit switch
 		log->write(Log::TRACE_LEVEL, "%s\tHit bottom of lift: encoder set to 0\n", Utils::getCurrentTime());
-		lifter_one->SetPosition(0.0);
+		double current_position = lifter_one->GetPosition();
+		lifter_one->Set(current_position);
 	}
 
 	if (rakeMotionDone()) { 	//TODO: get real timeout period
@@ -194,7 +204,7 @@ bool Manipulator::canMoveLifter() {
 		return (lifter_one->IsFwdLimitSwitchClosed() != 1 || !using_limits) && !lift_timer->HasPeriodPassed(lifter_timeout);
 	}
 	else {
-		return (lifter_one->IsRevLimitSwitchClosed() != 1  || !using_limits) && !lift_timer->HasPeriodPassed(lifter_timeout);
+		return (lifter_one->IsRevLimitSwitchClosed() != 1 || !using_limits) && !lift_timer->HasPeriodPassed(lifter_timeout);
 	}
 }
 
@@ -328,12 +338,12 @@ void Manipulator::pushTote() {
 
 void Manipulator::closeFlaps(bool close) {
 //close or open based on value of close
-	if (close && (close_flaps->IsFwdLimitSwitchClosed() != 1 || !using_limits)) {			//close flaps
+	if (close && (close_flaps->IsFwdLimitSwitchClosed() != 1 || !using_limits)) {	//close flaps
 		log->write(Log::TRACE_LEVEL, "%s\tClosing flaps\n", Utils::getCurrentTime());
 		close_flaps->Set(0.5);
 		flap_state = FLAP_CLOSING;
 	}
-	else if (!close && (close_flaps->IsRevLimitSwitchClosed() != 1 || !using_limits)) {			//open flaps
+	else if (!close && (close_flaps->IsRevLimitSwitchClosed() != 1 || !using_limits)) {	//open flaps
 		log->write(Log::TRACE_LEVEL, "%s\tOpening flaps\n", Utils::getCurrentTime());
 		close_flaps->Set(-0.5);
 		flap_state = FLAP_OPENING;
@@ -355,7 +365,7 @@ void Manipulator::setTargetLevel(int level) {
 	if (abs(current_height - new_target) < abs(current_height - target_height)) {//in case of button mash, go to whichever instruction is closest to current position
 		target_height = new_target;
 	}
-	lifter_timeout = (float) ((target_height - current_height)/TOTE_HEIGHT) * LEVEL_TIMEOUT;
+	lifter_timeout = (float) ((target_height - current_height) / TOTE_HEIGHT) * LEVEL_TIMEOUT;
 	lift_timer->Start();
 	lift_timer->Reset();
 }
@@ -418,20 +428,23 @@ void Manipulator::honorLimits(bool to_use_or_not_to_use) {
 void Manipulator::liftLifters(lifter_directions direction) {
 	if (direction == MOVING_UP && (lifter_one->IsFwdLimitSwitchClosed() != 1 || !using_limits)) {
 		log->write(Log::TRACE_LEVEL, "%s\tLift moving up\n", Utils::getCurrentTime());
-		lifter_one->Set(0.5);
-		lifter_two->Set(0.5);
+		double next_position = lifter_one->GetPosition() + ENCODER_INCREMENT;
+		lifter_one->Set(next_position);
+		lifter_two->Set(next_position);
 	}
 
 	else if (direction == MOVING_DOWN && (lifter_one->IsRevLimitSwitchClosed() != 1 || !using_limits)) {
 		log->write(Log::TRACE_LEVEL, "%s\tLift moving down\n", Utils::getCurrentTime());
-		lifter_one->Set(-0.5);
-		lifter_two->Set(-0.5);
+		double next_position = lifter_one->GetPosition() - ENCODER_INCREMENT;
+		lifter_one->Set(next_position);
+		lifter_two->Set(next_position);
 
 	}
 	else if (direction == NOT_MOVING) {
 		log->write(Log::TRACE_LEVEL, "%s\tLift motors stopped\n", Utils::getCurrentTime());
-		lifter_one->Set(0.0);
-		lifter_two->Set(0.0);
+		double next_position = lifter_one->GetPosition();
+		lifter_one->Set(next_position);
+		lifter_two->Set(next_position);
 	}
 }
 
@@ -494,8 +507,7 @@ bool Manipulator::isInsignificantChange(float first, float second) {
 	return fabs(first - second) < LIFTER_RANGE;
 }
 
-void Manipulator::moveTrexArms(servos_position trex_arm_position)
-{
+void Manipulator::moveTrexArms(servos_position trex_arm_position) {
 	if (trex_arm_position == DOWN) {
 		left_trex_arm->SetAngle(LEFT_TREX_DOWN);
 		right_trex_arm->SetAngle(RIGHT_TREX_DOWN);
@@ -506,8 +518,7 @@ void Manipulator::moveTrexArms(servos_position trex_arm_position)
 	}
 }
 
-void Manipulator::moveRakeStabilizers(servos_position trex_arm_position)
-{
+void Manipulator::moveRakeStabilizers(servos_position trex_arm_position) {
 	if (trex_arm_position == DOWN) {
 		left_rake_stabilizer->SetAngle(LEFT_RAKE_STABILIZER_DOWN);
 		right_rake_stabilizer->SetAngle(RIGHT_RAKE_STABILIZER_DOWN);
