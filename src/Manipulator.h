@@ -9,7 +9,8 @@
 #include <ctime>
 #include <Servo.h>
 
-class Manipulator {
+class Manipulator
+{
 public:
 	Manipulator();
 	virtual ~Manipulator();

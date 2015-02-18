@@ -11,7 +11,8 @@
 #include <cstdio>
 #include <cstdarg>
 
-class Log {
+class Log
+{
 public:
 	static Log* getInstance();
 	~Log();

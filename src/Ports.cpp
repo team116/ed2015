@@ -8,7 +8,8 @@
 #include <ctime>
 #include <cstdio>
 
-namespace Utils {
+namespace Utils
+{
 	int convertFromVolts(const float voltage, const int voltage_levels,
 			const float max_voltage)
 	{

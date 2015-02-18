@@ -5,7 +5,8 @@
 #include "Manipulator.h"
 #include <CameraServer.h>
 
-class DS {
+class DS
+{
 public:
 	static DS* getInstance();
 	void process();
