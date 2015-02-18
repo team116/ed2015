@@ -26,14 +26,19 @@ public:
 	void useClosedLoop(bool use);
 	void useRealOrientation(bool real);
 	void flipOrientation();
+	void setPID(float p, float i, float d);
+	float getP();
+	float getI();
+	float getD();
+
 
 private:
 	Mobility();
 	static Mobility* INSTANCE;
 
-	static const float P_VALUE;
-	static const float I_VALUE;
-	static const float D_VALUE;
+	static float P_VALUE;
+	static float I_VALUE;
+	static float D_VALUE;
 	bool using_closed_loop;
 
 	static const float DEFAULT_SPEED;
@@ -50,6 +55,12 @@ private:
 	RobotDrive* robot_drive;
 	AnalogInput* ultrasonic;
 	Gyro* gyro;
+	double fr_enc_pos;
+	double fl_enc_pos;
+	double rr_enc_pos;
+	double rl_enc_pos;
+	Timer* time;
+
 
 	Encoder* odometry_wheel_x_encoder;
 	Encoder* odometry_wheel_y_encoder;

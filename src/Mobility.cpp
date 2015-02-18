@@ -12,9 +12,9 @@ using namespace std;
 
 Mobility* Mobility::INSTANCE = NULL;
 
-const float Mobility::P_VALUE = 0.9f;
-const float Mobility::I_VALUE = 0.0f;
-const float Mobility::D_VALUE = 3.0f;
+float Mobility::P_VALUE = 0.1f;
+float Mobility::I_VALUE = 0.0f;
+float Mobility::D_VALUE = 0.0f;
 
 const float Mobility::DEFAULT_SPEED = 0.5f;
 const float Mobility::MAX_SPEED = 0.9f;
@@ -22,7 +22,7 @@ const float Mobility::RAMP_RATE = 24.0f; // measured in volts, ramps to full spe
 const float Mobility::MAX_ULTRASONIC_DISTANCE = 254.0f;
 const float Mobility::MAX_ULTRASONIC_VOLTAGE = 5.5f;
 const float Mobility::ODOMETRY_INCHES_PER_PULSE = 3.0f/360.0f;
-const float Mobility::MAX_VELOCITY = 1750.0f;
+const float Mobility::MAX_VELOCITY = 5500.0f;
 
 Mobility::Mobility()//COMMIT NUMBER 100
 {
@@ -31,6 +31,7 @@ Mobility::Mobility()//COMMIT NUMBER 100
 	front_left_motor->SetVoltageRampRate(RAMP_RATE);
 	front_left_motor->Set(0.0);
 	front_left_motor->SetFeedbackDevice(CANTalon::QuadEncoder);
+	front_left_motor->SetSensorDirection(false);
 	// front_left_motor->SetControlMode(CANTalon::kSpeed);
 
 	front_right_motor = new CANTalon(RobotPorts::FRONT_RIGHT_MOTOR);
@@ -90,44 +91,6 @@ Mobility::Mobility()//COMMIT NUMBER 100
 	// closed loop initialization, change this to false if we don't want to default to closed loop
 	using_closed_loop = false;
 	useClosedLoop(true);
-/*	if (using_closed_loop) {
-			front_left_motor->SetPID(P_VALUE, I_VALUE, D_VALUE);
-			front_left_motor->SetControlMode(CANTalon::kSpeed);
-			front_left_motor->Set(0.0f);
-
-			front_right_motor->SetPID(P_VALUE, I_VALUE, D_VALUE);
-			front_right_motor->SetControlMode(CANTalon::kSpeed);
-			front_right_motor->Set(0.0f);
-
-			rear_left_motor->SetPID(P_VALUE, I_VALUE, D_VALUE);
-			rear_left_motor->SetControlMode(CANTalon::kSpeed);
-			rear_left_motor->Set(0.0f);
-
-			rear_right_motor->SetPID(P_VALUE, I_VALUE, D_VALUE);
-			rear_right_motor->SetControlMode(CANTalon::kSpeed);
-			rear_right_motor->Set(0.0f);
-
-			robot_drive->SetMaxOutput(MAX_VELOCITY);
-			rear_left_motor->Set(0.5 * MAX_VELOCITY);
-			rear_right_motor->Set(-0.5 * MAX_VELOCITY);
-	}
-	else {
-		front_left_motor->SetPID(0.0, 0.0, 0.0);
-		front_left_motor->SetControlMode(CANTalon::kPercentVbus);
-
-		front_right_motor->SetPID(0.0, 0.0, 0.0);
-		front_right_motor->SetControlMode(CANTalon::kPercentVbus);
-
-		rear_left_motor->SetPID(0.0, 0.0, 0.0);
-		rear_left_motor->SetControlMode(CANTalon::kPercentVbus);
-
-		rear_right_motor->SetPID(0.0, 0.0, 0.0);
-		rear_right_motor->SetControlMode(CANTalon::kPercentVbus);
-
-		robot_drive->SetMaxOutput(1.0);
-		rear_left_motor->Set(0.5);
-		rear_right_motor->Set(-0.5);
-	}*/
 
 	x_direction = 0;
 	y_direction = 0;
@@ -140,10 +103,33 @@ Mobility::Mobility()//COMMIT NUMBER 100
 	ultrasonic = new AnalogInput(RobotPorts::ULTRASONIC);
 	ultrasonic->SetOversampleBits(2);
 	gyro = new Gyro(RobotPorts::GYRO);
+	fl_enc_pos = front_left_motor->GetPosition();
+	fr_enc_pos = front_right_motor->GetPosition();
+	rl_enc_pos = rear_left_motor->GetPosition();
+	rr_enc_pos = rear_right_motor->GetPosition();
+	time = new Timer();
 }
 
 void Mobility::process()
 {
+/*	double time_passed = time->Get();
+	if(time_passed == 0.0)
+		time->Start();
+	if(time_passed >= 5.0)
+	{
+		log->write(Log::INFO_LEVEL, "Position: FL: %f FR: %f RL: %f RR: %f\n", front_left_motor->GetPosition(), front_right_motor->GetPosition(), rear_left_motor->GetPosition(), rear_right_motor->GetPosition());
+		double fl_cur = (front_left_motor->GetPosition() - fl_enc_pos) / time_passed;
+		double fr_cur = (front_right_motor->GetPosition() - fr_enc_pos) / time_passed;
+		double rl_cur = (rear_left_motor->GetPosition() - rl_enc_pos) / time_passed;
+		double rr_cur = (rear_right_motor->GetPosition() - rr_enc_pos) / time_passed;
+		log->write(Log::INFO_LEVEL, "Velocity: FL: %f FR: %f RL: %f RR: %f\n", fl_cur, fr_cur, rl_cur, rr_cur);
+		fl_enc_pos = front_left_motor->GetPosition();
+		fr_enc_pos = front_right_motor->GetPosition();
+		rl_enc_pos = rear_left_motor->GetPosition();
+		rr_enc_pos = rear_right_motor->GetPosition();
+		time->Reset();
+		time->Start();
+	}*/
 	/*
 	rear_left_motor->Set(0.9);
 	if (speed_timer->Get() > 5.0)
@@ -153,23 +139,24 @@ void Mobility::process()
 		speed_timer->Reset();
 	}
 	*/
+
 	float angle = gyro->GetAngle();
 	float rate = gyro->GetRate();
 	float min_rate = 45.0f;
 	float max_rate = 345.0f;
 	float min_rot_speed = 0.2;
 	float max_rot_speed = 0.75;
-	log->write(Log::INFO_LEVEL, "Rate: %f\n", rate);
+//	log->write(Log::INFO_LEVEL, "Rate: %f\n", rate);
 	//rear_left_motor->Set(0.0);
 	//rear_right_motor->Set(0.0);
 	//front_left_motor->Set(0.0);
 	//front_right_motor->Set(0.0);
 
 	// spam the logs...
-	log->write(Log::INFO_LEVEL, "%s\tfront left encoder: %i\n", Utils::getCurrentTime(), front_left_motor->GetEncPosition());
+/*	log->write(Log::INFO_LEVEL, "%s\tfront left encoder: %i\n", Utils::getCurrentTime(), front_left_motor->GetEncPosition());
 	log->write(Log::INFO_LEVEL, "%s\tfront right encoder: %i\n", Utils::getCurrentTime(), front_right_motor->GetEncPosition());
 	log->write(Log::INFO_LEVEL, "%s\trear left encoder: %i\n", Utils::getCurrentTime(), rear_left_motor->GetEncPosition());
-	log->write(Log::INFO_LEVEL, "%s\trear right encoder: %i\n", Utils::getCurrentTime(), rear_right_motor->GetEncPosition());
+	log->write(Log::INFO_LEVEL, "%s\trear right encoder: %i\n", Utils::getCurrentTime(), rear_right_motor->GetEncPosition());*/
 
 	if(rotating_degrees)
 	{
@@ -192,10 +179,10 @@ void Mobility::process()
 		rotation = (float)rotate_direction * max(min(rotation + accel, max_rot_speed), min_rot_speed);
 	}
 	if (field_centric) {
-		robot_drive->MecanumDrive_Cartesian(x_direction, y_direction, rotation, angle);
+		//robot_drive->MecanumDrive_Cartesian(x_direction, y_direction, rotation, angle);
 	}
 	else {
-//		robot_drive->MecanumDrive_Cartesian(x_direction, y_direction, rotation);
+		//robot_drive->MecanumDrive_Cartesian(x_direction, y_direction, rotation);
 	}
 }
 
@@ -299,8 +286,10 @@ void Mobility::useClosedLoop(bool use)
 			rear_right_motor->Set(0.0f);
 
 			robot_drive->SetMaxOutput(MAX_VELOCITY);
-			rear_left_motor->Set(0.1 * MAX_VELOCITY);
-			rear_right_motor->Set(-0.1 * MAX_VELOCITY);
+			rear_left_motor->Set(0.2 * MAX_VELOCITY);
+			rear_right_motor->Set(-0.2 * MAX_VELOCITY);
+			front_left_motor->Set(0.2 * MAX_VELOCITY);
+			front_right_motor->Set(-0.2 * MAX_VELOCITY);
 		}
 		else {
 			log->write(Log::INFO_LEVEL, "Open Loop\n");
@@ -317,10 +306,36 @@ void Mobility::useClosedLoop(bool use)
 			rear_right_motor->SetControlMode(CANTalon::kPercentVbus);
 
 			robot_drive->SetMaxOutput(1.0);
-			rear_left_motor->Set(0.1);
-			rear_right_motor->Set(-0.1);
+			rear_left_motor->Set(0.2);
+			rear_right_motor->Set(-0.2);
+			front_left_motor->Set(0.2);
+			front_right_motor->Set(-0.2);
 		}
 	}
+}
+
+void Mobility::setPID(float p, float i, float d)
+{
+	P_VALUE = p;
+	I_VALUE = i;
+	D_VALUE = d;
+	front_left_motor->SetPID(p, i, d);
+	front_right_motor->SetPID(p, i, d);
+	rear_left_motor->SetPID(p, i, d);
+	rear_right_motor->SetPID(p, i, d);
+	log->write(Log::INFO_LEVEL, "P: %f I: %f D: %f\n", p, i, d);
+}
+float Mobility::getP()
+{
+	return P_VALUE;
+}
+float Mobility::getI()
+{
+	return I_VALUE;
+}
+float Mobility::getD()
+{
+	return D_VALUE;
 }
 
 void Mobility::useRealOrientation(bool real)
