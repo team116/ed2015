@@ -7,10 +7,10 @@
 
 #ifndef SRC_MOTORS_H_
 #define SRC_MOTORS_H_
-#include <Servo.h>
 
 #include <CANTalon.h>
 #include "DS.h"
+#include <Servo.h>
 
 class Motors {
 public:
@@ -41,8 +41,11 @@ private:
 	CANTalon* rake_starboard;
 	CANTalon* flaps;
 
-	Servo* left_servos;
-	Servo* right_servos;
+    Servo* left_trex;
+    Servo* right_trex;
+    Servo* left_rake_arm;
+    Servo* right_rake_arm;
+
 };
 
 #endif /* SRC_MOTORS_H_ */

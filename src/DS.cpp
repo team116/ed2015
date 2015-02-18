@@ -86,6 +86,19 @@ DS::Direction DS::leftToteWheelDirection() {
 DS::Direction DS::rightToteWheelDirection() {
 	return getDirection(joystick_two, JoystickPorts::PULL_IN_RIGHT_WHEEL, JoystickPorts::PUSH_OUT_RIGHT_WHEEL);
 }
+DS::Direction DS::leftTrexDirection() {
+    return getDirection(joystick_three, JoystickPorts::LEFT_TREX_IN, JoystickPorts::LEFT_TREX_OUT);
+}
+DS::Direction DS::rightTrexDirection() {
+    return getDirection(joystick_three, JoystickPorts::RIGHT_TREX_IN, JoystickPorts::RIGHT_TREX_OUT);
+}
+DS::Direction DS::leftRakeArmDirection() {
+    return getDirection(joystick_three, JoystickPorts::LEFT_RAKE_ARM_IN, JoystickPorts::LEFT_RAKE_ARM_OUT);
+}
+DS::Direction DS::rightRakeArmDirection() {
+    return getDirection(joystick_three, JoystickPorts::RIGHT_RAKE_ARM_IN, JoystickPorts::RIGHT_RAKE_ARM_OUT);
+}
+
 
 DS* DS::getInstance() {
 	if (INSTANCE == NULL) {

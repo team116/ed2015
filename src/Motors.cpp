@@ -13,6 +13,7 @@ Motors* Motors::INSTANCE = NULL;
 
 Motors::Motors() {
 	// TODO Auto-generated constructor stub
+	log = Log::getInstance();
 
 	ds = DS::getInstance();
 
@@ -30,10 +31,12 @@ Motors::Motors() {
 	rake_starboard = new CANTalon(RobotPorts::RAKE_STARBOARD_MOTOR);
 
 	flaps = new CANTalon(RobotPorts::CLOSE_FLAPS_MOTOR);
-	log = Log::getInstance();
 
-	left_servos = new Servo(RobotPorts::LEFT_SERVOS);
-	right_servos = new Servo(RobotPorts::RIGHT_SERVOS);
+    left_trex = new Servo(RobotPorts::LEFT_TREX_ARM);
+    right_trex = new Servo(RobotPorts::RIGHT_TREX_ARM);
+    left_rake_arm = new Servo(RobotPorts::LEFT_RAKE_ARM);
+    right_rake_arm = new Servo(RobotPorts::RIGHT_RAKE_ARM);
+
 
 
 }
@@ -140,8 +143,77 @@ void Motors::process() {
 	//90 = down
 	// 180 = to the right
 
+    //wheel
+    direction = ds->leftToteWheelDirection();
+    if(direction == DS::FORWARD)
+    {
+        left_grabber_wheel->Set(0.5);
+    }
+    else if (direction == DS::BACKWARD) {
+        left_grabber_wheel->Set(-0.5);
+    }
+    else if (direction == DS::STILL) {
+        left_grabber_wheel->Set(0.0);
+    }
 
-	left_servos ->SetAngle(180.0);
+    direction = ds->rightToteWheelDirection();
+    if(direction == DS::FORWARD)
+    {
+        right_grabber_wheel->Set(0.5);
+    }
+    else if (direction == DS::BACKWARD) {
+        right_grabber_wheel->Set(-0.5);
+    }
+    else if (direction == DS::STILL) {
+        right_grabber_wheel->Set(0.0);
+    }
+
+    //servo
+    direction = ds->leftTrexDirection();
+    if(direction == DS::FORWARD) {
+    	left_trex->Set(0.0);
+    }
+    else if(direction == DS::BACKWARD) {
+    	left_trex->Set(1.0);
+    }
+    else if(direction == DS::STILL) {
+    	left_trex->Set(0.5);
+    }
+
+    direction = ds->rightTrexDirection();
+    if(direction == DS::FORWARD) {
+    	right_trex->Set(0.0);
+    }
+    else if(direction == DS::BACKWARD) {
+    	right_trex->Set(1.0);
+    }
+    else if(direction == DS::STILL) {
+    	right_trex->Set(0.5);
+    }
+
+    direction = ds->leftRakeArmDirection();
+    if(direction == DS::FORWARD) {
+    	left_rake_arm->Set(0.0);
+    }
+    else if(direction == DS::BACKWARD) {
+    	left_rake_arm->Set(1.0);
+    }
+    else if(direction == DS::STILL) {
+    	left_rake_arm->Set(0.5);
+    }
+
+    direction = ds->rightRakeArmDirection();
+    if(direction == DS::FORWARD) {
+    	left_rake_arm->Set(0.0);
+    }
+    else if(direction == DS::BACKWARD) {
+    	left_rake_arm->Set(1.0);
+    }
+    else if(direction == DS::STILL) {
+    	left_rake_arm->Set(0.5);
+    }
+
+
 
 	/*
 	log->write(Log::INFO_LEVEL, "Get: Front Left Wheel Velocity %i\n", front_left_wheel->GetEncVel());

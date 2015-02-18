@@ -41,9 +41,11 @@ namespace RobotPorts
 	const unsigned int OD_YAXIS_ENCODER_A = 0;
 	const unsigned int OD_YAXIS_ENCODER_B = 1;
 
-	//PWM
-	const unsigned int LEFT_SERVOS = 0;
-	const unsigned int RIGHT_SERVOS = 1;
+    //PWM
+    const unsigned int LEFT_TREX_ARM = 0;
+    const unsigned int RIGHT_TREX_ARM = 1;
+    const unsigned int LEFT_RAKE_ARM = 2;
+    const unsigned int RIGHT_RAKE_ARM = 3;
 }
 
 namespace DSPorts
@@ -86,6 +88,16 @@ namespace JoystickPorts
 
 	const unsigned int GOING_UP_LIFTER = 9;
 	const unsigned int GOING_DOWN_LIFTER = 10;
+
+    //joystick three
+    const unsigned int RIGHT_TREX_OUT = 1;
+    const unsigned int RIGHT_TREX_IN = 2;
+    const unsigned int LEFT_TREX_OUT = 3;
+    const unsigned int LEFT_TREX_IN = 4;
+    const unsigned int RIGHT_RAKE_ARM_OUT = 5;
+    const unsigned int RIGHT_RAKE_ARM_IN = 6;
+    const unsigned int LEFT_RAKE_ARM_OUT = 7;
+    const unsigned int LEFT_RAKE_ARM_IN = 8;
 
 }
 

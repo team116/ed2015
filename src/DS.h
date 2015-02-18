@@ -27,6 +27,11 @@ public:
 	Direction starboardRakeMotorDirection();
 	Direction leftToteWheelDirection();
 	Direction rightToteWheelDirection();
+    Direction leftTrexDirection();
+    Direction rightTrexDirection();
+    Direction leftRakeArmDirection();
+    Direction rightRakeArmDirection();
+
 
 private:
 	DS();
