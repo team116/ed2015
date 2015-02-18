@@ -115,6 +115,7 @@ void DS::processMobility() {
 
 void DS::processManipulator() {
 	// surface switch
+	/*
 	if (IO_board_one->GetRawButton(IOBoardOnePorts::STACK_ON_STEP_SWITCH)) {
 		manipulator->setSurface(Manipulator::STEP);
 	}
@@ -124,9 +125,11 @@ void DS::processManipulator() {
 	else {
 		manipulator->setSurface(Manipulator::FLOOR);
 	}
+	*/
 
 	// this assumes the max voltage for the flap position input to be 5
 	// also this assumes that we'll be getting this as analog input instead of as a few digital inputs
+	/*
 	switch (Utils::convertFromVolts(IO_board_one->GetRawAxis(IOBoardOnePorts::FLAP_POSITION_KNOB), 3, 5.0)) {
 	case 0:
 		manipulator->setFlapPosition(Manipulator::FLAP_LOW);
@@ -138,27 +141,38 @@ void DS::processManipulator() {
 		manipulator->setFlapPosition(Manipulator::FLAP_HIGH);
 		break;
 	}
+	*/
+
+	if (IO_board_two->GetRawButton(IOBoardTwoPorts::FLAP_POSITION_CLOSE)) {
+		manipulator->setFlapPosition(Manipulator::FLAP_LOW);
+	}
+	else if (IO_board_two->GetRawButton(IOBoardTwoPorts::FLAP_POSTITION_OPEN)) {
+		manipulator->setFlapPosition(Manipulator::FLAP_HIGH);
+	}
+	else {
+		manipulator->setFlapPosition(Manipulator::FLAP_MID);
+	}
 
 	// lifter preset buttons
-	if (IO_board_one->GetRawButton(IOBoardOnePorts::LIFTER_PRESET_0)) {
+	if (IO_board_one->GetRawButton(IOBoardTwoPorts::LIFTER_PRESET_0)) {
 		manipulator->setTargetLevel(0);
 	}
-	else if (IO_board_one->GetRawButton(IOBoardOnePorts::LIFTER_PRESET_1)) {
+	else if (IO_board_one->GetRawButton(IOBoardTwoPorts::LIFTER_PRESET_1)) {
 		manipulator->setTargetLevel(1);
 	}
-	else if (IO_board_one->GetRawButton(IOBoardOnePorts::LIFTER_PRESET_2)) {
+	else if (IO_board_one->GetRawButton(IOBoardTwoPorts::LIFTER_PRESET_2)) {
 		manipulator->setTargetLevel(2);
 	}
-	else if (IO_board_one->GetRawButton(IOBoardOnePorts::LIFTER_PRESET_3)) {
+	else if (IO_board_one->GetRawButton(IOBoardTwoPorts::LIFTER_PRESET_3)) {
 		manipulator->setTargetLevel(3);
 	}
-	else if (IO_board_one->GetRawButton(IOBoardOnePorts::LIFTER_PRESET_4)) {
+	else if (IO_board_one->GetRawButton(IOBoardTwoPorts::LIFTER_PRESET_4)) {
 		manipulator->setTargetLevel(4);
 	}
-	else if (IO_board_one->GetRawButton(IOBoardOnePorts::LIFTER_PRESET_5)) {
+	else if (IO_board_one->GetRawButton(IOBoardTwoPorts::LIFTER_PRESET_5)) {
 		manipulator->setTargetLevel(5);
 	}
-	else if (IO_board_one->GetRawButton(IOBoardOnePorts::LIFTER_PRESET_6)) {
+	else if (IO_board_one->GetRawButton(IOBoardTwoPorts::LIFTER_PRESET_6)) {
 		manipulator->setTargetLevel(6);
 	}
 	else {
@@ -166,10 +180,10 @@ void DS::processManipulator() {
 	}
 
 	// manual lifter control buttons
-	if (IO_board_one->GetRawButton(IOBoardOnePorts::LIFTER_UP_BUTTON)) {
+	if (IO_board_one->GetRawButton(IOBoardTwoPorts::LIFTER_UP_BUTTON)) {
 		manipulator->liftLifters(Manipulator::MOVING_UP);
 	}
-	else if (IO_board_one->GetRawButton(IOBoardOnePorts::LIFTER_DOWN_BUTTON)) {
+	else if (IO_board_one->GetRawButton(IOBoardTwoPorts::LIFTER_DOWN_BUTTON)) {
 		manipulator->liftLifters(Manipulator::MOVING_DOWN);
 	}
 	else {
@@ -212,10 +226,33 @@ void DS::processManipulator() {
 	}
 }
 
+/*
+void DS::processManipulator()
+{
+	if (IO_board_two->GetRawButton(IOBoardTwoPorts::FLAP_POSITION_CLOSE)) {
+		manipulator->closeFlaps(true);
+		manipulator->setFlapPosition(Manipulator::flap_position::FLAP_LOW);
+	}
+	else if (IO_board_two->GetRawButton(IOBoardTwoPorts::FLAP_POSTITION_OPEN)) {
+		manipulator->closeFlaps(false);
+		manipulator->setFlapPosition(Manipulator::FLAP_HIGH);
+	}
+	else {
+		manipulator->setFlapPosition(Manipulator::FLAP_MID);
+	}
+
+	if (IO_board_two->GetRawButton(IOBoardTwoPorts::LIFTER_PRESET_0)) {
+		manipulator->setTargetLevel(0);
+	}
+	else if (IO_board)
+}
+*/
+
 void DS::processLEDS() {
 	// lifter height indicators
 	doLevelLEDS(manipulator->getLevel());
 
+	/*
 	// selected stacking surface indicators
 	if (IO_board_one->GetRawButton(IOBoardOnePorts::STACK_ON_PLATFORM_SWITCH)) {
 		IO_board_one->SetOutput(IOBoardOnePorts::STACK_ON_FLOOR_INDICATOR, false);
@@ -232,7 +269,8 @@ void DS::processLEDS() {
 		IO_board_one->SetOutput(IOBoardOnePorts::STACK_ON_PLATFORM_INDICATOR, false);
 		IO_board_one->SetOutput(IOBoardOnePorts::STACK_ON_STEP_INDICATOR, false);
 	}
-
+	*/
+	/*
 	// camera select indicators
 	if (IO_board_two->GetRawButton(IOBoardTwoPorts::BACK_CAMERA_SELECT)) {
 		IO_board_one->SetOutput(IOBoardOnePorts::BACK_CAMERA_INDICATOR, true);
@@ -242,6 +280,7 @@ void DS::processLEDS() {
 		IO_board_one->SetOutput(IOBoardOnePorts::BACK_CAMERA_INDICATOR, false);
 		IO_board_one->SetOutput(IOBoardOnePorts::FRONT_CAMERA_INDICATOR, true);
 	}
+	*/
 }
 
 void DS::doLevelLEDS(int level) {

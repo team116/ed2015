@@ -11,7 +11,8 @@
 #include <I2C.h>
 #include <Timer.h>
 
-class SensorStick {
+class SensorStick
+{
 public:
 	static SensorStick* getInstance();
 
