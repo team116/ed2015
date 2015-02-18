@@ -22,6 +22,7 @@ public:
 		ds = DS::getInstance();
 		log = Log::getInstance();
 		motors = Motors::getInstance();
+		sensors = Sensors::getInstance();
 		autonomous_delay_switch = new AnalogInput(RobotPorts::AUTONOMOUS_DELAY_SWITCH);
 		autonomous_location_switch = new AnalogInput(RobotPorts::AUTONOMOUS_LOCATION_SWITCH);
 		autonomous_play_switch = new AnalogInput(RobotPorts::AUTONOMOUS_PLAY_SWITCH);
