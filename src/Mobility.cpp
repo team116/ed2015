@@ -12,9 +12,10 @@ using namespace std;
 
 Mobility* Mobility::INSTANCE = NULL;
 
-float Mobility::P_VALUE = 0.1f;
-float Mobility::I_VALUE = 0.0f;
+float Mobility::P_VALUE = 0.9f;
+float Mobility::I_VALUE = 0.1f;
 float Mobility::D_VALUE = 0.0f;
+int Mobility::Izone = 20;
 
 const float Mobility::DEFAULT_SPEED = 0.5f;
 const float Mobility::MAX_SPEED = 0.9f;
@@ -22,7 +23,7 @@ const float Mobility::RAMP_RATE = 24.0f; // measured in volts, ramps to full spe
 const float Mobility::MAX_ULTRASONIC_DISTANCE = 254.0f;
 const float Mobility::MAX_ULTRASONIC_VOLTAGE = 5.5f;
 const float Mobility::ODOMETRY_INCHES_PER_PULSE = 3.0f/360.0f;
-const float Mobility::MAX_VELOCITY = 5500.0f;
+const float Mobility::MAX_VELOCITY = 555.1f;
 
 Mobility::Mobility()//COMMIT NUMBER 100
 {
@@ -32,12 +33,14 @@ Mobility::Mobility()//COMMIT NUMBER 100
 	front_left_motor->Set(0.0);
 	front_left_motor->SetFeedbackDevice(CANTalon::QuadEncoder);
 	front_left_motor->SetSensorDirection(false);
+	front_left_motor->SetIzone(Izone);
 	// front_left_motor->SetControlMode(CANTalon::kSpeed);
 
 	front_right_motor = new CANTalon(RobotPorts::FRONT_RIGHT_MOTOR);
 	front_right_motor->SetVoltageRampRate(RAMP_RATE);
 	front_right_motor->Set(0.0);
 	front_right_motor->SetFeedbackDevice(CANTalon::QuadEncoder);
+	front_right_motor->SetIzone(Izone);
 	// front_right_motor->SetControlMode(CANTalon::kSpeed);
 
 	// speed_timer = new Timer();
@@ -48,6 +51,7 @@ Mobility::Mobility()//COMMIT NUMBER 100
 	rear_left_motor->Set(0.0);
 	rear_left_motor->SetFeedbackDevice(CANTalon::QuadEncoder);
 	rear_left_motor->SetSensorDirection(false);
+	rear_left_motor->SetIzone(Izone);
 //	rear_left_motor->SetPosition(0.0);
 	// speed_timer->Start();
 	// rear_left_motor->Set(0.9);
@@ -66,6 +70,7 @@ Mobility::Mobility()//COMMIT NUMBER 100
 	rear_right_motor->SetVoltageRampRate(RAMP_RATE);
 	rear_right_motor->Set(0.0);
 	rear_right_motor->SetFeedbackDevice(CANTalon::QuadEncoder);
+	rear_right_motor->SetIzone(Izone);
 	// rear_right_motor->SetControlMode(CANTalon::kSpeed);
 
 	odometry_wheel_x_encoder = new Encoder(RobotPorts::ODOMETRY_WHEEL_X_A,RobotPorts::ODOMETRY_WHEEL_X_B);

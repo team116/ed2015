@@ -39,6 +39,7 @@ private:
 	static float P_VALUE;
 	static float I_VALUE;
 	static float D_VALUE;
+	static int Izone;
 	bool using_closed_loop;
 
 	static const float DEFAULT_SPEED;

@@ -92,7 +92,7 @@ void DS::processMobility() {
 //		log->write(Log::ERROR_LEVEL, "Starting turn Degrees\n");
 		turn_degrees_handled = true;
 		//mobility->setRotationDegrees(90);
-		mobility->setPID(mobility->getP() + 0.1, mobility->getI(), mobility->getD());
+		mobility->setPID(mobility->getP(), mobility->getI() + 0.1, mobility->getD());
 	}
 	else if (!turn_degrees && turn_degrees_handled) {
 		turn_degrees_handled = false;
