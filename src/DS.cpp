@@ -51,7 +51,7 @@ void DS::process() {
 	processMobility();
 	processManipulator();
 	processLEDS();
-	processCameras();
+	//processCameras();
 
 }
 
@@ -60,7 +60,7 @@ void DS::processMobility() {
 	// we might just remove this because the override button is a dumb idea
 	if (override) {
 		log->write(Log::TRACE_LEVEL, "%s\tIn override mode\n", Utils::getCurrentTime());
-		float x = secondary_joystick->GetX(), y = secondary_joystick->GetY(), t = secondary_joystick->GetRawAxis(5);
+		float x = secondary_joystick->GetX(), y = secondary_joystick->GetY(), t = secondary_joystick->GetRawAxis(2);
 		// shaping is cubic because we want fine control
 		x = fabs(x) < 0.1 ? 0 : x * fabs(x) * fabs(x);
 		y = fabs(y) < 0.1 ? 0 : y * fabs(y) * fabs(y);
@@ -83,7 +83,7 @@ void DS::processMobility() {
 			drive_type_handled = false;
 		}
 
-		float x = main_joystick->GetX(), y = main_joystick->GetY(), t = main_joystick->GetRawAxis(5);
+		float x = main_joystick->GetX(), y = main_joystick->GetY(), t = main_joystick->GetRawAxis(2);
 		// shaping and deadzones
 		x = fabs(x) < 0.1 ? 0 : x * fabs(x);
 		y = fabs(y) < 0.1 ? 0 : y * fabs(y);
