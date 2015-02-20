@@ -9,19 +9,19 @@
 DS* DS::INSTANCE = NULL;
 
 DS::DS() {
+	log = Log::getInstance();
 	mobility = Mobility::getInstance();
 	manipulator = Manipulator::getInstance();
-	log = Log::getInstance();
 
 	main_joystick = Joystick::GetStickForPort(DSPorts::DRIVER_ONE_JOYSTICK);
 	secondary_joystick = Joystick::GetStickForPort(DSPorts::DRIVER_TWO_JOYSTICK);
 	IO_board_one = Joystick::GetStickForPort(DSPorts::DIGITAL_IO_BOARD);
 	IO_board_two = Joystick::GetStickForPort(DSPorts::SECOND_IO_BOARD);
 
-	server = CameraServer::GetInstance();
-	server->SetQuality(5);
-	frameFrontCam = imaqCreateImage(IMAQ_IMAGE_RGB, 0);
-	frameBackCam = imaqCreateImage(IMAQ_IMAGE_RGB, 0);
+//	server = CameraServer::GetInstance();
+//	server->SetQuality(5);
+//	frameFrontCam = imaqCreateImage(IMAQ_IMAGE_RGB, 0);
+//	frameBackCam = imaqCreateImage(IMAQ_IMAGE_RGB, 0);
 
 	on_step = false;
 	override = false;
