@@ -79,7 +79,7 @@ Mobility::Mobility()//COMMIT NUMBER 100
 	odometry_wheel_x_encoder->SetDistancePerPulse(ODOMETRY_INCHES_PER_PULSE);
 	odometry_wheel_y_encoder->SetDistancePerPulse(ODOMETRY_INCHES_PER_PULSE);
 
-	robot_drive = new RobotDrive(front_left_motor, rear_left_motor, front_right_motor, rear_right_motor);
+//	robot_drive = new RobotDrive(front_left_motor, rear_left_motor, front_right_motor, rear_right_motor);
 	// set to true is this is the software bot
 	real_orientation = true;
 	useRealOrientation(real_orientation);
@@ -91,7 +91,7 @@ Mobility::Mobility()//COMMIT NUMBER 100
 	//	robot_drive->SetInvertedMotor(RobotDrive::kFrontLeftMotor, true);
 	//	robot_drive->SetInvertedMotor(RobotDrive::kRearLeftMotor, true);
 	//}
-	robot_drive->SetSafetyEnabled(false);
+//	robot_drive->SetSafetyEnabled(false);
 
 	// closed loop initialization, change this to false if we don't want to default to closed loop
 	using_closed_loop = false;
@@ -112,7 +112,6 @@ Mobility::Mobility()//COMMIT NUMBER 100
 	fr_enc_pos = front_right_motor->GetPosition();
 	rl_enc_pos = rear_left_motor->GetPosition();
 	rr_enc_pos = rear_right_motor->GetPosition();
-	time = new Timer();
 }
 
 void Mobility::process()
@@ -290,11 +289,11 @@ void Mobility::useClosedLoop(bool use)
 			rear_right_motor->SetControlMode(CANTalon::kSpeed);
 			rear_right_motor->Set(0.0f);
 
-			robot_drive->SetMaxOutput(MAX_VELOCITY);
-			rear_left_motor->Set(0.2 * MAX_VELOCITY);
-			rear_right_motor->Set(-0.2 * MAX_VELOCITY);
-			front_left_motor->Set(0.2 * MAX_VELOCITY);
-			front_right_motor->Set(-0.2 * MAX_VELOCITY);
+//			robot_drive->SetMaxOutput(MAX_VELOCITY);
+			rear_left_motor->Set(205);
+//			rear_right_motor->Set(-0.2 * MAX_VELOCITY);
+//			front_left_motor->Set(0.2 * MAX_VELOCITY);
+//			front_right_motor->Set(-0.2 * MAX_VELOCITY);
 		}
 		else {
 			log->write(Log::INFO_LEVEL, "Open Loop\n");
@@ -310,7 +309,7 @@ void Mobility::useClosedLoop(bool use)
 			rear_right_motor->SetPID(0.0, 0.0, 0.0);
 			rear_right_motor->SetControlMode(CANTalon::kPercentVbus);
 
-			robot_drive->SetMaxOutput(1.0);
+//			robot_drive->SetMaxOutput(1.0);
 			rear_left_motor->Set(0.2);
 			rear_right_motor->Set(-0.2);
 			front_left_motor->Set(0.2);
@@ -347,16 +346,16 @@ void Mobility::useRealOrientation(bool real)
 {
 	real_orientation = real;
 	if (real) {
-		robot_drive->SetInvertedMotor(RobotDrive::kFrontLeftMotor, true);
-		robot_drive->SetInvertedMotor(RobotDrive::kRearLeftMotor, true);
-		robot_drive->SetInvertedMotor(RobotDrive::kFrontRightMotor, false);
-		robot_drive->SetInvertedMotor(RobotDrive::kRearRightMotor, false);
+//		robot_drive->SetInvertedMotor(RobotDrive::kFrontLeftMotor, true);
+//		robot_drive->SetInvertedMotor(RobotDrive::kRearLeftMotor, true);
+//		robot_drive->SetInvertedMotor(RobotDrive::kFrontRightMotor, false);
+//		robot_drive->SetInvertedMotor(RobotDrive::kRearRightMotor, false);
 	}
 	else {
-		robot_drive->SetInvertedMotor(RobotDrive::kFrontLeftMotor, false);
-		robot_drive->SetInvertedMotor(RobotDrive::kRearLeftMotor, false);
-		robot_drive->SetInvertedMotor(RobotDrive::kFrontRightMotor, true);
-		robot_drive->SetInvertedMotor(RobotDrive::kRearRightMotor, true);
+//		robot_drive->SetInvertedMotor(RobotDrive::kFrontLeftMotor, false);
+//		robot_drive->SetInvertedMotor(RobotDrive::kRearLeftMotor, false);
+//		robot_drive->SetInvertedMotor(RobotDrive::kFrontRightMotor, true);
+//		robot_drive->SetInvertedMotor(RobotDrive::kRearRightMotor, true);
 	}
 }
 

@@ -60,7 +60,6 @@ private:
 	double fl_enc_pos;
 	double rr_enc_pos;
 	double rl_enc_pos;
-	Timer* time;
 
 
 	Encoder* odometry_wheel_x_encoder;
