@@ -36,6 +36,7 @@ DS::DS() {
 	backCamFirstTime = true;
 	frontCamSelect = false;
 	backCamSelect = true;
+	toggle_rotation = false;
 
 	IO_board_one->SetOutputs(0);
 
@@ -58,6 +59,7 @@ void DS::process() {
 void DS::processMobility() {
 	// secondary driver has overridden so that they can control movement
 	// we might just remove this because the override button is a dumb idea
+	toggle_rotation = secondary_joystick->GetRawButton(JoystickPorts::TOGGLE_ROTATION);
 	if (override) {
 		log->write(Log::TRACE_LEVEL, "%s\tIn override mode\n", Utils::getCurrentTime());
 		float x = secondary_joystick->GetX(), y = secondary_joystick->GetY(), t = secondary_joystick->GetRawAxis(2);
@@ -66,7 +68,14 @@ void DS::processMobility() {
 		y = fabs(y) < 0.1 ? 0 : y * fabs(y) * fabs(y);
 		t = fabs(t) < 0.1 ? 0 : t * fabs(t) * fabs(t);
 		mobility->setDirection(x, y);
-		mobility->setRotationSpeed(t * 0.75);
+		if (toggle_rotation)
+		{
+			mobility->setRotationSpeed(t * 0.75);
+		}
+		else
+		{
+			mobility->setRotationSpeed(0.0);
+		}
 	}
 
 	// normal control by first driver
@@ -83,6 +92,7 @@ void DS::processMobility() {
 			drive_type_handled = false;
 		}
 
+		toggle_rotation = secondary_joystick->GetRawButton(JoystickPorts::TOGGLE_ROTATION);
 		float x = main_joystick->GetX(), y = main_joystick->GetY(), t = main_joystick->GetRawAxis(2);
 		// shaping and deadzones
 		x = fabs(x) < 0.1 ? 0 : x * fabs(x);
@@ -90,7 +100,14 @@ void DS::processMobility() {
 		t = fabs(t) < 0.1 ? 0 : t * fabs(t);
 		mobility->setDirection(x, y);
 		// the rotation is really fast, halve the speed
-		mobility->setRotationSpeed(t / 2.0);
+		if (toggle_rotation)
+		{
+			mobility->setRotationSpeed(t / 2.0);
+		}
+		else
+		{
+			mobility->setRotationSpeed(0.0);
+		}
 	}
 	turn_degrees = main_joystick->GetRawButton(JoystickPorts::TURN_DEGREES);
 	if (turn_degrees && !turn_degrees_handled) {

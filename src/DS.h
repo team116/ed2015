@@ -48,6 +48,7 @@ private:
 	bool backCamFirstTime;
 	bool frontCamSelect;
 	bool backCamSelect;
+	bool toggle_rotation;
 
 
 	void doLevelLEDS(int level);
