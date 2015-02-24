@@ -150,18 +150,18 @@ void Manipulator::process() {
 	else {
 		switch (flap_pos) {
 			case FLAP_LOW:
-				closeFlaps(Manipulator::FLAP_HIGH);
+				closeFlaps(true);
 				break;
 			case FLAP_MID:
-				/*if (close_flaps->GetPosition() < FLAP_ANGLE_MID) {//TODO: check to make sure orientation is correct (aka small value from potentiometer = more closed)
+				if (close_flaps->GetPosition() < FLAP_ANGLE_MID) {//TODO: check to make sure orientation is correct (aka small value from potentiometer = more closed)
 					closeFlaps(Manipulator::FLAP_ANGLE_LOW);
 				}
 				else {
 					closeFlaps(true);
-				}*/
+				}
 				break;
 			case FLAP_HIGH:
-				closeFlaps(Manipulator::FLAP_LOW);
+				closeFlaps(false);
 				break;
 		}
 	}
@@ -366,7 +366,7 @@ void Manipulator::pushTote() {
 	wheel_timer->Reset();
 }
 
-void Manipulator::closeFlaps(flap_positions close)
+void Manipulator::closeFlaps(bool close)
 {
 
 	if (close == FLAP_LOW && (close_flaps->IsFwdLimitSwitchClosed() != 1 || !using_limits)) {	//close flaps

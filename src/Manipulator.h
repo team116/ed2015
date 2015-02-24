@@ -74,7 +74,7 @@ public:
 	void pushTote();
 	void spinTote(float direction);
 
-	void closeFlaps(flap_positions close);
+	void closeFlaps(bool close);
 
 	void setSurface(float s);
 	void setTargetLevel(int level);

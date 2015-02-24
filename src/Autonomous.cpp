@@ -80,7 +80,7 @@ void Autonomous::stackTote() {
 	case 1:
 		// moving to the tote
 		// assumes the robot is at a 90 degree angle to the landmark (facing tote 1 from the right)
-		manipulator->closeFlaps(Manipulator::FLAP_LOW);
+		manipulator->closeFlaps(false);
 		if (mobility->getUltrasonicDistance() > 3 && mobility->getYEncoderDistance() < 12 && !timer->HasPeriodPassed(12.0/INCHES_PER_SECOND)) {
 			mobility->setDirection(0.0, 0.75);
 		}
@@ -97,7 +97,7 @@ void Autonomous::stackTote() {
 			manipulator->pullTote();
 		}
 		else {
-			manipulator->closeFlaps(Manipulator::FLAP_HIGH);
+			manipulator->closeFlaps(true);
 			manipulator->setTargetLevel(2);
 			timer->Reset();
 			// turn the robot so that it is facing the alliance wall
@@ -210,7 +210,7 @@ void Autonomous::stackTote() {
 		break;
 	case 8:
 		// place the tote
-		manipulator->closeFlaps(Manipulator::FLAP_LOW);
+		manipulator->closeFlaps(false);
 		manipulator->pushTote();
 		// wait a brief moment to be sure that we've actually placed the tote
 		if (timer->HasPeriodPassed(0.5)) {
@@ -241,7 +241,7 @@ void Autonomous::moveContainer() {
 	case 1:
 		// moving to the container
 		// assumes the robot is at a +90 degree angle to the landmark (facing container 1 from the left)
-		manipulator->closeFlaps(Manipulator::FLAP_LOW);
+		manipulator->closeFlaps(false);
 		if (mobility->getUltrasonicDistance() > 3 && mobility->getYEncoderDistance() < 12 && !timer->HasPeriodPassed(12.0/INCHES_PER_SECOND)) {
 			mobility->setDirection(0.0, 0.75);
 		}
@@ -256,7 +256,7 @@ void Autonomous::moveContainer() {
 		// picking up the container
 		manipulator->pullTote();
 		if(timer->HasPeriodPassed(1.0)){
-			manipulator->closeFlaps(Manipulator::FLAP_HIGH);
+			manipulator->closeFlaps(true);
 			manipulator->setTargetLevel(1);
 			// turn to face the alliance wall
 			mobility->setRotationDegrees(90);
@@ -298,7 +298,7 @@ void Autonomous::moveContainer() {
 		// put down the container
 		manipulator->setTargetLevel(0);
 		if (manipulator->getLevel() == 0) {
-			manipulator->closeFlaps(Manipulator::FLAP_LOW);
+			manipulator->closeFlaps(false);
 			manipulator->pushTote();
 			++current_step;
 		}
@@ -327,7 +327,7 @@ void Autonomous::moveContainerAndTote() {
 		// moving to the container
 		// assumes the robot is at a +90 degree angle to the landmark (facing container 1 from the left)
 		//sam chanesman
-		manipulator->closeFlaps(Manipulator::FLAP_LOW);
+		manipulator->closeFlaps(false);
 		if (mobility->getUltrasonicDistance() > 3 && mobility->getYEncoderDistance() < 12 && !timer->HasPeriodPassed(12/INCHES_PER_SECOND)) {
 			mobility->setDirection(0.0, 0.75);
 		}
@@ -342,7 +342,7 @@ void Autonomous::moveContainerAndTote() {
 		// picking up the container
 		manipulator->pullTote();
 		if(timer->HasPeriodPassed(1.0)){
-			manipulator->closeFlaps(Manipulator::FLAP_HIGH);
+			manipulator->closeFlaps(true);
 			manipulator->setTargetLevel(1);
 			mobility->setRotationDegrees(90);
 			timer->Reset();
@@ -369,7 +369,7 @@ void Autonomous::moveContainerAndTote() {
 			break;
 		}
 		else {
-			manipulator->closeFlaps(Manipulator::FLAP_LOW);
+			manipulator->closeFlaps(false);
 			manipulator->pushTote();	//pushing container, not tote, fyi
 			++current_step;
 		}
@@ -407,7 +407,7 @@ void Autonomous::moveContainerAndTote() {
 		//pick up tote/container stack
 		manipulator->pullTote();
 		if(timer->HasPeriodPassed(1.0)){
-			manipulator->closeFlaps(Manipulator::FLAP_HIGH);
+			manipulator->closeFlaps(true);
 			manipulator->setTargetLevel(1);
 			timer->Reset();
 			++current_step;
@@ -447,7 +447,7 @@ void Autonomous::moveContainerAndTote() {
 		//put it down
 		manipulator->setTargetLevel(0);
 		if (manipulator->getLevel() == 0) {
-			manipulator->closeFlaps(Manipulator::FLAP_LOW);
+			manipulator->closeFlaps(false);
 			manipulator->pushTote();
 			timer->Reset();
 			++current_step;
@@ -530,7 +530,7 @@ void Autonomous::moveTwoTotes() {
 		// wait to ensure that the tote has actually been pulled in
 		if (timer->HasPeriodPassed(1.5)) {
 			timer->Reset();
-			manipulator->closeFlaps(Manipulator::FLAP_HIGH);
+			manipulator->closeFlaps(true);
 			manipulator->setTargetLevel(1);
 			++current_step;
 		}
@@ -592,7 +592,7 @@ void Autonomous::moveTwoTotes() {
 		break;
 	case 7:
 		// place the first tote on top of the second
-		manipulator->closeFlaps(Manipulator::FLAP_LOW);
+		manipulator->closeFlaps(false);
 		manipulator->pushTote();
 		// wait briefly to make sure we actually pushed the tote out
 		if (timer->HasPeriodPassed(1.0)) {
@@ -634,7 +634,7 @@ void Autonomous::moveTwoTotes() {
 		// wait to ensure that the totes have actually been pulled in
 		if (timer->HasPeriodPassed(1.5)) {
 			timer->Reset();
-			manipulator->closeFlaps(Manipulator::FLAP_HIGH);
+			manipulator->closeFlaps(true);
 			manipulator->setTargetLevel(1);
 			// turn to face the alliance wall
 			mobility->setRotationDegrees(90);
@@ -692,7 +692,7 @@ void Autonomous::moveTwoTotes() {
 		break;
 	case 14:
 		// place the tote
-		manipulator->closeFlaps(Manipulator::FLAP_LOW);
+		manipulator->closeFlaps(false);
 		manipulator->pushTote();
 		if (timer->HasPeriodPassed(0.5)) {
 			++current_step;
