@@ -346,19 +346,20 @@ void Manipulator::pushTote()
 	wheel_timer->Reset();
 }
 
-void Manipulator::closeFlaps(bool close)
+void Manipulator::closeFlaps(flap_positions close)
 {
-//close or open based on value of close
-	if (close && (close_flaps->IsFwdLimitSwitchClosed() != 1 || !using_limits)) {	//close flaps
+
+	if (close == FLAP_LOW && (close_flaps->IsFwdLimitSwitchClosed() != 1 || !using_limits)) {	//close flaps
 		log->write(Log::TRACE_LEVEL, "%s\tClosing flaps\n", Utils::getCurrentTime());
 		close_flaps->Set(0.5);
 		flap_state = FLAP_CLOSING;
 	}
-	else if (!close && (close_flaps->IsRevLimitSwitchClosed() != 1 || !using_limits)) {	//open flaps
+	else if (close == FLAP_HIGH && (close_flaps->IsRevLimitSwitchClosed() != 1 || !using_limits)) {	//open flaps
 		log->write(Log::TRACE_LEVEL, "%s\tOpening flaps\n", Utils::getCurrentTime());
 		close_flaps->Set(-0.5);
 		flap_state = FLAP_OPENING;
 	}
+	else if (close == FLAP_MID &&  )
 	flap_timer->Start();
 	flap_timer->Reset();
 }
