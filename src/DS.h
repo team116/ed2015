@@ -32,8 +32,8 @@ private:
 
 	Joystick* main_joystick;
 	Joystick* secondary_joystick;
-	Joystick* IO_board_one;
-	Joystick* IO_board_two;
+	Joystick* output_board;
+	Joystick* input_board;
 
 	bool override;
 	bool on_step;
