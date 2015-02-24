@@ -9,8 +9,9 @@
 Manipulator* Manipulator::INSTANCE = NULL;
 
 float Manipulator::P_VALUE = 0.9;
-float Manipulator::I_VALUE = 0.0;
-float Manipulator::D_VALUE = 0.0;
+float Manipulator::I_VALUE = 0.5;
+int Manipulator::Izone = 1;
+float Manipulator::D_VALUE = 0.5;
 // TODO: get actual timeouts
 const float Manipulator::FLAP_TIMEOUT = 1.1;
 const float Manipulator::RAKE_TIMEOUT_LOW_TO_MID = 1.1;
@@ -44,8 +45,7 @@ const float Manipulator::LEFT_RAKE_STABILIZER_UP = 0.0;
 const float Manipulator::RIGHT_RAKE_STABILIZER_DOWN = 0.0;
 const float Manipulator::RIGHT_RAKE_STABILIZER_UP = 0.0;
 
-Manipulator::Manipulator()
-{
+Manipulator::Manipulator() {
 	// subsystem instance getting
 	mobility = Mobility::getInstance();
 	log = Log::getInstance();
@@ -62,6 +62,7 @@ Manipulator::Manipulator()
 	//lift_lower_limit = new DigitalInput(RobotPorts::LIFT_LOWER_LIMIT);
 	lifter_one->SetControlMode(CANTalon::kPosition);
 	lifter_one->SetPID(P_VALUE, I_VALUE, D_VALUE);
+	lifter_one->SetIzone(Izone);
 	lifter_one->SetFeedbackDevice(CANTalon::QuadEncoder);
 	//TODO: figure out what this means: "When using quadrature, each unit is a quadrature edge (4X) mode."
 	lifter_one->ConfigEncoderCodesPerRev(INCH_PER_REV / PULSE_PER_REV);	//inches per revolution / pulses per revolution = inches per pulse
@@ -102,8 +103,7 @@ Manipulator::Manipulator()
 	right_rake_stabilizer = new Servo(RobotPorts::RIGHT_RAKE_STABILIZER);
 }
 
-Manipulator::~Manipulator()
-{
+Manipulator::~Manipulator() {
 	// TODO Auto-generated destructor stub
 }
 
@@ -114,8 +114,7 @@ Manipulator* Manipulator::getInstance() {
 	return INSTANCE;
 }
 
-void Manipulator::process()
-{
+void Manipulator::process() {
 	//uses data from encoder to determine current height of lift
 	current_height = lifter_one->GetPosition();
 	log->write(Log::TRACE_LEVEL, "%s\tCurrent Height: %f \nTarget Height: %f\n", Utils::getCurrentTime(), current_height, target_height);
@@ -202,8 +201,7 @@ void Manipulator::process()
 	}
 }
 
-bool Manipulator::canMoveLifter()
-{
+bool Manipulator::canMoveLifter() {
 	if (current_height < target_height) {
 		return (lifter_one->IsFwdLimitSwitchClosed() != 1 || !using_limits) && !lift_timer->HasPeriodPassed(lifter_timeout);
 	}
@@ -212,8 +210,7 @@ bool Manipulator::canMoveLifter()
 	}
 }
 
-bool Manipulator::flapMotionDone()
-{	//TODO: add timeouts to flap positions
+bool Manipulator::flapMotionDone() {	//TODO: add timeouts to flap positions
 	float posi = close_flaps->GetPosition();
 	switch (flap_pos) {
 		case FLAP_LOW:
@@ -239,9 +236,8 @@ bool Manipulator::flapMotionDone()
 	 return true;*/
 }
 
-bool Manipulator::rakeMotionDone()
-{	//only for use of presets during atonomous
-	//return rake_direction == RAKE_LIFTING && ((port_rake_limit->Get() && using_limits) || rake_timer->HasPeriodPassed(RAKE_TIMEOUT));
+bool Manipulator::rakeMotionDone() {	//only for use of presets during atonomous
+//return rake_direction == RAKE_LIFTING && ((port_rake_limit->Get() && using_limits) || rake_timer->HasPeriodPassed(RAKE_TIMEOUT));
 	switch (rake_pos) {
 		case RAKE_LOW:
 			switch (rake_pos_prev) {
@@ -316,18 +312,15 @@ bool Manipulator::rakeMotionDone()
 	return false;
 }
 
-bool Manipulator::pushToteDone()
-{
+bool Manipulator::pushToteDone() {
 	return wheel_state == WHEELS_PUSHING && wheel_timer->HasPeriodPassed(WHEEL_TIMEOUT);
 }
 
-bool Manipulator::pullToteDone()
-{
+bool Manipulator::pullToteDone() {
 	return wheel_state == WHEELS_PULLING && wheel_timer->HasPeriodPassed(WHEEL_TIMEOUT);
 }
 
-void Manipulator::pullTote()
-{
+void Manipulator::pullTote() {
 	log->write(Log::TRACE_LEVEL, "%s\tPulling tote\n", Utils::getCurrentTime());
 	wheel_state = WHEELS_PULLING;
 	left_wheel->Set(0.5);			//0.5 is an arbitrary number, may change
@@ -336,8 +329,7 @@ void Manipulator::pullTote()
 	wheel_timer->Reset();
 }
 
-void Manipulator::pushTote()
-{
+void Manipulator::pushTote() {
 	log->write(Log::TRACE_LEVEL, "%s\tPushing tote\n", Utils::getCurrentTime());
 	wheel_state = WHEELS_PUSHING;
 	left_wheel->Set(-0.2);
@@ -346,8 +338,7 @@ void Manipulator::pushTote()
 	wheel_timer->Reset();
 }
 
-void Manipulator::closeFlaps(bool close)
-{
+void Manipulator::closeFlaps(bool close) {
 //close or open based on value of close
 	if (close && (close_flaps->IsFwdLimitSwitchClosed() != 1 || !using_limits)) {	//close flaps
 		log->write(Log::TRACE_LEVEL, "%s\tClosing flaps\n", Utils::getCurrentTime());
@@ -370,8 +361,7 @@ void Manipulator::setSurface(float s) {
 	surface = s;
 }
 
-void Manipulator::setTargetLevel(int level)
-{
+void Manipulator::setTargetLevel(int level) {
 	log->write(Log::TRACE_LEVEL, "%s\tSet lifter preset to %d", Utils::getCurrentTime(), level);
 	int new_target = level * TOTE_HEIGHT + surface;	//surface = height of surface on which we are trying to stack totes ((private variable))
 	if (abs(current_height - new_target) < abs(current_height - target_height)) {//in case of button mash, go to whichever instruction is closest to current position
@@ -382,19 +372,16 @@ void Manipulator::setTargetLevel(int level)
 	lift_timer->Reset();
 }
 
-void Manipulator::setFlapPosition(flap_positions p)
-{
+void Manipulator::setFlapPosition(flap_positions p) {
 	log->write(Log::TRACE_LEVEL, "flaps set to position %i\n", p);
 	flap_pos = p;
 }
 
-float Manipulator::getHeight()
-{
+float Manipulator::getHeight() {
 	return current_height;
 }
 
-int Manipulator::getLevel()
-{
+int Manipulator::getLevel() {
 	return (current_height - surface) / TOTE_HEIGHT;
 }
 
@@ -407,8 +394,7 @@ int Manipulator::getLevel()
  }
  */
 
-void Manipulator::spinTote(float direction)
-{
+void Manipulator::spinTote(float direction) {
 //might swap left and right depending on which twist direction the joysticks consider positive
 	float left_dir = 0.5 - direction;	//totally random (unrelated to 0.5 in pullTote)
 	float right_dir = 0.5 + direction;
@@ -431,8 +417,7 @@ void Manipulator::spinTote(float direction)
 	right_wheel->Set(right_dir);
 }
 
-void Manipulator::honorLimits(bool to_use_or_not_to_use)
-{
+void Manipulator::honorLimits(bool to_use_or_not_to_use) {
 	if (to_use_or_not_to_use) {
 		log->write(Log::INFO_LEVEL, "%s\tStarted using limits\n", Utils::getCurrentTime());
 	}
@@ -442,8 +427,7 @@ void Manipulator::honorLimits(bool to_use_or_not_to_use)
 	using_limits = to_use_or_not_to_use;
 }
 
-void Manipulator::liftLifters(lifter_directions direction)
-{
+void Manipulator::liftLifters(lifter_directions direction) {
 	if (direction == MOVING_UP && (lifter_one->IsFwdLimitSwitchClosed() != 1 || !using_limits)) {
 		log->write(Log::TRACE_LEVEL, "%s\tLift moving up\n", Utils::getCurrentTime());
 		double next_position = lifter_one->GetPosition() + ENCODER_INCREMENT;
@@ -466,8 +450,7 @@ void Manipulator::liftLifters(lifter_directions direction)
 	}
 }
 
-void Manipulator::liftRakes(bool going_up)
-{
+void Manipulator::liftRakes(bool going_up) {
 	if (going_up) {
 		if (rake_port->IsFwdLimitSwitchClosed() != 1 && using_limits) {
 			log->write(Log::TRACE_LEVEL, "%s\tPort Rake moving up\n", Utils::getCurrentTime());
@@ -492,8 +475,7 @@ void Manipulator::liftRakes(bool going_up)
 	rake_timer->Reset();
 }
 
-void Manipulator::setRakePosition(rake_positions p)
-{
+void Manipulator::setRakePosition(rake_positions p) {
 	log->write(Log::TRACE_LEVEL, "Set rakes to position %i from position %i\n", p, rake_pos);
 	rake_pos_prev = rake_pos;
 	rake_pos = p;
@@ -503,8 +485,7 @@ void Manipulator::setRakePosition(rake_positions p)
 	}
 }
 
-void Manipulator::movePortRake(rake_directions direction)
-{
+void Manipulator::movePortRake(rake_directions direction) {
 	switch (direction) {
 		case RAKE_LOWERING:
 			if (rake_port->IsRevLimitSwitchClosed() != 1) {
@@ -520,13 +501,24 @@ void Manipulator::movePortRake(rake_directions direction)
 			break;
 	}
 }
-void Manipulator::moveStarboardRake(rake_directions direction)
-{
-
+void Manipulator::moveStarboardRake(rake_directions direction) {
+	switch (direction) {
+		case RAKE_LOWERING:
+			if (rake_starboard->IsRevLimitSwitchClosed() != 1) {
+				starboard_rake_direction = RAKE_LOWERING;
+				rake_starboard->Set(-0.5);
+			}
+			break;
+		case RAKE_LIFTING:
+			if (rake_starboard->IsFwdLimitSwitchClosed() != 1) {
+				starboard_rake_direction = RAKE_LIFTING;
+				rake_starboard->Set(0.5);
+			}
+			break;
+	}
 }
 
-bool Manipulator::isInsignificantChange(float first, float second)
-{
+bool Manipulator::isInsignificantChange(float first, float second) {
 	return fabs(first - second) < LIFTER_RANGE;
 }
 
