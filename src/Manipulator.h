@@ -185,6 +185,7 @@ private:
 	rake_positions rake_pos_prev;
 	flap_directions flap_state;
 	flap_positions flap_pos;
+	flap_positions flap_pos_prev;
 	wheel_directions wheel_state;
 
 	// stores potentiometer values for the diff. positions for the flaps

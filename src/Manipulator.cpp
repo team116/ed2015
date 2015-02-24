@@ -94,6 +94,7 @@ Manipulator::Manipulator() {
 	flap_timer = new Timer();
 	flap_state = FLAP_STILL;
 	flap_pos = FLAP_LOW;	//note: this might change idk
+	flap_pos_prev = FLAP_LOW;
 
 	using_limits = true;
 	//belt_moving = false;
@@ -217,11 +218,35 @@ bool Manipulator::flapMotionDone() {	//TODO: add timeouts to flap positions
 	float posi = close_flaps->GetPosition();
 	switch (flap_pos) {
 		case FLAP_LOW:
-			return (fabs(posi - FLAP_ANGLE_LOW) < FLAP_RANGE);
+			switch (flap_pos_prev) {
+				case FLAP_LOW:
+					return (fabs(posi - FLAP_ANGLE_LOW) < FLAP_RANGE);
+				case FLAP_MID:
+					return (fabs(posi - FLAP_ANGLE_LOW) < FLAP_RANGE) || flap_timer->HasPeriodPassed(FLAP_LOW_TO_MID_TIMEOUT);
+				case FLAP_HIGH:
+					return (fabs(posi - FLAP_ANGLE_LOW) < FLAP_RANGE) || flap_timer->HasPeriodPassed(FLAP_LOW_TO_HIGH_TIMEOUT);
+			}
+			break;
 		case FLAP_MID:
-			return (fabs(posi - FLAP_ANGLE_MID) < FLAP_RANGE);
+			switch (flap_pos_prev) {
+				case FLAP_LOW:
+					return (fabs(posi - FLAP_ANGLE_MID) < FLAP_RANGE) || flap_timer->HasPeriodPassed(FLAP_LOW_TO_MID_TIMEOUT);
+				case FLAP_MID:
+					return (fabs(posi - FLAP_ANGLE_MID) < FLAP_RANGE);
+				case FLAP_HIGH:
+					return (fabs(posi - FLAP_ANGLE_MID) < FLAP_RANGE) || flap_timer->HasPeriodPassed(FLAP_HIGH_TO_MID_TIMEOUT);
+			}
+			break;
 		case FLAP_HIGH:
-			return (fabs(posi - FLAP_ANGLE_HIGH) < FLAP_RANGE);
+			switch (flap_pos_prev) {
+				case FLAP_LOW:
+					return (fabs(posi - FLAP_ANGLE_HIGH) < FLAP_RANGE) || flap_timer->HasPeriodPassed(FLAP_LOW_TO_HIGH_TIMEOUT);
+				case FLAP_MID:
+					return (fabs(posi - FLAP_ANGLE_HIGH) < FLAP_RANGE) || flap_timer->HasPeriodPassed(FLAP_HIGH_TO_MID_TIMEOUT);
+				case FLAP_HIGH:
+					return (fabs(posi - FLAP_ANGLE_HIGH) < FLAP_RANGE);
+			}
+			break;
 		default:
 			// shouldn't ever happen, but this gets rid of a warning
 			return false;
@@ -379,6 +404,7 @@ void Manipulator::setTargetLevel(int level) {
 
 void Manipulator::setFlapPosition(flap_positions p) {
 	log->write(Log::TRACE_LEVEL, "flaps set to position %i\n", p);
+	flap_pos_prev = flap_pos;
 	flap_pos = p;
 }
 
