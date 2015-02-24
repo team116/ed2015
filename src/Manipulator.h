@@ -74,7 +74,7 @@ public:
 	void pushTote();
 	void spinTote(float direction);
 
-	void closeFlaps(bool close);
+	void closeFlaps(flap_positions close);
 
 	void setSurface(float s);
 	void setTargetLevel(int level);
@@ -125,9 +125,10 @@ private:
 	DigitalInput* port_rake_limit;
 	DigitalInput* starboard_rake_limit;*/
 
-	static float P_VALUE;
-	static float I_VALUE;
-	static float D_VALUE;
+	static const float P_VALUE;
+	static const float I_VALUE;
+	static const float D_VALUE;
+	static const unsigned int Izone;
 	//AnalogPotentiometer* potentiometer;	//TODO: rewrite potentiometer to go through Talon
 	static const int PULSE_PER_REV;
 	static const float INCH_PER_REV;
