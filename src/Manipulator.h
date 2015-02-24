@@ -125,10 +125,10 @@ private:
 	DigitalInput* port_rake_limit;
 	DigitalInput* starboard_rake_limit;*/
 
-	static const float P_VALUE;
-	static const float I_VALUE;
-	static const float D_VALUE;
-	unsigned int Izone;
+	static const float P;
+	static const float I;
+	static const float D;
+	static unsigned int IZone;
 	//AnalogPotentiometer* potentiometer;	//TODO: rewrite potentiometer to go through Talon
 	static const int PULSE_PER_REV;
 	static const float INCH_PER_REV;
@@ -152,7 +152,9 @@ private:
 
 	// timers
 	Timer* flap_timer;
-	static const float FLAP_TIMEOUT;
+	static const float FLAP_LOW_TO_MID_TIMEOUT;
+	static const float FLAP_HIGH_TO_MID_TIMEOUT;
+	static const float FLAP_LOW_TO_HIGH_TIMEOUT;
 	Timer* rake_timer;
 	static const float RAKE_TIMEOUT_LOW_TO_MID;
 	static const float RAKE_TIMEOUT_LOW_TO_HIGH;

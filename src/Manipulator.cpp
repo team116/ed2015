@@ -8,12 +8,14 @@
 
 Manipulator* Manipulator::INSTANCE = NULL;
 
-float Manipulator::P_VALUE = 0.9;
-float Manipulator::I_VALUE = 0.5;
-int Manipulator::Izone = 1;
-float Manipulator::D_VALUE = 0.5;
+const float Manipulator::P = 0.9;
+const float Manipulator::I = 0.5;
+unsigned int Manipulator::IZone = 1;
+const float Manipulator::D = 0.5;
 // TODO: get actual timeouts
-const float Manipulator::FLAP_TIMEOUT = 1.1;
+const float Manipulator::FLAP_LOW_TO_MID_TIMEOUT = 1.1;
+const float Manipulator::FLAP_HIGH_TO_MID_TIMEOUT = 1.1;
+const float Manipulator::FLAP_LOW_TO_HIGH_TIMEOUT = 1.1;
 const float Manipulator::RAKE_TIMEOUT_LOW_TO_MID = 1.1;
 const float Manipulator::RAKE_TIMEOUT_LOW_TO_HIGH = 1.1;
 const float Manipulator::RAKE_TIMEOUT_MID_TO_HIGH = 1.1;
@@ -61,8 +63,8 @@ Manipulator::Manipulator() {
 	//lift_upper_limit = new DigitalInput(RobotPorts::LIFT_UPPER_LIMIT);
 	//lift_lower_limit = new DigitalInput(RobotPorts::LIFT_LOWER_LIMIT);
 	lifter_one->SetControlMode(CANTalon::kPosition);
-	lifter_one->SetPID(P_VALUE, I_VALUE, D_VALUE);
-	lifter_one->SetIzone(Izone);
+	lifter_one->SetPID(P, I, D);
+	lifter_one->SetIzone(IZone);
 	lifter_one->SetFeedbackDevice(CANTalon::QuadEncoder);
 	//TODO: figure out what this means: "When using quadrature, each unit is a quadrature edge (4X) mode."
 	lifter_one->ConfigEncoderCodesPerRev(INCH_PER_REV / PULSE_PER_REV);	//inches per revolution / pulses per revolution = inches per pulse
