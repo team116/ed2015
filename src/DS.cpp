@@ -91,7 +91,7 @@ void DS::processMobility() {
 			drive_type_handled = false;
 		}
 
-		toggle_rotation = secondary_joystick->GetRawButton(JoystickPorts::TOGGLE_ROTATION);
+		toggle_rotation = main_joystick->GetRawButton(JoystickPorts::TOGGLE_ROTATION);
 		float x = main_joystick->GetX(), y = main_joystick->GetY(),
 				t = main_joystick->GetRawAxis(2);
 		// shaping and deadzones
