@@ -8,7 +8,6 @@
 
 Manipulator* Manipulator::INSTANCE = NULL;
 
-
 const float Manipulator::P = 0.9;
 const float Manipulator::I = 0.5;
 const unsigned int Manipulator::IZone = 1;
@@ -61,6 +60,8 @@ Manipulator::Manipulator() {
 	// lifter initializations
 	lifter_one = new CANTalon(RobotPorts::LIFTER_ONE);
 	lifter_two = new CANTalon(RobotPorts::LIFTER_TWO);
+	lifter_two->SetControlMode(CANTalon::kFollower);
+	lifter_two->Set(6);
 	//lift_upper_limit = new DigitalInput(RobotPorts::LIFT_UPPER_LIMIT);
 	//lift_lower_limit = new DigitalInput(RobotPorts::LIFT_LOWER_LIMIT);
 	lifter_one->SetControlMode(CANTalon::kPosition);
@@ -206,6 +207,9 @@ void Manipulator::process() {
 }
 
 bool Manipulator::canMoveLifter() {
+	if (lift_timer->HasPeriodPassed(lifter_timeout)) {
+		log->write(Log::TRACE_LEVEL, "%s\tLifter has timed out\n", Utils::getCurrentTime());
+	}
 	if (current_height < target_height) {
 		return (lifter_one->IsFwdLimitSwitchClosed() != 1 || !using_limits) && !lift_timer->HasPeriodPassed(lifter_timeout);
 	}
@@ -222,46 +226,59 @@ bool Manipulator::flapMotionDone() {	//TODO: add timeouts to flap positions
 				case FLAP_LOW:
 					return (fabs(posi - FLAP_ANGLE_LOW) < FLAP_RANGE);
 				case FLAP_MID:
+					if (flap_timer->HasPeriodPassed(FLAP_LOW_TO_MID_TIMEOUT)) {
+						log->write(Log::TRACE_LEVEL, "%s\tLow-to-mid flap motion has timed out.\n", Utils::getCurrentTime());
+					}
 					return (fabs(posi - FLAP_ANGLE_LOW) < FLAP_RANGE) || flap_timer->HasPeriodPassed(FLAP_LOW_TO_MID_TIMEOUT);
 				case FLAP_HIGH:
+					if (flap_timer->HasPeriodPassed(FLAP_LOW_TO_HIGH_TIMEOUT)) {
+						log->write(Log::TRACE_LEVEL, "%s\tLow-to-high flap motion has timed out.\n", Utils::getCurrentTime());
+					}
 					return (fabs(posi - FLAP_ANGLE_LOW) < FLAP_RANGE) || flap_timer->HasPeriodPassed(FLAP_LOW_TO_HIGH_TIMEOUT);
+				default:
+					return false;
 			}
 			break;
 		case FLAP_MID:
 			switch (flap_pos_prev) {
 				case FLAP_LOW:
+					if (flap_timer->HasPeriodPassed(FLAP_LOW_TO_MID_TIMEOUT)) {
+						log->write(Log::TRACE_LEVEL, "%s\tLow-to-mid flap motion has timed out.\n", Utils::getCurrentTime());
+					}
 					return (fabs(posi - FLAP_ANGLE_MID) < FLAP_RANGE) || flap_timer->HasPeriodPassed(FLAP_LOW_TO_MID_TIMEOUT);
 				case FLAP_MID:
 					return (fabs(posi - FLAP_ANGLE_MID) < FLAP_RANGE);
 				case FLAP_HIGH:
+					if (flap_timer->HasPeriodPassed(FLAP_HIGH_TO_MID_TIMEOUT)) {
+						log->write(Log::TRACE_LEVEL, "%s\tHigh-to-mid flap motion has timed out.\n", Utils::getCurrentTime());
+					}
 					return (fabs(posi - FLAP_ANGLE_MID) < FLAP_RANGE) || flap_timer->HasPeriodPassed(FLAP_HIGH_TO_MID_TIMEOUT);
+				default:
+					return false;
 			}
 			break;
 		case FLAP_HIGH:
 			switch (flap_pos_prev) {
 				case FLAP_LOW:
+					if (flap_timer->HasPeriodPassed(FLAP_LOW_TO_HIGH_TIMEOUT)) {
+						log->write(Log::TRACE_LEVEL, "%s\tLow-to-high flap motion has timed out.\n", Utils::getCurrentTime());
+					}
 					return (fabs(posi - FLAP_ANGLE_HIGH) < FLAP_RANGE) || flap_timer->HasPeriodPassed(FLAP_LOW_TO_HIGH_TIMEOUT);
 				case FLAP_MID:
+					if (flap_timer->HasPeriodPassed(FLAP_HIGH_TO_MID_TIMEOUT)) {
+						log->write(Log::TRACE_LEVEL, "%s\tLow-to-mid flap motion has timed out.\n", Utils::getCurrentTime());
+					}
 					return (fabs(posi - FLAP_ANGLE_HIGH) < FLAP_RANGE) || flap_timer->HasPeriodPassed(FLAP_HIGH_TO_MID_TIMEOUT);
 				case FLAP_HIGH:
 					return (fabs(posi - FLAP_ANGLE_HIGH) < FLAP_RANGE);
+				default:
+					return false;
 			}
 			break;
 		default:
 			// shouldn't ever happen, but this gets rid of a warning
 			return false;
 	}
-	/*
-	 if (flap_state == FLAP_CLOSING) {
-	 return (flaps_closed_limit->Get() && using_limits)
-	 || flap_timer->HasPeriodPassed(FLAP_TIMEOUT);
-	 }
-	 else if (flap_state == FLAP_OPENING) {
-	 return (flaps_opened_limit->Get() && using_limits)
-	 || flap_timer->HasPeriodPassed(FLAP_TIMEOUT);
-	 }
-	 else
-	 return true;*/
 }
 
 bool Manipulator::rakeMotionDone() {	//only for use of presets during atonomous
@@ -276,6 +293,7 @@ bool Manipulator::rakeMotionDone() {	//only for use of presets during atonomous
 					break;
 				case RAKE_MID:
 					if (rake_timer->HasPeriodPassed(RAKE_TIMEOUT_LOW_TO_MID)) {
+						log->write(Log::TRACE_LEVEL, "%s\tLow-to-mid rake timer finished\n", Utils::getCurrentTime());
 						rake_timer->Start();
 						rake_timer->Reset();
 						return true;
@@ -283,6 +301,7 @@ bool Manipulator::rakeMotionDone() {	//only for use of presets during atonomous
 					break;
 				case RAKE_HIGH:
 					if (rake_timer->HasPeriodPassed(RAKE_TIMEOUT_LOW_TO_HIGH) || rake_port->IsFwdLimitSwitchClosed() == 1) {
+						log->write(Log::TRACE_LEVEL, "%s\tLow-to-high rake timer finished\n", Utils::getCurrentTime());
 						rake_timer->Start();
 						rake_timer->Reset();
 						return true;
@@ -294,6 +313,7 @@ bool Manipulator::rakeMotionDone() {	//only for use of presets during atonomous
 			switch (rake_pos_prev) {
 				case RAKE_LOW:
 					if (rake_timer->HasPeriodPassed(RAKE_TIMEOUT_LOW_TO_MID)) {
+						log->write(Log::TRACE_LEVEL, "%s\tLow-to-mid rake timer finished\n", Utils::getCurrentTime());
 						rake_timer->Start();
 						rake_timer->Reset();
 						return true;
@@ -306,6 +326,7 @@ bool Manipulator::rakeMotionDone() {	//only for use of presets during atonomous
 					break;
 				case RAKE_HIGH:
 					if (rake_timer->HasPeriodPassed(RAKE_TIMEOUT_MID_TO_HIGH) || rake_port->IsFwdLimitSwitchClosed() == 1) {
+						log->write(Log::TRACE_LEVEL, "%s\tMid-to-high rake timer finished\n", Utils::getCurrentTime());
 						rake_timer->Start();
 						rake_timer->Reset();
 						return true;
@@ -317,6 +338,7 @@ bool Manipulator::rakeMotionDone() {	//only for use of presets during atonomous
 			switch (rake_pos_prev) {
 				case RAKE_LOW:
 					if (rake_timer->HasPeriodPassed(RAKE_TIMEOUT_LOW_TO_HIGH)) {
+						log->write(Log::TRACE_LEVEL, "%s\tLow-to-high rake timer finished\n", Utils::getCurrentTime());
 						rake_timer->Start();
 						rake_timer->Reset();
 						return true;
@@ -324,6 +346,7 @@ bool Manipulator::rakeMotionDone() {	//only for use of presets during atonomous
 					break;
 				case RAKE_MID:
 					if (rake_timer->HasPeriodPassed(RAKE_TIMEOUT_MID_TO_HIGH)) {
+						log->write(Log::TRACE_LEVEL, "%s\tMid-to-high rake timer finished\n", Utils::getCurrentTime());
 						rake_timer->Start();
 						rake_timer->Reset();
 						return true;
@@ -341,11 +364,19 @@ bool Manipulator::rakeMotionDone() {	//only for use of presets during atonomous
 }
 
 bool Manipulator::pushToteDone() {
-	return wheel_state == WHEELS_PUSHING && wheel_timer->HasPeriodPassed(WHEEL_TIMEOUT);
+	if (wheel_timer->HasPeriodPassed(WHEEL_TIMEOUT)) {
+		log->write(Log::TRACE_LEVEL, "%s\tPush tote timeout passed\n", Utils::getCurrentTime());
+		return wheel_state == WHEELS_PUSHING;
+	}
+	return false;
 }
 
 bool Manipulator::pullToteDone() {
-	return wheel_state == WHEELS_PULLING && wheel_timer->HasPeriodPassed(WHEEL_TIMEOUT);
+	if (wheel_timer->HasPeriodPassed(WHEEL_TIMEOUT)) {
+			log->write(Log::TRACE_LEVEL, "%s\tPull tote timeout passed\n", Utils::getCurrentTime());
+			return wheel_state == WHEELS_PULLING;
+		}
+		return false;
 }
 
 void Manipulator::pullTote() {
@@ -366,10 +397,9 @@ void Manipulator::pushTote() {
 	wheel_timer->Reset();
 }
 
-void Manipulator::closeFlaps(bool close)
-{
+void Manipulator::closeFlaps(bool close) {
 
-	if (close == FLAP_LOW && (close_flaps->IsFwdLimitSwitchClosed() != 1 || !using_limits)) {	//close flaps
+	if (close == FLAP_LOW && (close_flaps->IsFwdLimitSwitchClosed() != 1 || !using_limits)) {//close flaps
 		log->write(Log::TRACE_LEVEL, "%s\tClosing flaps\n", Utils::getCurrentTime());
 		close_flaps->Set(0.5);
 		flap_state = FLAP_CLOSING;
