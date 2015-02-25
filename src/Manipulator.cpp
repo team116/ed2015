@@ -23,7 +23,7 @@ const float Manipulator::LEVEL_TIMEOUT = 1.1; // the amount of time to be given 
 const float Manipulator::WHEEL_TIMEOUT = 1.1;
 
 // lifter stuff
-const float Manipulator::LIFTER_RANGE = 0.3; // the acceptable height range for our presets
+const float Manipulator::LIFTER_RANGE = 0.01; // the acceptable height range for our presets
 const int Manipulator::PULSE_PER_REV = 64;
 const float Manipulator::INCH_PER_REV = 4.0;
 const float Manipulator::ENCODER_INCREMENT = 1.0;
@@ -389,14 +389,14 @@ void Manipulator::setSurface(float s) {
 }
 
 void Manipulator::setTargetLevel(int level) {
-	log->write(Log::TRACE_LEVEL, "%s\tSet lifter preset to %d", Utils::getCurrentTime(), level);
 	int new_target = level * TOTE_HEIGHT + surface;	//surface = height of surface on which we are trying to stack totes ((private variable))
-	if (abs(current_height - new_target) < abs(current_height - target_height)) {//in case of button mash, go to whichever instruction is closest to current position
+	if (abs(current_height - new_target) < abs(current_height - target_height) || current_height == target_height) {//in case of button mash, go to whichever instruction is closest to current position
 		target_height = new_target;
+		log->write(Log::TRACE_LEVEL, "%s\tSet lifter preset to %i\n", Utils::getCurrentTime(), level);
+		lifter_timeout = (float) ((target_height - current_height) / TOTE_HEIGHT) * LEVEL_TIMEOUT;
+		lift_timer->Start();
+		lift_timer->Reset();
 	}
-	lifter_timeout = (float) ((target_height - current_height) / TOTE_HEIGHT) * LEVEL_TIMEOUT;
-	lift_timer->Start();
-	lift_timer->Reset();
 }
 
 void Manipulator::setFlapPosition(flap_positions p) {

@@ -203,9 +203,6 @@ void DS::processManipulator() {
 	else if (IO_board_one->GetRawButton(IOBoardTwoPorts::LIFTER_DOWN_BUTTON)) {
 		manipulator->liftLifters(Manipulator::MOVING_DOWN);
 	}
-	else {
-		manipulator->liftLifters(Manipulator::NOT_MOVING);
-	}
 
 	// rake control buttons
 	if (IO_board_one->GetRawButton(IOBoardTwoPorts::LEFT_RAKE_UP_BUTTON)) {
