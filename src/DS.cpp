@@ -15,8 +15,8 @@ DS::DS() {
 
 	main_joystick = Joystick::GetStickForPort(DSPorts::DRIVER_ONE_JOYSTICK);
 	secondary_joystick = Joystick::GetStickForPort(DSPorts::DRIVER_TWO_JOYSTICK);
-	output_board = Joystick::GetStickForPort(DSPorts::DIGITAL_IO_BOARD);
-	input_board = Joystick::GetStickForPort(DSPorts::SECOND_IO_BOARD);
+	output_board = Joystick::GetStickForPort(DSPorts::OUTPUT_BOARD);
+	input_board = Joystick::GetStickForPort(DSPorts::INPUT_BOARD);
 
 	server = CameraServer::GetInstance();
 	server->SetQuality(5);

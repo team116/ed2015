@@ -52,8 +52,8 @@ namespace DSPorts
 	//joysticks
 	const unsigned int DRIVER_ONE_JOYSTICK = 0;
 	const unsigned int DRIVER_TWO_JOYSTICK = 1;
-	const unsigned int DIGITAL_IO_BOARD = 2;
-	const unsigned int SECOND_IO_BOARD = 3;
+	const unsigned int OUTPUT_BOARD = 2;
+	const unsigned int INPUT_BOARD = 3;
 
 }
 
