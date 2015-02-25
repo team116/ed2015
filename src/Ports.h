@@ -103,8 +103,9 @@ namespace InputBoardPorts
 	const unsigned int LIFTER_DOWN_BUTTON = 8;
 	const unsigned int LIFTER_UP_BUTTON = 9;
 
-	const unsigned int STACK_ON_PLATFORM_SWITCH = 10;
-	const unsigned int STACK_ON_STEP_SWITCH = 11;
+	//These currently don't appear to be wired up. OI NEEDS to be contacted to figure out why
+	const unsigned int STACK_ON_PLATFORM_SWITCH = 99;
+	const unsigned int STACK_ON_STEP_SWITCH = 100;
 
 	const unsigned int CAMERA_SELECT_SWITCH = 12;
 
@@ -115,7 +116,7 @@ namespace InputBoardPorts
 	const unsigned int RIGHT_RAKE_DOWN_BUTTON = 15;
 
 	//analog inputs
-	const unsigned int FLAP_POSITION_KNOB = 2;
+	const unsigned int FLAP_POSITION_KNOB = 1;
 }
 /*
 namespace IOBoardOnePorts

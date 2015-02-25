@@ -52,7 +52,7 @@ void DS::process() {
 	processMobility();
 	processManipulator();
 	processLEDS();
-	//processCameras();
+	processCameras();
 
 }
 
@@ -143,14 +143,17 @@ void DS::processManipulator() {
 
 	// this assumes the max voltage for the flap position input to be 5
 	// also this assumes that we'll be getting this as analog input instead of as a few digital inputs
-	switch (Utils::convertFromVolts(input_board->GetRawAxis(InputBoardPorts::FLAP_POSITION_KNOB), 3, 5.0)) {
+	switch (Utils::convertFromVolts(input_board->GetRawAxis(InputBoardPorts::FLAP_POSITION_KNOB), 6, 5.0)) {
 	case 0:
+	case 1:
 		manipulator->setFlapPosition(Manipulator::FLAP_LOW);
 		break;
-	case 1:
+	case 2:
+	case 3:
 		manipulator->setFlapPosition(Manipulator::FLAP_MID);
 		break;
-	case 2:
+	case 4:
+	case 5:
 		manipulator->setFlapPosition(Manipulator::FLAP_HIGH);
 		break;
 	}
@@ -328,21 +331,20 @@ void DS::doLevelLEDS(int level) {
 }
 
 void DS::processCameras() {
-	/*
 	 if (input_board->GetRawButton(InputBoardPorts::CAMERA_SELECT_SWITCH)) {
 	 	 frontCamSelect = false;
 	 	 backCamSelect = true;
+	 	 log->write(Log::TRACE_LEVEL,"%sFront Camera Selected",Utils::getCurrentTime());
 	 }
 	 else {
 	 	 frontCamSelect = true;
 	 	 backCamSelect = false;
 	 }
-	 */
-	if (main_joystick->GetRawButton(JoystickPorts::TEMP_CAMERA_TOGGLE_TEST)) {
+	/*if (main_joystick->GetRawButton(JoystickPorts::TEMP_CAMERA_TOGGLE_TEST)) {
 		log->write(Log::INFO_LEVEL, "Swapped cameras at %s\n", Utils::getCurrentTime());
 		frontCamSelect = !frontCamSelect;
 		backCamSelect = !backCamSelect;
-	}
+	}*/
 
 	if (frontCamSelect || frontCamLatched) {
 		if (backCamLatched) {
