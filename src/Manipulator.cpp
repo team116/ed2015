@@ -8,9 +8,10 @@
 
 Manipulator* Manipulator::INSTANCE = NULL;
 
+
 const float Manipulator::P = 0.9;
 const float Manipulator::I = 0.5;
-unsigned int Manipulator::IZone = 1;
+const unsigned int Manipulator::IZone = 1;
 const float Manipulator::D = 0.5;
 // TODO: get actual timeouts
 const float Manipulator::FLAP_LOW_TO_MID_TIMEOUT = 1.1;
@@ -153,7 +154,7 @@ void Manipulator::process() {
 				break;
 			case FLAP_MID:
 				if (close_flaps->GetPosition() < FLAP_ANGLE_MID) {//TODO: check to make sure orientation is correct (aka small value from potentiometer = more closed)
-					closeFlaps(false);
+					closeFlaps(Manipulator::FLAP_ANGLE_LOW);
 				}
 				else {
 					closeFlaps(true);
@@ -365,18 +366,20 @@ void Manipulator::pushTote() {
 	wheel_timer->Reset();
 }
 
-void Manipulator::closeFlaps(bool close) {
-//close or open based on value of close
-	if (close && (close_flaps->IsFwdLimitSwitchClosed() != 1 || !using_limits)) {	//close flaps
+void Manipulator::closeFlaps(bool close)
+{
+
+	if (close == FLAP_LOW && (close_flaps->IsFwdLimitSwitchClosed() != 1 || !using_limits)) {	//close flaps
 		log->write(Log::TRACE_LEVEL, "%s\tClosing flaps\n", Utils::getCurrentTime());
 		close_flaps->Set(0.5);
 		flap_state = FLAP_CLOSING;
 	}
-	else if (!close && (close_flaps->IsRevLimitSwitchClosed() != 1 || !using_limits)) {	//open flaps
+	else if (close == FLAP_HIGH && (close_flaps->IsRevLimitSwitchClosed() != 1 || !using_limits)) {	//open flaps
 		log->write(Log::TRACE_LEVEL, "%s\tOpening flaps\n", Utils::getCurrentTime());
 		close_flaps->Set(-0.5);
 		flap_state = FLAP_OPENING;
 	}
+
 	flap_timer->Start();
 	flap_timer->Reset();
 }

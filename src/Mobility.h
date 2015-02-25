@@ -24,6 +24,7 @@ public:
 	void resetYEncoderDistance();
 	void useRealOrientation(bool real);
 	void flipOrientation();
+	void useClosedLoop(bool use);
 
 private:
 	Mobility();
@@ -35,6 +36,12 @@ private:
 	static const float MAX_ULTRASONIC_VOLTAGE;
 	static const float X_ODOMETRY_INCHES_PER_PULSE;
 	static const float Y_ODOMETRY_INCHES_PER_PULSE;
+	static const float MAX_VELOCITY;
+	static float P_VALUE;
+	static float I_VALUE;
+	static float D_VALUE;
+	static int Izone;
+	bool using_closed_loop;
 	CANTalon* front_left_motor;
 	CANTalon* front_right_motor;
 	CANTalon* rear_left_motor;

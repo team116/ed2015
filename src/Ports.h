@@ -68,7 +68,7 @@ namespace JoystickPorts
 
 }
 
-namespace IOBoardOnePorts
+namespace LEDBoardPorts
 {
 	//digital outputs
 	const unsigned int LEVEL_0_INDICATOR = 12;
@@ -79,15 +79,17 @@ namespace IOBoardOnePorts
 	const unsigned int LEVEL_5_INDICATOR = 17;
 	const unsigned int LEVEL_6_INDICATOR = 18;
 
+	/*
 	const unsigned int STACK_ON_FLOOR_INDICATOR = 19;
 	const unsigned int STACK_ON_PLATFORM_INDICATOR = 20;
 	const unsigned int STACK_ON_STEP_INDICATOR = 21;
 
 	const unsigned int BACK_CAMERA_INDICATOR = 22;
 	const unsigned int FRONT_CAMERA_INDICATOR = 23;
+	*/
 }
 
-namespace IOBoardTwoPorts
+namespace InputBoardPorts
 {
 	//digital inputs
 	const unsigned int LIFTER_PRESET_0 = 1;
@@ -104,7 +106,7 @@ namespace IOBoardTwoPorts
 	const unsigned int STACK_ON_PLATFORM_SWITCH = 10;
 	const unsigned int STACK_ON_STEP_SWITCH = 11;
 
-	const unsigned int FORWARD_CAMERA_SELECT = 12;
+	const unsigned int CAMERA_SELECT_SWITCH = 12;
 
 	const unsigned int LEFT_RAKE_UP_BUTTON = 14;
 	const unsigned int LEFT_RAKE_DOWN_BUTTON = 13;
@@ -112,11 +114,8 @@ namespace IOBoardTwoPorts
 	const unsigned int RIGHT_RAKE_UP_BUTTON = 16;
 	const unsigned int RIGHT_RAKE_DOWN_BUTTON = 15;
 
-	const unsigned int FLAP_POSITION_CLOSE = 17;
-	const unsigned int FLAP_POSTITION_OPEN = 18;
-
 	//analog inputs
-	const unsigned int STACK_PLATFORM_KNOB = 2;
+	const unsigned int FLAP_POSITION_KNOB = 2;
 }
 /*
 namespace IOBoardOnePorts

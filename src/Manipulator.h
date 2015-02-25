@@ -128,7 +128,7 @@ private:
 	static const float P;
 	static const float I;
 	static const float D;
-	static unsigned int IZone;
+	static const unsigned int IZone;
 	//AnalogPotentiometer* potentiometer;	//TODO: rewrite potentiometer to go through Talon
 	static const int PULSE_PER_REV;
 	static const float INCH_PER_REV;
