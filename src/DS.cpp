@@ -19,7 +19,7 @@ DS::DS() {
 	input_board = Joystick::GetStickForPort(DSPorts::INPUT_BOARD);
 
 	server = CameraServer::GetInstance();
-	server->SetQuality(5);
+	server->SetQuality(10);
 	frameFrontCam = imaqCreateImage(IMAQ_IMAGE_RGB, 0);
 	frameBackCam = imaqCreateImage(IMAQ_IMAGE_RGB, 0);
 
@@ -334,7 +334,6 @@ void DS::processCameras() {
 	 if (input_board->GetRawButton(InputBoardPorts::CAMERA_SELECT_SWITCH)) {
 	 	 frontCamSelect = false;
 	 	 backCamSelect = true;
-	 	 log->write(Log::TRACE_LEVEL,"%sFront Camera Selected",Utils::getCurrentTime());
 	 }
 	 else {
 	 	 frontCamSelect = true;
@@ -408,6 +407,9 @@ bool DS::StartCamera(int cameraNum) {
 			log->write(Log::ERROR_LEVEL, "front camera IMAQdxOpenCamera error: %ld\n", (long) imaqError);
 			return false;
 		}
+		else {
+		 	 log->write(Log::INFO_LEVEL,"%sFront camera started",Utils::getCurrentTime());
+		}
 		imaqError = IMAQdxConfigureGrab(sessionCam0);
 		if (imaqError != IMAQdxErrorSuccess) {
 			log->write(Log::ERROR_LEVEL, "front camera IMAQdxConfigureGrab error: %ld\n", (long) imaqError);
@@ -422,6 +424,9 @@ bool DS::StartCamera(int cameraNum) {
 		if (imaqError != IMAQdxErrorSuccess) {
 			log->write(Log::ERROR_LEVEL, "back camera IMAQdxOpenCamera error: %ld\n", (long) imaqError);
 			return false;
+		}
+		else {
+			log->write(Log::INFO_LEVEL,"%sBack camera started",Utils::getCurrentTime());
 		}
 		imaqError = IMAQdxConfigureGrab(sessionCam1);
 		if (imaqError != IMAQdxErrorSuccess) {
