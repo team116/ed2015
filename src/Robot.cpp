@@ -5,6 +5,7 @@
 #include "Mobility.h"
 #include "Autonomous.h"
 #include "Manipulator.h"
+#include "I2CCompass.h"
 
 class Robot : public IterativeRobot
 {
@@ -20,6 +21,7 @@ private:
 	Autonomous* autonomous;
 	Manipulator* manipulator;
 	Log* log;
+	I2CCompass* compass;
 
 public:
 	Robot(void)
@@ -34,11 +36,12 @@ public:
 		const float max_volt = 5.2;
 
 		// initialize subsystems
+		log = Log::getInstance();
 		ds = DS::getInstance();
 		mobility = Mobility::getInstance();
 		autonomous = Autonomous::getInstance(Utils::convertFromVolts(delay_volt, 0, max_volt), Utils::convertFromVolts(play_volt, 0, max_volt), Utils::convertFromVolts(location_volt, 0, max_volt));
 		manipulator = Manipulator::getInstance();
-		log = Log::getInstance();
+		compass = I2CCompass::getInstance();
 	}
 
     ////////////////////////////////////////////////////////////////////////////
@@ -79,6 +82,7 @@ public:
     	autonomous->process();
     	mobility->process();
     	manipulator->process();
+    	compass->process();
     }
 
     void TeleopPeriodic()
@@ -86,6 +90,7 @@ public:
     	ds->process();
     	mobility->process();
     	manipulator->process();
+    	compass->process();
 
     	log ->write(Log::TRACE_LEVEL, "AccelX: %i\n");
     	log ->write(Log::TRACE_LEVEL, "AccelY: %i\n");

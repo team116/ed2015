@@ -7,6 +7,8 @@
 #include <CANTalon.h>
 #include <Encoder.h>
 #include "Log.h"
+#include "I2CCompass.h"
+#include <BuiltInAccelerometer.h>
 
 class Mobility
 {
@@ -54,6 +56,10 @@ private:
 	Encoder* odometry_wheel_y_encoder;
 
 	Log* log;
+
+	I2CCompass* compass;
+
+	BuiltInAccelerometer* accel;
 
 	bool real_orientation;
 

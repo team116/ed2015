@@ -19,6 +19,7 @@ public:
 	void process();
 
 	virtual double PIDGet();
+	float getYaw();
 
 private:
 	I2CCompass();

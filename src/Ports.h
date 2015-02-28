@@ -72,12 +72,13 @@ namespace DSPorts
 
 namespace JoystickPorts
 {
+	const unsigned int CARDINAL_DIRECTION = 1;
 	const unsigned int TOGGLE_ROTATION = 2;
 	const unsigned int FIELD_CENTRIC_TOGGLE = 3;
 	const unsigned int OVERRIDE_BUTTON = 7;
 	const unsigned int TURN_DEGREES = 5;
 	const unsigned int FLIP_ORIENTATION = 11;
-	const unsigned int TEMP_CAMERA_TOGGLE_TEST = 1; //to be removed, used only to test camera toggleS
+	const unsigned int TEMP_CAMERA_TOGGLE_TEST = 4; //to be removed, used only to test camera toggleS
 
 }
 
