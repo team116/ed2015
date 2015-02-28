@@ -4,7 +4,7 @@
 #include "Mobility.h"
 #include "Manipulator.h"
 #include "Log.h"
-#include <CameraServer.h>
+#include "CameraFeeds.h"
 #include <cmath>
 DS* DS::INSTANCE = NULL;
 
@@ -18,10 +18,10 @@ DS::DS() {
 	output_board = Joystick::GetStickForPort(DSPorts::OUTPUT_BOARD);
 	input_board = Joystick::GetStickForPort(DSPorts::INPUT_BOARD);
 
-	server = CameraServer::GetInstance();
-	server->SetQuality(10);
-	frameFrontCam = imaqCreateImage(IMAQ_IMAGE_RGB, 0);
-	frameBackCam = imaqCreateImage(IMAQ_IMAGE_RGB, 0);
+	camera_feeds = new CameraFeeds(input_board);
+	// for testing purposes
+	//camera_feeds =  new CameraFeeds(main_joystick);
+	camera_feeds->init();
 
 	on_step = false;
 	override = false;
@@ -52,7 +52,8 @@ void DS::process() {
 	processMobility();
 	processManipulator();
 	processLEDS();
-	processCameras();
+	//processCameras();
+	camera_feeds->run();
 
 }
 
@@ -330,8 +331,9 @@ void DS::doLevelLEDS(int level) {
 		break;
 	}
 }
-
+/*
 void DS::processCameras() {
+
 	 if (input_board->GetRawButton(InputBoardPorts::CAMERA_SELECT_SWITCH)) {
 	 	 frontCamSelect = false;
 	 	 backCamSelect = true;
@@ -340,11 +342,11 @@ void DS::processCameras() {
 	 	 frontCamSelect = true;
 	 	 backCamSelect = false;
 	 }
-	/*if (main_joystick->GetRawButton(JoystickPorts::TEMP_CAMERA_TOGGLE_TEST)) {
+	if (main_joystick->GetRawButton(JoystickPorts::TEMP_CAMERA_TOGGLE_TEST)) {
 		log->write(Log::INFO_LEVEL, "Swapped cameras at %s\n", Utils::getCurrentTime());
 		frontCamSelect = !frontCamSelect;
 		backCamSelect = !backCamSelect;
-	}*/
+	}
 
 	if (frontCamSelect || frontCamLatched) {
 		if (backCamLatched) {
@@ -399,7 +401,6 @@ void DS::processCameras() {
 		backCamLatched = true;
 	}
 }
-
 bool DS::StartCamera(int cameraNum) {
 	if (cameraNum == 0) {
 		log->write(Log::INFO_LEVEL, "Starting cam 0");
@@ -462,6 +463,7 @@ bool DS::StopCamera(int cameraNum) {
 
 	return true;
 }
+*/
 
 DS* DS::getInstance() {
 	if (INSTANCE == NULL) {

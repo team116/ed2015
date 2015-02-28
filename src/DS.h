@@ -3,6 +3,7 @@
 
 #include "Mobility.h"
 #include "Manipulator.h"
+#include "CameraFeeds.h"
 #include <CameraServer.h>
 
 class DS
@@ -29,11 +30,13 @@ private:
 	Manipulator* manipulator;
 	Log* log;
 	CameraServer* server;
+	CameraFeeds* camera_feeds;
 
 	Joystick* main_joystick;
 	Joystick* secondary_joystick;
 	Joystick* output_board;
 	Joystick* input_board;
+
 
 	bool override;
 	bool on_step;
