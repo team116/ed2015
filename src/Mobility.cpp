@@ -22,6 +22,7 @@ const float Mobility::MAX_ULTRASONIC_VOLTAGE = 5.5;
 const float Mobility::X_ODOMETRY_INCHES_PER_PULSE = 3.0 / 360.0;
 const float Mobility::Y_ODOMETRY_INCHES_PER_PULSE = 3.0 / 250.0;
 const float Mobility::MAX_VELOCITY = 555.1f;
+// 250 PPR on drive wheel encoders
 
 
 Mobility::Mobility()
