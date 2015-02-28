@@ -6,7 +6,7 @@
 class CameraFeeds {
 public:
 	//const int kBtCamFront = 1;
-	//const int CamBackButton = 2;
+	//const int kBtCamBack = 2;
 	CameraFeeds(Joystick *newJoy);
 	~CameraFeeds();
 
@@ -24,7 +24,7 @@ private:
 	CameraServer* server;
 	const char* camNameFront = "cam0";
 	const char* camNameBack = "cam1";
-	int imgQuality = 60;
+	int imgQuality = 40;
 	Joystick* controller;
 
 };
