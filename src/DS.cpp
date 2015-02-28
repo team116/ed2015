@@ -24,7 +24,7 @@ DS::DS() {
 	camera_feeds->init();
 
 	on_step = false;
-	override = false;
+	danny_override = false;
 	drive_type = false;
 	drive_type_handled = false;
 	turn_degrees = false;
@@ -47,7 +47,7 @@ void DS::process() {
 
 	if (secondary_joystick->GetRawButton(JoystickPorts::OVERRIDE_BUTTON)) {
 		log->write(Log::INFO_LEVEL, "%s\tOverride button pressed\n", Utils::getCurrentTime());
-		override = !override;
+		danny_override = !danny_override;
 	}
 
 	processMobility();
@@ -63,7 +63,7 @@ void DS::processMobility() {
 	// we might just remove this because the override button is a dumb idea
 	toggle_rotation = secondary_joystick->GetRawButton(JoystickPorts::TOGGLE_ROTATION);
 	toggle_cardinal = secondary_joystick->GetRawButton(JoystickPorts::CARDINAL_DIRECTION);
-	if (override) {
+	if (danny_override) {
 		log->write(Log::TRACE_LEVEL, "%s\tIn override mode\n", Utils::getCurrentTime());
 		float x = secondary_joystick->GetX(), y = secondary_joystick->GetY(),
 				t = secondary_joystick->GetRawAxis(2);
@@ -226,7 +226,7 @@ void DS::processManipulator() {
 	}
 
 	// normal control of manipulator by driver two
-	if (!override) {
+	if (!danny_override) {
 		if (secondary_joystick->GetY() > 0.4) {
 			manipulator->pushTote();
 		}
