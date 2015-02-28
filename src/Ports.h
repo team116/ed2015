@@ -65,14 +65,15 @@ namespace DSPorts
 	//joysticks
 	const unsigned int DRIVER_ONE_JOYSTICK = 0;
 	const unsigned int DRIVER_TWO_JOYSTICK = 1;
-	const unsigned int DIGITAL_IO_BOARD = 2;
-	const unsigned int SECOND_IO_BOARD = 3;
+	const unsigned int OUTPUT_BOARD = 2;
+	const unsigned int INPUT_BOARD = 3;
 
 }
 
 namespace JoystickPorts
 {
-	const unsigned int FIELD_CENTRIC_TOGGLE = 2;
+	const unsigned int TOGGLE_ROTATION = 2;
+	const unsigned int FIELD_CENTRIC_TOGGLE = 3;
 	const unsigned int OVERRIDE_BUTTON = 7;
 	const unsigned int TURN_DEGREES = 5;
 	const unsigned int FLIP_ORIENTATION = 11;
@@ -80,7 +81,7 @@ namespace JoystickPorts
 
 }
 
-namespace IOBoardOnePorts
+namespace LEDBoardPorts
 {
 	//digital outputs
 	const unsigned int LEVEL_0_INDICATOR = 12;
@@ -91,15 +92,17 @@ namespace IOBoardOnePorts
 	const unsigned int LEVEL_5_INDICATOR = 17;
 	const unsigned int LEVEL_6_INDICATOR = 18;
 
+	/*
 	const unsigned int STACK_ON_FLOOR_INDICATOR = 19;
 	const unsigned int STACK_ON_PLATFORM_INDICATOR = 20;
 	const unsigned int STACK_ON_STEP_INDICATOR = 21;
 
 	const unsigned int BACK_CAMERA_INDICATOR = 22;
 	const unsigned int FRONT_CAMERA_INDICATOR = 23;
+	*/
 }
 
-namespace IOBoardTwoPorts
+namespace InputBoardPorts
 {
 	//digital inputs
 	const unsigned int LIFTER_PRESET_0 = 1;
@@ -113,10 +116,11 @@ namespace IOBoardTwoPorts
 	const unsigned int LIFTER_DOWN_BUTTON = 8;
 	const unsigned int LIFTER_UP_BUTTON = 9;
 
-	const unsigned int STACK_ON_PLATFORM_SWITCH = 10;
-	const unsigned int STACK_ON_STEP_SWITCH = 11;
+	//These currently don't appear to be wired up. OI NEEDS to be contacted to figure out why
+	const unsigned int STACK_ON_PLATFORM_SWITCH = 17;
+	const unsigned int STACK_ON_STEP_SWITCH = 18;
 
-	const unsigned int FORWARD_CAMERA_SELECT = 12;
+	const unsigned int CAMERA_SELECT_SWITCH = 12;
 
 	const unsigned int LEFT_RAKE_UP_BUTTON = 14;
 	const unsigned int LEFT_RAKE_DOWN_BUTTON = 13;
@@ -124,11 +128,8 @@ namespace IOBoardTwoPorts
 	const unsigned int RIGHT_RAKE_UP_BUTTON = 16;
 	const unsigned int RIGHT_RAKE_DOWN_BUTTON = 15;
 
-	const unsigned int FLAP_POSITION_CLOSE = 17;
-	const unsigned int FLAP_POSTITION_OPEN = 18;
-
 	//analog inputs
-	const unsigned int STACK_PLATFORM_KNOB = 2;
+	const unsigned int FLAP_POSITION_KNOB = 2;
 }
 /*
 namespace IOBoardOnePorts

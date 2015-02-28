@@ -9,6 +9,9 @@
 
 using namespace std;
 
+float Mobility::P_VALUE = 0.9f;
+float Mobility::I_VALUE = 0.1f;
+float Mobility::D_VALUE = 0.0f;
 Mobility* Mobility::INSTANCE = NULL;
 const float Mobility::DEFAULT_SPEED = 0.5;
 const float Mobility::MAX_SPEED = 0.9;
@@ -18,6 +21,7 @@ const float Mobility::MAX_ULTRASONIC_DISTANCE = 254.0;
 const float Mobility::MAX_ULTRASONIC_VOLTAGE = 5.5;
 const float Mobility::X_ODOMETRY_INCHES_PER_PULSE = 3.0 / 360.0;
 const float Mobility::Y_ODOMETRY_INCHES_PER_PULSE = 3.0 / 250.0;
+const float Mobility::MAX_VELOCITY = 555.1f;
 
 
 Mobility::Mobility()
@@ -27,25 +31,25 @@ Mobility::Mobility()
 	front_left_motor->SetVoltageRampRate(RAMP_RATE);
 	front_left_motor->Set(0.0);
 	front_left_motor->SetFeedbackDevice(CANTalon::QuadEncoder);
-	// front_left_motor->SetControlMode(CANTalon::kSpeed);
+	front_left_motor->Set(0.0);
 
 	front_right_motor = new CANTalon(RobotPorts::FRONT_RIGHT_MOTOR);
 	front_right_motor->SetVoltageRampRate(RAMP_RATE);
 	front_right_motor->Set(0.0);
 	front_right_motor->SetFeedbackDevice(CANTalon::QuadEncoder);
-	// front_right_motor->SetControlMode(CANTalon::kSpeed);
+	front_right_motor->Set(0.0);
 
 	rear_left_motor = new CANTalon(RobotPorts::REAR_LEFT_MOTOR);
 	rear_left_motor->SetVoltageRampRate(RAMP_RATE);
 	rear_left_motor->Set(0.0);
 	rear_left_motor->SetFeedbackDevice(CANTalon::QuadEncoder);
-	// rear_left_motor->SetControlMode(CANTalon::kSpeed);
+	rear_left_motor->Set(0.0);
 
 	rear_right_motor = new CANTalon(RobotPorts::REAR_RIGHT_MOTOR);
 	rear_right_motor->SetVoltageRampRate(RAMP_RATE);
 	rear_right_motor->Set(0.0);
 	rear_right_motor->SetFeedbackDevice(CANTalon::QuadEncoder);
-	// rear_right_motor->SetControlMode(CANTalon::kSpeed);
+	rear_right_motor->Set(0.0);
 
 	odometry_wheel_x_encoder = new Encoder(RobotPorts::ODOMETRY_WHEEL_X_A,RobotPorts::ODOMETRY_WHEEL_X_B);
 	odometry_wheel_y_encoder = new Encoder(RobotPorts::ODOMETRY_WHEEL_Y_A,RobotPorts::ODOMETRY_WHEEL_Y_B);
@@ -54,17 +58,16 @@ Mobility::Mobility()
 	odometry_wheel_y_encoder->SetDistancePerPulse(Y_ODOMETRY_INCHES_PER_PULSE);
 
 	robot_drive = new RobotDrive(front_left_motor, rear_left_motor, front_right_motor, rear_right_motor);
-	// set to true is this is the software bot
+
+	// set to true if this is the software bot
 	real_orientation = true;
 	useRealOrientation(real_orientation);
-	//if (false) {
-	//	robot_drive->SetInvertedMotor(RobotDrive::kFrontRightMotor, true);
-	//	robot_drive->SetInvertedMotor(RobotDrive::kRearRightMotor, true);
-	//}
-	//else {
-	//	robot_drive->SetInvertedMotor(RobotDrive::kFrontLeftMotor, true);
-	//	robot_drive->SetInvertedMotor(RobotDrive::kRearLeftMotor, true);
-	//}
+
+	//SET THIS to the opposite of what you really want
+	using_closed_loop = true;
+	//DONT SET THIS
+	useClosedLoop(!using_closed_loop);
+
 	robot_drive->SetSafetyEnabled(false);
 	x_direction = 0;
 	y_direction = 0;
@@ -87,16 +90,14 @@ void Mobility::process()
 	float max_rate = 345.0f;
 	float min_rot_speed = 0.2;
 	float max_rot_speed = 0.75;
-	//rear_left_motor->Set(0.0);
-	//rear_right_motor->Set(0.0);
-	//front_left_motor->Set(0.0);
-	//front_right_motor->Set(0.0);
 
 	// spam the logs...
 	log->write(Log::TRACE_LEVEL, "%s\tfront left encoder: %i\n", Utils::getCurrentTime(), front_left_motor->GetEncPosition());
 	log->write(Log::TRACE_LEVEL, "%s\tfront right encoder: %i\n", Utils::getCurrentTime(), front_right_motor->GetEncPosition());
 	log->write(Log::TRACE_LEVEL, "%s\trear left encoder: %i\n", Utils::getCurrentTime(), rear_left_motor->GetEncPosition());
 	log->write(Log::TRACE_LEVEL, "%s\trear right encoder: %i\n", Utils::getCurrentTime(), rear_right_motor->GetEncPosition());
+	log->write(Log::INFO_LEVEL, "P: %.1f I: %.3f D: %.1f Izone: %d Error: %d\n", rear_left_motor->GetP(), rear_left_motor->GetI(),
+			rear_left_motor->GetD(), rear_left_motor->GetIzone(), rear_left_motor->GetClosedLoopError());
 
 	if(rotating_degrees)
 	{
@@ -226,11 +227,70 @@ void Mobility::useRealOrientation(bool real)
 
 void Mobility::flipOrientation()
 {
-	if (real_orientation) {
-		useRealOrientation(false);
-	}
-	else {
-		useRealOrientation(true);
+	useRealOrientation(!real_orientation);
+}
+
+void Mobility::useClosedLoop(bool use)
+{
+	// don't want to have to worry about unnecessary talon down time from switching configuration
+	if (use != using_closed_loop) {
+		using_closed_loop = use;
+		if (use) {
+			log->write(Log::INFO_LEVEL, "Closed Loop\n");
+			front_left_motor->SetPID(P_VALUE, I_VALUE, D_VALUE);
+			front_left_motor->Set(0.0f);
+			front_left_motor->SetControlMode(CANTalon::kSpeed);
+			front_left_motor->Set(0.0f);
+
+			front_right_motor->SetPID(P_VALUE, I_VALUE, D_VALUE);
+			front_right_motor->Set(0.0f);
+			front_right_motor->SetControlMode(CANTalon::kSpeed);
+			front_right_motor->Set(0.0f);
+
+			rear_left_motor->SetPID(P_VALUE, I_VALUE, D_VALUE);
+			rear_left_motor->Set(0.0f);
+			rear_left_motor->SetControlMode(CANTalon::kSpeed);
+			rear_left_motor->Set(0.0f);
+
+			rear_right_motor->SetPID(P_VALUE, I_VALUE, D_VALUE);
+			rear_right_motor->Set(0.0f);
+			rear_right_motor->SetControlMode(CANTalon::kSpeed);
+			rear_right_motor->Set(0.0f);
+
+			robot_drive->SetMaxOutput(MAX_VELOCITY);
+//			rear_left_motor->Set(205);
+//			rear_right_motor->Set(-0.2 * MAX_VELOCITY);
+//			front_left_motor->Set(0.2 * MAX_VELOCITY);
+//			front_right_motor->Set(-0.2 * MAX_VELOCITY);
+		}
+		else {
+			log->write(Log::INFO_LEVEL, "Open Loop\n");
+			front_left_motor->SetPID(0.0, 0.0, 0.0);
+			front_left_motor->Set(0.0f);
+			front_left_motor->SetControlMode(CANTalon::kPercentVbus);
+			front_left_motor->Set(0.0f);
+
+			front_right_motor->SetPID(0.0, 0.0, 0.0);
+			front_right_motor->Set(0.0f);
+			front_right_motor->SetControlMode(CANTalon::kPercentVbus);
+			front_right_motor->Set(0.0f);
+
+			rear_left_motor->SetPID(0.0, 0.0, 0.0);
+			rear_left_motor->Set(0.0f);
+			rear_left_motor->SetControlMode(CANTalon::kPercentVbus);
+			rear_left_motor->Set(0.0f);
+
+			rear_right_motor->SetPID(0.0, 0.0, 0.0);
+			rear_right_motor->Set(0.0f);
+			rear_right_motor->SetControlMode(CANTalon::kPercentVbus);
+			rear_right_motor->Set(0.0f);
+
+			robot_drive->SetMaxOutput(1.0);
+//			rear_left_motor->Set(0.2);
+//			rear_right_motor->Set(-0.2);
+//			front_left_motor->Set(0.2);
+//			front_right_motor->Set(-0.2);
+		}
 	}
 }
 

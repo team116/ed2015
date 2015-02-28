@@ -87,10 +87,10 @@ public:
     	mobility->process();
     	manipulator->process();
 
-    	log ->write(Log::INFO_LEVEL, "AccelX: %i\n");
-    	log ->write(Log::INFO_LEVEL, "AccelY: %i\n");
-		log ->write(Log::INFO_LEVEL, "AccelX: %i\n");
-    	log -> write(Log::INFO_LEVEL, "Compass Yaw: %f\n");
+    	log ->write(Log::TRACE_LEVEL, "AccelX: %i\n");
+    	log ->write(Log::TRACE_LEVEL, "AccelY: %i\n");
+		log ->write(Log::TRACE_LEVEL, "AccelX: %i\n");
+    	log -> write(Log::TRACE_LEVEL, "Compass Yaw: %f\n");
     }
 
 	void TestPeriodic()

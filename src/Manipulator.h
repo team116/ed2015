@@ -125,9 +125,10 @@ private:
 	DigitalInput* port_rake_limit;
 	DigitalInput* starboard_rake_limit;*/
 
-	static float P_VALUE;
-	static float I_VALUE;
-	static float D_VALUE;
+	static const float P;
+	static const float I;
+	static const float D;
+	static const unsigned int IZone;
 	//AnalogPotentiometer* potentiometer;	//TODO: rewrite potentiometer to go through Talon
 	static const int PULSE_PER_REV;
 	static const float INCH_PER_REV;
@@ -151,7 +152,9 @@ private:
 
 	// timers
 	Timer* flap_timer;
-	static const float FLAP_TIMEOUT;
+	static const float FLAP_LOW_TO_MID_TIMEOUT;
+	static const float FLAP_HIGH_TO_MID_TIMEOUT;
+	static const float FLAP_LOW_TO_HIGH_TIMEOUT;
 	Timer* rake_timer;
 	static const float RAKE_TIMEOUT_LOW_TO_MID;
 	static const float RAKE_TIMEOUT_LOW_TO_HIGH;
@@ -182,6 +185,7 @@ private:
 	rake_positions rake_pos_prev;
 	flap_directions flap_state;
 	flap_positions flap_pos;
+	flap_positions flap_pos_prev;
 	wheel_directions wheel_state;
 
 	// stores potentiometer values for the diff. positions for the flaps
