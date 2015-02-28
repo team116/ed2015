@@ -39,12 +39,25 @@ namespace RobotPorts
 	const unsigned int ODOMETRY_WHEEL_Y_A = 2;
 	const unsigned int ODOMETRY_WHEEL_Y_B = 3;
 
-	//PWM
+	// PWM
 	const unsigned int LEFT_TREX_ARM = 0;
 	const unsigned int RIGHT_TREX_ARM = 1;
 	const unsigned int LEFT_RAKE_STABILIZER = 2;
 	const unsigned int RIGHT_RAKE_STABILIZER = 3;
 	//const unsigned int
+
+	// I2C, everything in hex cuz why the hell not
+	const unsigned int GYRO_ADDRESS = 0x68;
+	const unsigned int GYRO_REG_MXSB = 0xD1;
+	const unsigned int GYRO_REG_DLPF_FS = 0x16;
+	const unsigned int GYRO_REG_FULLSCALE = 0x18;
+	const unsigned int GYRO_REG_42HZ = 0x03;
+
+	const unsigned int COMPASS_ADDRESS = 0x1E;
+	const unsigned int COMPASS_REG_MEASURE_MODE = 0x02;
+	const unsigned int COMPASS_REG_XMSB = 0x03;
+
+	const unsigned int ACCEL_ADDRESS = 0x53;
 }
 
 namespace DSPorts
