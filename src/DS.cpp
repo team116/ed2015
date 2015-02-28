@@ -4,7 +4,7 @@
 #include "Mobility.h"
 #include "Manipulator.h"
 #include "Log.h"
-#include <CameraServer.h>
+#include "CameraFeeds.h"
 #include <cmath>
 DS* DS::INSTANCE = NULL;
 
@@ -18,10 +18,10 @@ DS::DS() {
 	output_board = Joystick::GetStickForPort(DSPorts::OUTPUT_BOARD);
 	input_board = Joystick::GetStickForPort(DSPorts::INPUT_BOARD);
 
-	server = CameraServer::GetInstance();
-	server->SetQuality(10);
-	frameFrontCam = imaqCreateImage(IMAQ_IMAGE_RGB, 0);
-	frameBackCam = imaqCreateImage(IMAQ_IMAGE_RGB, 0);
+	camera_feeds = new CameraFeeds(input_board);
+	// for testing purposes
+	//camera_feeds =  new CameraFeeds(main_joystick);
+	camera_feeds->init();
 
 	on_step = false;
 	override = false;
@@ -37,6 +37,7 @@ DS::DS() {
 	frontCamSelect = false;
 	backCamSelect = true;
 	toggle_rotation = false;
+	toggle_cardinal = false;
 
 	output_board->SetOutputs(0);
 
@@ -52,7 +53,8 @@ void DS::process() {
 	processMobility();
 	processManipulator();
 	processLEDS();
-	processCameras();
+	//processCameras();
+	camera_feeds->run();
 
 }
 
@@ -60,6 +62,7 @@ void DS::processMobility() {
 	// secondary driver has overridden so that they can control movement
 	// we might just remove this because the override button is a dumb idea
 	toggle_rotation = secondary_joystick->GetRawButton(JoystickPorts::TOGGLE_ROTATION);
+	toggle_cardinal = secondary_joystick->GetRawButton(JoystickPorts::CARDINAL_DIRECTION);
 	if (override) {
 		log->write(Log::TRACE_LEVEL, "%s\tIn override mode\n", Utils::getCurrentTime());
 		float x = secondary_joystick->GetX(), y = secondary_joystick->GetY(),
@@ -92,12 +95,21 @@ void DS::processMobility() {
 		}
 
 		toggle_rotation = main_joystick->GetRawButton(JoystickPorts::TOGGLE_ROTATION);
+		toggle_cardinal = main_joystick->GetRawButton(JoystickPorts::CARDINAL_DIRECTION);
 		float x = main_joystick->GetX(), y = main_joystick->GetY(),
 				t = main_joystick->GetRawAxis(2);
 		// shaping and deadzones
 		x = fabs(x) < 0.1 ? 0 : x * fabs(x);
 		y = fabs(y) < 0.1 ? 0 : y * fabs(y);
 		t = fabs(t) < 0.1 ? 0 : t * fabs(t);
+		if(toggle_cardinal) {
+			if(fabs(x) > fabs(y)) {
+				y = 0.0;
+			}
+			else if(fabs(y) > fabs(x)) {
+				x = 0.0;
+			}
+		}
 		mobility->setDirection(x, y);
 		// the rotation is really fast, halve the speed
 		if (toggle_rotation) {
@@ -223,8 +235,9 @@ void DS::processManipulator() {
 		}
 
 		float t = secondary_joystick->GetTwist();
-		t = fabs(t) < 0.1 ? 0 : t * fabs(t);
-		manipulator->spinTote(t);
+		if(fabs(t) > .15){
+			manipulator->spinTote(t*fabs(t));
+		}
 	}
 }
 
@@ -329,8 +342,9 @@ void DS::doLevelLEDS(int level) {
 		break;
 	}
 }
-
+/*
 void DS::processCameras() {
+
 	 if (input_board->GetRawButton(InputBoardPorts::CAMERA_SELECT_SWITCH)) {
 	 	 frontCamSelect = false;
 	 	 backCamSelect = true;
@@ -339,11 +353,11 @@ void DS::processCameras() {
 	 	 frontCamSelect = true;
 	 	 backCamSelect = false;
 	 }
-	/*if (main_joystick->GetRawButton(JoystickPorts::TEMP_CAMERA_TOGGLE_TEST)) {
+	if (main_joystick->GetRawButton(JoystickPorts::TEMP_CAMERA_TOGGLE_TEST)) {
 		log->write(Log::INFO_LEVEL, "Swapped cameras at %s\n", Utils::getCurrentTime());
 		frontCamSelect = !frontCamSelect;
 		backCamSelect = !backCamSelect;
-	}*/
+	}
 
 	if (frontCamSelect || frontCamLatched) {
 		if (backCamLatched) {
@@ -398,7 +412,6 @@ void DS::processCameras() {
 		backCamLatched = true;
 	}
 }
-
 bool DS::StartCamera(int cameraNum) {
 	if (cameraNum == 0) {
 		log->write(Log::INFO_LEVEL, "Starting cam 0");
@@ -461,6 +474,7 @@ bool DS::StopCamera(int cameraNum) {
 
 	return true;
 }
+*/
 
 DS* DS::getInstance() {
 	if (INSTANCE == NULL) {
