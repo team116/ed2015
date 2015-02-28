@@ -37,6 +37,7 @@ DS::DS() {
 	frontCamSelect = false;
 	backCamSelect = true;
 	toggle_rotation = false;
+	toggle_cardinal = false;
 
 	output_board->SetOutputs(0);
 
@@ -52,7 +53,7 @@ void DS::process() {
 	processMobility();
 	processManipulator();
 	processLEDS();
-	processCameras();
+	//processCameras();
 
 }
 
@@ -60,6 +61,7 @@ void DS::processMobility() {
 	// secondary driver has overridden so that they can control movement
 	// we might just remove this because the override button is a dumb idea
 	toggle_rotation = secondary_joystick->GetRawButton(JoystickPorts::TOGGLE_ROTATION);
+	toggle_cardinal = secondary_joystick->GetRawButton(JoystickPorts::CARDINAL_DIRECTION);
 	if (override) {
 		log->write(Log::TRACE_LEVEL, "%s\tIn override mode\n", Utils::getCurrentTime());
 		float x = secondary_joystick->GetX(), y = secondary_joystick->GetY(),
@@ -92,12 +94,21 @@ void DS::processMobility() {
 		}
 
 		toggle_rotation = main_joystick->GetRawButton(JoystickPorts::TOGGLE_ROTATION);
+		toggle_cardinal = main_joystick->GetRawButton(JoystickPorts::CARDINAL_DIRECTION);
 		float x = main_joystick->GetX(), y = main_joystick->GetY(),
 				t = main_joystick->GetRawAxis(2);
 		// shaping and deadzones
 		x = fabs(x) < 0.1 ? 0 : x * fabs(x);
 		y = fabs(y) < 0.1 ? 0 : y * fabs(y);
 		t = fabs(t) < 0.1 ? 0 : t * fabs(t);
+		if(toggle_cardinal) {
+			if(fabs(x) > fabs(y)) {
+				y = 0.0;
+			}
+			else if(fabs(y) > fabs(x)) {
+				x = 0.0;
+			}
+		}
 		mobility->setDirection(x, y);
 		// the rotation is really fast, halve the speed
 		if (toggle_rotation) {

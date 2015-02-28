@@ -47,6 +47,11 @@ double I2CCompass::PIDGet()
 	return 0.0;
 }
 
+float I2CCompass::getYaw()
+{
+	return yaw;
+}
+
 I2CCompass* I2CCompass::getInstance()
 {
 	if (INSTANCE == NULL) {

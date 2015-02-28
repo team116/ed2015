@@ -6,6 +6,8 @@
 #include <CANTalon.h>
 #include <CANSpeedController.h>
 #include "Log.h"
+#include "I2CCompass.h"
+#include <BuiltInAccelerometer.h>
 
 using namespace std;
 
@@ -57,6 +59,10 @@ Mobility::Mobility()
 	odometry_wheel_x_encoder->SetDistancePerPulse(X_ODOMETRY_INCHES_PER_PULSE);
 	odometry_wheel_y_encoder->SetDistancePerPulse(Y_ODOMETRY_INCHES_PER_PULSE);
 
+	compass = I2CCompass::getInstance();
+
+	accel = new BuiltInAccelerometer(BuiltInAccelerometer::kRange_4G);
+
 	robot_drive = new RobotDrive(front_left_motor, rear_left_motor, front_right_motor, rear_right_motor);
 
 	// set to true if this is the software bot
@@ -91,6 +97,8 @@ void Mobility::process()
 	float min_rot_speed = 0.2;
 	float max_rot_speed = 0.75;
 
+	log->write(Log::INFO_LEVEL, "Compass: %f\n", compass->getYaw());
+	log->write(Log::INFO_LEVEL, "Accel X: %f Y: %f Z: %f\n", accel->GetX(), accel->GetY(), accel->GetZ());
 	// spam the logs...
 	log->write(Log::TRACE_LEVEL, "%s\tfront left encoder: %i\n", Utils::getCurrentTime(), front_left_motor->GetEncPosition());
 	log->write(Log::TRACE_LEVEL, "%s\tfront right encoder: %i\n", Utils::getCurrentTime(), front_right_motor->GetEncPosition());
@@ -141,7 +149,7 @@ void Mobility::setRotationSpeed(float rotation_)//-1.0 through 1.0
 
 void Mobility::toggleFieldCentric()
 {
-	log->write(Log::INFO_LEVEL, "%s\tToggling field centric\n", Utils::getCurrentTime());
+	log->write(Log::TRACE_LEVEL, "%s\tToggling field centric\n", Utils::getCurrentTime());
 	field_centric = !field_centric;
 }
 
@@ -236,7 +244,7 @@ void Mobility::useClosedLoop(bool use)
 	if (use != using_closed_loop) {
 		using_closed_loop = use;
 		if (use) {
-			log->write(Log::INFO_LEVEL, "Closed Loop\n");
+			log->write(Log::TRACE_LEVEL, "Closed Loop\n");
 			front_left_motor->SetPID(P_VALUE, I_VALUE, D_VALUE);
 			front_left_motor->Set(0.0f);
 			front_left_motor->SetControlMode(CANTalon::kSpeed);
@@ -264,7 +272,7 @@ void Mobility::useClosedLoop(bool use)
 //			front_right_motor->Set(-0.2 * MAX_VELOCITY);
 		}
 		else {
-			log->write(Log::INFO_LEVEL, "Open Loop\n");
+			log->write(Log::TRACE_LEVEL, "Open Loop\n");
 			front_left_motor->SetPID(0.0, 0.0, 0.0);
 			front_left_motor->Set(0.0f);
 			front_left_motor->SetControlMode(CANTalon::kPercentVbus);
