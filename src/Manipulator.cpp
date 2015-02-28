@@ -61,13 +61,15 @@ Manipulator::Manipulator() {
 	lifter_one = new CANTalon(RobotPorts::LIFTER_ONE);
 	lifter_two = new CANTalon(RobotPorts::LIFTER_TWO);
 	lifter_two->SetControlMode(CANTalon::kFollower);
-	lifter_two->Set(6);
+	lifter_two->Set(RobotPorts::LIFTER_ONE);
 	//lift_upper_limit = new DigitalInput(RobotPorts::LIFT_UPPER_LIMIT);
 	//lift_lower_limit = new DigitalInput(RobotPorts::LIFT_LOWER_LIMIT);
-	lifter_one->SetControlMode(CANTalon::kPosition);
-	lifter_one->SetPID(P, I, D);
-	lifter_one->SetIzone(IZone);
+
+	//lifter_one->SetControlMode(CANTalon::kPosition);
+	//lifter_one->SetPID(P, I, D);
+	//lifter_one->SetIzone(IZone);
 	lifter_one->SetFeedbackDevice(CANTalon::QuadEncoder);
+
 	//TODO: figure out what this means: "When using quadrature, each unit is a quadrature edge (4X) mode."
 	lifter_one->ConfigEncoderCodesPerRev(INCH_PER_REV / PULSE_PER_REV);	//inches per revolution / pulses per revolution = inches per pulse
 	lift_timer = new Timer();
@@ -169,34 +171,47 @@ void Manipulator::process() {
 
 	if (isInsignificantChange(current_height, target_height)) {
 		log->write(Log::TRACE_LEVEL, "%s\tChange insignificant: lift motors stopped\n", Utils::getCurrentTime());
-		double current_position = lifter_one->GetPosition();
-		lifter_one->Set(current_position);
-		lifter_two->Set(current_position);
+		/*double current_position = lifter_one->GetPosition();
+		 lifter_one->Set(current_position);*/
+		lifter_one->Set(0.0);
+		//lifter two is set to follower mode, should move by itself
+		//lifter_two->Set(current_position);
 	}
 	else {
 		if (canMoveLifter()) {
 			if (current_height < target_height) {
 				log->write(Log::TRACE_LEVEL, "%s\tMoving lift up\n", Utils::getCurrentTime());
-				double next_position = lifter_one->GetPosition() + ENCODER_INCREMENT;
-				lifter_one->Set(next_position);
-				lifter_two->Set(next_position);
+				/*double next_position = lifter_one->GetPosition() + ENCODER_INCREMENT;
+				 lifter_one->Set(next_position);*/
+				lifter_one->Set(0.5);
+				//lifter two is set to follower mode, should move by itself
+				//lifter_two->Set(next_position);
 			}
 			else {
 				log->write(Log::TRACE_LEVEL, "%s\tMoving lift down\n", Utils::getCurrentTime());
-				double next_position = lifter_one->GetPosition() - ENCODER_INCREMENT;
-				lifter_one->Set(next_position);
-				lifter_two->Set(next_position);
+				/*double next_position = lifter_one->GetPosition() - ENCODER_INCREMENT;
+				 lifter_one->Set(next_position);*/
+				lifter_one->Set(-0.5);
+				//lifter two is set to follower mode, should move by itself
+				//lifter_two->Set(next_position);
 			}
+		}
+		else {
+			log->write(Log::TRACE_LEVEL, "%s\tLift stopped\n", Utils::getCurrentTime());
+			/*double current_position = lifter_one->GetPosition();
+			 lifter_one->Set(current_position);*/
+			lifter_one->Set(0.0);
 		}
 	}
 
 	if (lifter_one->IsFwdLimitSwitchClosed() == 1) {//reset encoder to 0 every time lift hits lower limit switch
 		log->write(Log::TRACE_LEVEL, "%s\tHit bottom of lift: encoder set to 0\n", Utils::getCurrentTime());
-		double current_position = lifter_one->GetPosition();
-		lifter_one->Set(current_position);
+		/*double current_position = lifter_one->GetPosition();
+		 lifter_one->Set(current_position);*/
+		//TODO: reset encoder here
 	}
 
-	if (rakeMotionDone()) { 	//TODO: get real timeout period
+	if (rakeMotionDone() && DriverStation::GetInstance()->IsAutonomous()) { //TODO: get real timeout period
 		log->write(Log::TRACE_LEVEL, "%s\tRake finished moving\n", Utils::getCurrentTime());
 		rake_port->Set(0.0);
 		rake_starboard->Set(0.0);
@@ -207,14 +222,16 @@ void Manipulator::process() {
 }
 
 bool Manipulator::canMoveLifter() {
-	if (lift_timer->HasPeriodPassed(lifter_timeout)) {
+	if (lift_timer->Get() >=(lifter_timeout)) {
 		log->write(Log::TRACE_LEVEL, "%s\tLifter has timed out\n", Utils::getCurrentTime());
+		lift_timer->Stop();
+		return false;
 	}
-	if (current_height < target_height) {
-		return (lifter_one->IsFwdLimitSwitchClosed() != 1 || !using_limits) && !lift_timer->HasPeriodPassed(lifter_timeout);
+	else if (current_height < target_height) {
+		return (lifter_one->IsFwdLimitSwitchClosed() != 1 || !using_limits);
 	}
 	else {
-		return (lifter_one->IsRevLimitSwitchClosed() != 1 || !using_limits) && !lift_timer->HasPeriodPassed(lifter_timeout);
+		return (lifter_one->IsRevLimitSwitchClosed() != 1 || !using_limits);
 	}
 }
 
@@ -226,15 +243,15 @@ bool Manipulator::flapMotionDone() {	//TODO: add timeouts to flap positions
 				case FLAP_LOW:
 					return (fabs(posi - FLAP_ANGLE_LOW) < FLAP_RANGE);
 				case FLAP_MID:
-					if (flap_timer->HasPeriodPassed(FLAP_LOW_TO_MID_TIMEOUT)) {
+					if (flap_timer->Get() >= (FLAP_LOW_TO_MID_TIMEOUT)) {
 						log->write(Log::TRACE_LEVEL, "%s\tLow-to-mid flap motion has timed out.\n", Utils::getCurrentTime());
 					}
-					return (fabs(posi - FLAP_ANGLE_LOW) < FLAP_RANGE) || flap_timer->HasPeriodPassed(FLAP_LOW_TO_MID_TIMEOUT);
+					return (fabs(posi - FLAP_ANGLE_LOW) < FLAP_RANGE) || flap_timer->Get() >= (FLAP_LOW_TO_MID_TIMEOUT);
 				case FLAP_HIGH:
-					if (flap_timer->HasPeriodPassed(FLAP_LOW_TO_HIGH_TIMEOUT)) {
+					if (flap_timer->Get() >= (FLAP_LOW_TO_HIGH_TIMEOUT)) {
 						log->write(Log::TRACE_LEVEL, "%s\tLow-to-high flap motion has timed out.\n", Utils::getCurrentTime());
 					}
-					return (fabs(posi - FLAP_ANGLE_LOW) < FLAP_RANGE) || flap_timer->HasPeriodPassed(FLAP_LOW_TO_HIGH_TIMEOUT);
+					return (fabs(posi - FLAP_ANGLE_LOW) < FLAP_RANGE) || flap_timer->Get() >= (FLAP_LOW_TO_HIGH_TIMEOUT);
 				default:
 					return false;
 			}
@@ -242,17 +259,17 @@ bool Manipulator::flapMotionDone() {	//TODO: add timeouts to flap positions
 		case FLAP_MID:
 			switch (flap_pos_prev) {
 				case FLAP_LOW:
-					if (flap_timer->HasPeriodPassed(FLAP_LOW_TO_MID_TIMEOUT)) {
+					if (flap_timer->Get() >= (FLAP_LOW_TO_MID_TIMEOUT)) {
 						log->write(Log::TRACE_LEVEL, "%s\tLow-to-mid flap motion has timed out.\n", Utils::getCurrentTime());
 					}
-					return (fabs(posi - FLAP_ANGLE_MID) < FLAP_RANGE) || flap_timer->HasPeriodPassed(FLAP_LOW_TO_MID_TIMEOUT);
+					return (fabs(posi - FLAP_ANGLE_MID) < FLAP_RANGE) || flap_timer->Get() >= (FLAP_LOW_TO_MID_TIMEOUT);
 				case FLAP_MID:
 					return (fabs(posi - FLAP_ANGLE_MID) < FLAP_RANGE);
 				case FLAP_HIGH:
-					if (flap_timer->HasPeriodPassed(FLAP_HIGH_TO_MID_TIMEOUT)) {
+					if (flap_timer->Get() >= (FLAP_HIGH_TO_MID_TIMEOUT)) {
 						log->write(Log::TRACE_LEVEL, "%s\tHigh-to-mid flap motion has timed out.\n", Utils::getCurrentTime());
 					}
-					return (fabs(posi - FLAP_ANGLE_MID) < FLAP_RANGE) || flap_timer->HasPeriodPassed(FLAP_HIGH_TO_MID_TIMEOUT);
+					return (fabs(posi - FLAP_ANGLE_MID) < FLAP_RANGE) || flap_timer->Get() >= (FLAP_HIGH_TO_MID_TIMEOUT);
 				default:
 					return false;
 			}
@@ -260,15 +277,15 @@ bool Manipulator::flapMotionDone() {	//TODO: add timeouts to flap positions
 		case FLAP_HIGH:
 			switch (flap_pos_prev) {
 				case FLAP_LOW:
-					if (flap_timer->HasPeriodPassed(FLAP_LOW_TO_HIGH_TIMEOUT)) {
+					if (flap_timer->Get() >= (FLAP_LOW_TO_HIGH_TIMEOUT)) {
 						log->write(Log::TRACE_LEVEL, "%s\tLow-to-high flap motion has timed out.\n", Utils::getCurrentTime());
 					}
-					return (fabs(posi - FLAP_ANGLE_HIGH) < FLAP_RANGE) || flap_timer->HasPeriodPassed(FLAP_LOW_TO_HIGH_TIMEOUT);
+					return (fabs(posi - FLAP_ANGLE_HIGH) < FLAP_RANGE) || flap_timer->Get() >= (FLAP_LOW_TO_HIGH_TIMEOUT);
 				case FLAP_MID:
-					if (flap_timer->HasPeriodPassed(FLAP_HIGH_TO_MID_TIMEOUT)) {
+					if (flap_timer->Get() >= (FLAP_HIGH_TO_MID_TIMEOUT)) {
 						log->write(Log::TRACE_LEVEL, "%s\tLow-to-mid flap motion has timed out.\n", Utils::getCurrentTime());
 					}
-					return (fabs(posi - FLAP_ANGLE_HIGH) < FLAP_RANGE) || flap_timer->HasPeriodPassed(FLAP_HIGH_TO_MID_TIMEOUT);
+					return (fabs(posi - FLAP_ANGLE_HIGH) < FLAP_RANGE) || flap_timer->Get() >= (FLAP_HIGH_TO_MID_TIMEOUT);
 				case FLAP_HIGH:
 					return (fabs(posi - FLAP_ANGLE_HIGH) < FLAP_RANGE);
 				default:
@@ -282,7 +299,7 @@ bool Manipulator::flapMotionDone() {	//TODO: add timeouts to flap positions
 }
 
 bool Manipulator::rakeMotionDone() {	//only for use of presets during atonomous
-//return rake_direction == RAKE_LIFTING && ((port_rake_limit->Get() && using_limits) || rake_timer->HasPeriodPassed(RAKE_TIMEOUT));
+//return rake_direction == RAKE_LIFTING && ((port_rake_limit->Get() && using_limits) || rake_timer->Get() >= (RAKE_TIMEOUT));
 	switch (rake_pos) {
 		case RAKE_LOW:
 			switch (rake_pos_prev) {
@@ -292,7 +309,7 @@ bool Manipulator::rakeMotionDone() {	//only for use of presets during atonomous
 					return true;
 					break;
 				case RAKE_MID:
-					if (rake_timer->HasPeriodPassed(RAKE_TIMEOUT_LOW_TO_MID)) {
+					if (rake_timer->Get() >= (RAKE_TIMEOUT_LOW_TO_MID)) {
 						log->write(Log::TRACE_LEVEL, "%s\tLow-to-mid rake timer finished\n", Utils::getCurrentTime());
 						rake_timer->Start();
 						rake_timer->Reset();
@@ -300,7 +317,7 @@ bool Manipulator::rakeMotionDone() {	//only for use of presets during atonomous
 					}
 					break;
 				case RAKE_HIGH:
-					if (rake_timer->HasPeriodPassed(RAKE_TIMEOUT_LOW_TO_HIGH) || rake_port->IsFwdLimitSwitchClosed() == 1) {
+					if (rake_timer->Get() >= (RAKE_TIMEOUT_LOW_TO_HIGH) || rake_port->IsFwdLimitSwitchClosed() == 1) {
 						log->write(Log::TRACE_LEVEL, "%s\tLow-to-high rake timer finished\n", Utils::getCurrentTime());
 						rake_timer->Start();
 						rake_timer->Reset();
@@ -312,7 +329,7 @@ bool Manipulator::rakeMotionDone() {	//only for use of presets during atonomous
 		case RAKE_MID:
 			switch (rake_pos_prev) {
 				case RAKE_LOW:
-					if (rake_timer->HasPeriodPassed(RAKE_TIMEOUT_LOW_TO_MID)) {
+					if (rake_timer->Get() >= (RAKE_TIMEOUT_LOW_TO_MID)) {
 						log->write(Log::TRACE_LEVEL, "%s\tLow-to-mid rake timer finished\n", Utils::getCurrentTime());
 						rake_timer->Start();
 						rake_timer->Reset();
@@ -325,7 +342,7 @@ bool Manipulator::rakeMotionDone() {	//only for use of presets during atonomous
 					return true;
 					break;
 				case RAKE_HIGH:
-					if (rake_timer->HasPeriodPassed(RAKE_TIMEOUT_MID_TO_HIGH) || rake_port->IsFwdLimitSwitchClosed() == 1) {
+					if (rake_timer->Get() >= (RAKE_TIMEOUT_MID_TO_HIGH) || rake_port->IsFwdLimitSwitchClosed() == 1) {
 						log->write(Log::TRACE_LEVEL, "%s\tMid-to-high rake timer finished\n", Utils::getCurrentTime());
 						rake_timer->Start();
 						rake_timer->Reset();
@@ -337,7 +354,7 @@ bool Manipulator::rakeMotionDone() {	//only for use of presets during atonomous
 		case RAKE_HIGH:
 			switch (rake_pos_prev) {
 				case RAKE_LOW:
-					if (rake_timer->HasPeriodPassed(RAKE_TIMEOUT_LOW_TO_HIGH)) {
+					if (rake_timer->Get() >= (RAKE_TIMEOUT_LOW_TO_HIGH)) {
 						log->write(Log::TRACE_LEVEL, "%s\tLow-to-high rake timer finished\n", Utils::getCurrentTime());
 						rake_timer->Start();
 						rake_timer->Reset();
@@ -345,7 +362,7 @@ bool Manipulator::rakeMotionDone() {	//only for use of presets during atonomous
 					}
 					break;
 				case RAKE_MID:
-					if (rake_timer->HasPeriodPassed(RAKE_TIMEOUT_MID_TO_HIGH)) {
+					if (rake_timer->Get() >= (RAKE_TIMEOUT_MID_TO_HIGH)) {
 						log->write(Log::TRACE_LEVEL, "%s\tMid-to-high rake timer finished\n", Utils::getCurrentTime());
 						rake_timer->Start();
 						rake_timer->Reset();
@@ -364,7 +381,7 @@ bool Manipulator::rakeMotionDone() {	//only for use of presets during atonomous
 }
 
 bool Manipulator::pushToteDone() {
-	if (wheel_timer->HasPeriodPassed(WHEEL_TIMEOUT)) {
+	if (wheel_timer->Get() >= (WHEEL_TIMEOUT)) {
 		log->write(Log::TRACE_LEVEL, "%s\tPush tote timeout passed\n", Utils::getCurrentTime());
 		return wheel_state == WHEELS_PUSHING;
 	}
@@ -372,11 +389,11 @@ bool Manipulator::pushToteDone() {
 }
 
 bool Manipulator::pullToteDone() {
-	if (wheel_timer->HasPeriodPassed(WHEEL_TIMEOUT)) {
-			log->write(Log::TRACE_LEVEL, "%s\tPull tote timeout passed\n", Utils::getCurrentTime());
-			return wheel_state == WHEELS_PULLING;
-		}
-		return false;
+	if (wheel_timer->Get() >= (WHEEL_TIMEOUT)) {
+		log->write(Log::TRACE_LEVEL, "%s\tPull tote timeout passed\n", Utils::getCurrentTime());
+		return wheel_state == WHEELS_PULLING;
+	}
+	return false;
 }
 
 void Manipulator::pullTote() {
@@ -425,8 +442,8 @@ void Manipulator::setTargetLevel(int level) {
 	int new_target = level * TOTE_HEIGHT + surface;	//surface = height of surface on which we are trying to stack totes ((private variable))
 	if (abs(current_height - new_target) < abs(current_height - target_height) || current_height == target_height) {//in case of button mash, go to whichever instruction is closest to current position
 		target_height = new_target;
-		log->write(Log::TRACE_LEVEL, "%s\tSet lifter preset to %i\n", Utils::getCurrentTime(), level);
 		lifter_timeout = (float) ((target_height - current_height) / TOTE_HEIGHT) * LEVEL_TIMEOUT;
+		log->write(Log::TRACE_LEVEL, "%s\tSet lifter preset to %i, timeout is now %f\n", Utils::getCurrentTime(), level, lifter_timeout);
 		lift_timer->Start();
 		lift_timer->Reset();
 	}
@@ -491,23 +508,27 @@ void Manipulator::honorLimits(bool to_use_or_not_to_use) {
 void Manipulator::liftLifters(lifter_directions direction) {
 	if (direction == MOVING_UP && (lifter_one->IsFwdLimitSwitchClosed() != 1 || !using_limits)) {
 		log->write(Log::TRACE_LEVEL, "%s\tLift moving up\n", Utils::getCurrentTime());
-		double next_position = lifter_one->GetPosition() + ENCODER_INCREMENT;
-		lifter_one->Set(next_position);
-		lifter_two->Set(next_position);
+		/*double next_position = lifter_one->GetPosition() + ENCODER_INCREMENT;
+		 lifter_one->Set(next_position);*/
+		lifter_one->Set(0.5);
+		//lifter two is set to follower mode, should move by itself
+		//lifter_two->Set(next_position);
 	}
 
 	else if (direction == MOVING_DOWN && (lifter_one->IsRevLimitSwitchClosed() != 1 || !using_limits)) {
 		log->write(Log::TRACE_LEVEL, "%s\tLift moving down\n", Utils::getCurrentTime());
-		double next_position = lifter_one->GetPosition() - ENCODER_INCREMENT;
-		lifter_one->Set(next_position);
-		lifter_two->Set(next_position);
+		/*double next_position = lifter_one->GetPosition() - ENCODER_INCREMENT;
+		 lifter_one->Set(next_position);*/
+		lifter_one->Set(-0.5);
+		//lifter_two->Set(next_position);
 
 	}
 	else if (direction == NOT_MOVING) {
 		log->write(Log::TRACE_LEVEL, "%s\tLift motors stopped\n", Utils::getCurrentTime());
-		double next_position = lifter_one->GetPosition();
-		lifter_one->Set(next_position);
-		lifter_two->Set(next_position);
+		/*double next_position = lifter_one->GetPosition();
+		 lifter_one->Set(next_position);*/
+		lifter_one->Set(0.0);
+		//lifter_two->Set(next_position);
 	}
 }
 
@@ -560,6 +581,8 @@ void Manipulator::movePortRake(rake_directions direction) {
 				rake_port->Set(0.5);
 			}
 			break;
+		case RAKE_STILL:
+			rake_port->Set(0.0);
 	}
 }
 void Manipulator::moveStarboardRake(rake_directions direction) {
@@ -576,6 +599,8 @@ void Manipulator::moveStarboardRake(rake_directions direction) {
 				rake_starboard->Set(0.5);
 			}
 			break;
+		case RAKE_STILL:
+			rake_starboard->Set(0.0);
 	}
 }
 

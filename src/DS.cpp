@@ -234,8 +234,9 @@ void DS::processManipulator() {
 		}
 
 		float t = secondary_joystick->GetTwist();
-		t = fabs(t) < 0.1 ? 0 : t * fabs(t);
-		manipulator->spinTote(t);
+		if(fabs(t) > .15){
+			manipulator->spinTote(t*fabs(t));
+		}
 	}
 }
 
