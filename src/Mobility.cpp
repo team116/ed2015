@@ -7,6 +7,7 @@
 #include <CANSpeedController.h>
 #include "Log.h"
 #include "I2CCompass.h"
+#include "I2CGyro.h"
 #include <BuiltInAccelerometer.h>
 
 using namespace std;
@@ -86,27 +87,18 @@ Mobility::Mobility()
 	rotating_degrees = false;
 	ultrasonic = new AnalogInput(RobotPorts::ULTRASONIC);
 	ultrasonic->SetOversampleBits(2);
-	gyro = new Gyro(RobotPorts::GYRO);
+	//gyro = new Gyro(RobotPorts::GYRO);
+	gyro = I2CGyro::getInstance();
 }
 
 void Mobility::process()
 {
-	float angle = gyro->GetAngle();
-	float rate = gyro->GetRate();
+	float angle = gyro->getAngle();
+	float rate = gyro->getRate();
 	float min_rate = 45.0f;
 	float max_rate = 345.0f;
 	float min_rot_speed = 0.2;
 	float max_rot_speed = 0.75;
-
-	log->write(Log::INFO_LEVEL, "Compass: %f\n", compass->getYaw());
-	log->write(Log::INFO_LEVEL, "Accel X: %f Y: %f Z: %f\n", accel->GetX(), accel->GetY(), accel->GetZ());
-	// spam the logs...
-	log->write(Log::TRACE_LEVEL, "%s\tfront left encoder: %i\n", Utils::getCurrentTime(), front_left_motor->GetEncPosition());
-	log->write(Log::TRACE_LEVEL, "%s\tfront right encoder: %i\n", Utils::getCurrentTime(), front_right_motor->GetEncPosition());
-	log->write(Log::TRACE_LEVEL, "%s\trear left encoder: %i\n", Utils::getCurrentTime(), rear_left_motor->GetEncPosition());
-	log->write(Log::TRACE_LEVEL, "%s\trear right encoder: %i\n", Utils::getCurrentTime(), rear_right_motor->GetEncPosition());
-	log->write(Log::INFO_LEVEL, "P: %.1f I: %.3f D: %.1f Izone: %d Error: %d\n", rear_left_motor->GetP(), rear_left_motor->GetI(),
-			rear_left_motor->GetD(), rear_left_motor->GetIzone(), rear_left_motor->GetClosedLoopError());
 
 	if(rotating_degrees)
 	{
@@ -123,7 +115,7 @@ void Mobility::process()
 		// log->write(Log::ERROR_LEVEL, "Rotate Difference: %f\n", var);
 		// log->write(Log::ERROR_LEVEL, "Rotation Speed: %f\n", rotation + var);
 		// setRotationSpeed(rotation + var);
-		accel = 0.072f * (min((target_degrees - angle) / (angle - start_degrees), 1.0f) - (gyro->GetRate() / max_rate));
+		accel = 0.072f * (min((target_degrees - angle) / (angle - start_degrees), 1.0f) - (gyro->getRate() / max_rate));
 		log->write(Log::ERROR_LEVEL, "%s\tRotation Speed: %f\n", Utils::getCurrentTime(), rotation);
 		log->write(Log::ERROR_LEVEL, "%s\tRotation Difference: %f\n", Utils::getCurrentTime(), accel);
 		// setRotationSpeed((float)rotate_direction * max(min(rotation + accel, max_rot_speed), min_rot_speed));
@@ -183,7 +175,7 @@ float Mobility::getUltrasonicDistance()
 
 void Mobility::setRotationDegrees(int degrees)
 {
-	start_degrees = gyro->GetAngle();
+	start_degrees = gyro->getAngle();
 	rotate_direction = 0;
 	if (degrees > 0) {
 		rotate_direction = 1;
