@@ -13,7 +13,6 @@ class Manipulator
 {
 public:
 	Manipulator();
-	virtual ~Manipulator();
 
 	static Manipulator* getInstance();
 	Mobility* mobility;
@@ -23,7 +22,7 @@ public:
 	{
 		MOVING_UP,
 		MOVING_DOWN,
-		NOT_MOVING,
+		NOT_MOVING
 	};
 
 	enum rake_directions
@@ -176,6 +175,7 @@ private:
 	bool canMoveLifter();
 	bool flapMotionDone();
 	bool rakeMotionDone();
+	bool hittingRakeLimits();
 	bool pushToteDone();
 	bool pullToteDone();
 
