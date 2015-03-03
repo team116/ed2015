@@ -34,6 +34,16 @@ double I2CGyro::PIDGet()
 	return 0.0;
 }
 
+float I2CGyro::getRate()
+{
+	return rate;
+}
+
+float I2CGyro::getAngle()
+{
+	return current_angle;
+}
+
 I2CGyro* I2CGyro::getInstance()
 {
 	if (INSTANCE == NULL) {

@@ -116,7 +116,6 @@ namespace InputBoardPorts
 	const unsigned int LIFTER_DOWN_BUTTON = 8;
 	const unsigned int LIFTER_UP_BUTTON = 9;
 
-	//These currently don't appear to be wired up. OI NEEDS to be contacted to figure out why
 	const unsigned int STACK_ON_PLATFORM_SWITCH = 17;
 	const unsigned int STACK_ON_STEP_SWITCH = 18;
 

@@ -8,6 +8,7 @@
 #include <Encoder.h>
 #include "Log.h"
 #include "I2CCompass.h"
+#include "I2CGyro.h"
 #include <BuiltInAccelerometer.h>
 
 class Mobility
@@ -50,7 +51,7 @@ private:
 	CANTalon* rear_right_motor;
 	RobotDrive* robot_drive;
 	AnalogInput* ultrasonic;
-	Gyro* gyro;
+	I2CGyro* gyro;
 
 	Encoder* odometry_wheel_x_encoder;
 	Encoder* odometry_wheel_y_encoder;
