@@ -83,8 +83,8 @@ Manipulator::Manipulator() {
 	//port_rake_limit = new DigitalInput(RobotPorts::PORT_RAKE_LIMIT);
 	//starboard_rake_limit = new DigitalInput(RobotPorts::STARBOARD_RAKE_LIMIT);
 	rake_timer = new Timer();
-	port_rake_direction = RAKE_STILL;
-	starboard_rake_direction = RAKE_STILL;
+	//port_rake_direction = RAKE_STILL;
+	//starboard_rake_direction = RAKE_STILL;
 	rake_pos = RAKE_HIGH;
 	rake_pos_prev = RAKE_HIGH;
 
@@ -157,7 +157,7 @@ void Manipulator::process() {
 				break;
 			case FLAP_MID:
 				if (close_flaps->GetPosition() < FLAP_ANGLE_MID) {//TODO: check to make sure orientation is correct (aka small value from potentiometer = more closed)
-					closeFlaps(Manipulator::FLAP_ANGLE_LOW);
+					closeFlaps(true);
 				}
 				else {
 					closeFlaps(true);
@@ -215,8 +215,8 @@ void Manipulator::process() {
 		log->write(Log::TRACE_LEVEL, "%s\tRake finished moving\n", Utils::getCurrentTime());
 		rake_port->Set(0.0);
 		rake_starboard->Set(0.0);
-		port_rake_direction = RAKE_STILL;
-		starboard_rake_direction = RAKE_STILL;
+		//port_rake_direction = RAKE_STILL;
+		//starboard_rake_direction = RAKE_STILL;
 		rake_pos = rake_pos_prev;
 	}
 }
@@ -540,17 +540,17 @@ void Manipulator::liftRakes(bool going_up) {
 		}
 		if (rake_starboard->IsFwdLimitSwitchClosed() != 1 && using_limits) {
 			log->write(Log::TRACE_LEVEL, "%s\tStarboard Rake moving up\n", Utils::getCurrentTime());
-			rake_starboard->Set(0.5);
+			rake_starboard->Set(-0.5);
 		}
-		port_rake_direction = RAKE_LIFTING;
-		starboard_rake_direction = RAKE_STILL;
+		//port_rake_direction = RAKE_LIFTING;
+		//starboard_rake_direction = RAKE_LIFTING;
 	}
 	else {
 		log->write(Log::TRACE_LEVEL, "%s\tRakes moving down\n", Utils::getCurrentTime());
 		rake_port->Set(-0.5);
-		rake_starboard->Set(-0.5);
-		port_rake_direction = RAKE_STILL;
-		starboard_rake_direction = RAKE_LOWERING;
+		rake_starboard->Set(0.5);
+		//port_rake_direction = RAKE_LOWERING;
+		//starboard_rake_direction = RAKE_LOWERING;
 	}
 //controls moving rakes up/down
 	rake_timer->Start();
@@ -561,23 +561,19 @@ void Manipulator::setRakePosition(rake_positions p) {
 	log->write(Log::TRACE_LEVEL, "Set rakes to position %i from position %i\n", p, rake_pos);
 	rake_pos_prev = rake_pos;
 	rake_pos = p;
-	if (rake_pos > rake_pos_prev) {
-		port_rake_direction = RAKE_STILL;
-		starboard_rake_direction = RAKE_LOWERING;
-	}
 }
 
 void Manipulator::movePortRake(rake_directions direction) {
 	switch (direction) {
 		case RAKE_LOWERING:
 			if (rake_port->IsRevLimitSwitchClosed() != 1) {
-				port_rake_direction = RAKE_LOWERING;
+				//port_rake_direction = RAKE_LOWERING;
 				rake_port->Set(-0.5);
 			}
 			break;
 		case RAKE_LIFTING:
 			if (rake_port->IsFwdLimitSwitchClosed() != 1) {
-				port_rake_direction = RAKE_LIFTING;
+				//port_rake_direction = RAKE_LIFTING;
 				rake_port->Set(0.5);
 			}
 			break;
@@ -589,14 +585,14 @@ void Manipulator::moveStarboardRake(rake_directions direction) {
 	switch (direction) {
 		case RAKE_LOWERING:
 			if (rake_starboard->IsRevLimitSwitchClosed() != 1) {
-				starboard_rake_direction = RAKE_LOWERING;
-				rake_starboard->Set(-0.5);
+				//starboard_rake_direction = RAKE_LOWERING;
+				rake_starboard->Set(0.5);
 			}
 			break;
 		case RAKE_LIFTING:
 			if (rake_starboard->IsFwdLimitSwitchClosed() != 1) {
-				starboard_rake_direction = RAKE_LIFTING;
-				rake_starboard->Set(0.5);
+				//starboard_rake_direction = RAKE_LIFTING;
+				rake_starboard->Set(-0.5);
 			}
 			break;
 		case RAKE_STILL:

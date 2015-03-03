@@ -179,8 +179,6 @@ private:
 	bool pushToteDone();
 	bool pullToteDone();
 
-	rake_directions port_rake_direction;
-	rake_directions starboard_rake_direction;
 	rake_positions rake_pos;	//note: useless during teleop, do not attempt to use!!!
 	rake_positions rake_pos_prev;
 	flap_directions flap_state;
