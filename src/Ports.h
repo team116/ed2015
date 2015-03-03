@@ -106,10 +106,10 @@ namespace InputBoardPorts
 {
 	//digital inputs
 	const unsigned int LIFTER_PRESET_0 = 1;
-	const unsigned int LIFTER_PRESET_1 = 14; //2
-	const unsigned int LIFTER_PRESET_2 = 13; //3
-	const unsigned int LIFTER_PRESET_3 = 16; //4
-	const unsigned int LIFTER_PRESET_4 = 15;//5
+	const unsigned int LIFTER_PRESET_1 = 2;
+	const unsigned int LIFTER_PRESET_2 = 3;
+	const unsigned int LIFTER_PRESET_3 = 4;
+	const unsigned int LIFTER_PRESET_4 = 5;
 	const unsigned int LIFTER_PRESET_5 = 6;
 	const unsigned int LIFTER_PRESET_6 = 7;
 
@@ -121,11 +121,12 @@ namespace InputBoardPorts
 
 	const unsigned int CAMERA_SELECT_SWITCH = 12;
 
-	const unsigned int LEFT_RAKE_UP_BUTTON = 3; //14
-	const unsigned int LEFT_RAKE_DOWN_BUTTON = 2; //13
+	const unsigned int LEFT_RAKE_DOWN_BUTTON = 13;
+	const unsigned int LEFT_RAKE_UP_BUTTON = 14;
 
-	const unsigned int RIGHT_RAKE_UP_BUTTON = 4;
-	const unsigned int RIGHT_RAKE_DOWN_BUTTON = 5;
+	const unsigned int RIGHT_RAKE_DOWN_BUTTON = 15;
+	const unsigned int RIGHT_RAKE_UP_BUTTON = 16;
+
 
 	//analog inputs
 	const unsigned int FLAP_POSITION_KNOB = 2;
