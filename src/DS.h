@@ -38,7 +38,7 @@ private:
 	Joystick* input_board;
 
 
-	bool override;
+	bool danny_override;
 	bool on_step;
 	bool drive_type;
 	bool drive_type_handled;

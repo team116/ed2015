@@ -110,10 +110,6 @@ Manipulator::Manipulator() {
 	right_rake_stabilizer = new Servo(RobotPorts::RIGHT_RAKE_STABILIZER);
 }
 
-Manipulator::~Manipulator() {
-	// TODO Auto-generated destructor stub
-}
-
 Manipulator* Manipulator::getInstance() {
 	if (INSTANCE == NULL) {
 		INSTANCE = new Manipulator();
@@ -211,18 +207,16 @@ void Manipulator::process() {
 		//TODO: reset encoder here
 	}
 
-	if (rakeMotionDone() && DriverStation::GetInstance()->IsAutonomous()) { //TODO: get real timeout period
+	if ((rakeMotionDone() && DriverStation::GetInstance()->IsAutonomous()) || hittingRakeLimits()) { //TODO: get real timeout period
 		log->write(Log::TRACE_LEVEL, "%s\tRake finished moving\n", Utils::getCurrentTime());
-		rake_port->Set(0.0);
-		rake_starboard->Set(0.0);
-		//port_rake_direction = RAKE_STILL;
-		//starboard_rake_direction = RAKE_STILL;
+		movePortRake(RAKE_STILL);
+		moveStarboardRake(RAKE_STILL);
 		rake_pos = rake_pos_prev;
 	}
 }
 
 bool Manipulator::canMoveLifter() {
-	if (lift_timer->Get() >=(lifter_timeout)) {
+	if (lift_timer->Get() >= (lifter_timeout)) {
 		log->write(Log::TRACE_LEVEL, "%s\tLifter has timed out\n", Utils::getCurrentTime());
 		lift_timer->Stop();
 		return false;
@@ -380,6 +374,22 @@ bool Manipulator::rakeMotionDone() {	//only for use of presets during atonomous
 	return false;
 }
 
+bool Manipulator::hittingRakeLimits() {
+	if (rake_port->IsFwdLimitSwitchClosed() == 1 || !using_limits) {
+		return true;
+	}
+	if (rake_port->IsRevLimitSwitchClosed() == 1 || !using_limits) {
+		return true;
+	}
+	if (rake_starboard->IsFwdLimitSwitchClosed() == 1 || !using_limits) {
+		return true;
+	}
+	if (rake_starboard->IsRevLimitSwitchClosed() == 1 || !using_limits) {
+		return true;
+	}
+	return false;
+}
+
 bool Manipulator::pushToteDone() {
 	if (wheel_timer->Get() >= (WHEEL_TIMEOUT)) {
 		log->write(Log::TRACE_LEVEL, "%s\tPush tote timeout passed\n", Utils::getCurrentTime());
@@ -532,67 +542,65 @@ void Manipulator::liftLifters(lifter_directions direction) {
 	}
 }
 
-void Manipulator::liftRakes(bool going_up) {
-	if (going_up) {
-		if (rake_port->IsFwdLimitSwitchClosed() != 1 && using_limits) {
-			log->write(Log::TRACE_LEVEL, "%s\tPort Rake moving up\n", Utils::getCurrentTime());
-			rake_port->Set(0.5);//find out from end effector whether limits are on top or on bottom
-		}
-		if (rake_starboard->IsFwdLimitSwitchClosed() != 1 && using_limits) {
-			log->write(Log::TRACE_LEVEL, "%s\tStarboard Rake moving up\n", Utils::getCurrentTime());
-			rake_starboard->Set(-0.5);
-		}
-		//port_rake_direction = RAKE_LIFTING;
-		//starboard_rake_direction = RAKE_LIFTING;
-	}
-	else {
-		log->write(Log::TRACE_LEVEL, "%s\tRakes moving down\n", Utils::getCurrentTime());
-		rake_port->Set(-0.5);
-		rake_starboard->Set(0.5);
-		//port_rake_direction = RAKE_LOWERING;
-		//starboard_rake_direction = RAKE_LOWERING;
-	}
-//controls moving rakes up/down
-	rake_timer->Start();
-	rake_timer->Reset();
-}
-
 void Manipulator::setRakePosition(rake_positions p) {
 	log->write(Log::TRACE_LEVEL, "Set rakes to position %i from position %i\n", p, rake_pos);
 	rake_pos_prev = rake_pos;
 	rake_pos = p;
 }
 
+void Manipulator::liftRakes(bool going_up) {
+	if (going_up) {
+		if (rake_port->IsFwdLimitSwitchClosed() != 1 || !using_limits) {
+			log->write(Log::TRACE_LEVEL, "%s\tPort Rake moving up\n", Utils::getCurrentTime());
+			movePortRake(RAKE_LIFTING);
+		}
+		if (rake_starboard->IsFwdLimitSwitchClosed() != 1 || !using_limits) {
+			log->write(Log::TRACE_LEVEL, "%s\tStarboard Rake moving up\n", Utils::getCurrentTime());
+			moveStarboardRake(RAKE_LIFTING);
+		}
+	}
+	else {
+		if (rake_port->IsRevLimitSwitchClosed() != 1 || !using_limits) {
+			log->write(Log::TRACE_LEVEL, "%s\tPort Rake moving down\n", Utils::getCurrentTime());
+			movePortRake(RAKE_LOWERING);
+		}
+		if (rake_starboard->IsRevLimitSwitchClosed() != 1 || !using_limits) {
+			log->write(Log::TRACE_LEVEL, "%s\tStarboard Rake moving down", Utils::getCurrentTime());
+		}
+	}
+//controls moving rakes up/down
+	rake_timer->Start();
+	rake_timer->Reset();
+}
+
 void Manipulator::movePortRake(rake_directions direction) {
 	switch (direction) {
 		case RAKE_LOWERING:
-			if (rake_port->IsRevLimitSwitchClosed() != 1) {
-				//port_rake_direction = RAKE_LOWERING;
-				rake_port->Set(-0.5);
+			if (rake_port->IsRevLimitSwitchClosed() != 1 || !using_limits) {
+				rake_port->Set(-0.15);
 			}
 			break;
 		case RAKE_LIFTING:
-			if (rake_port->IsFwdLimitSwitchClosed() != 1) {
-				//port_rake_direction = RAKE_LIFTING;
-				rake_port->Set(0.5);
+			if (rake_port->IsFwdLimitSwitchClosed() != 1 || !using_limits) {
+				rake_port->Set(0.25);
+
 			}
 			break;
 		case RAKE_STILL:
 			rake_port->Set(0.0);
 	}
 }
+
 void Manipulator::moveStarboardRake(rake_directions direction) {
 	switch (direction) {
 		case RAKE_LOWERING:
-			if (rake_starboard->IsRevLimitSwitchClosed() != 1) {
-				//starboard_rake_direction = RAKE_LOWERING;
-				rake_starboard->Set(0.5);
+			if (rake_starboard->IsRevLimitSwitchClosed() != 1 || !using_limits) {
+				rake_starboard->Set(0.15);
 			}
 			break;
 		case RAKE_LIFTING:
-			if (rake_starboard->IsFwdLimitSwitchClosed() != 1) {
-				//starboard_rake_direction = RAKE_LIFTING;
-				rake_starboard->Set(-0.5);
+			if (rake_starboard->IsFwdLimitSwitchClosed() != 1 || !using_limits) {
+				rake_starboard->Set(-0.25);
 			}
 			break;
 		case RAKE_STILL:

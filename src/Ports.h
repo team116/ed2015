@@ -5,13 +5,13 @@ namespace RobotPorts
 	// motors
 	const unsigned int FRONT_LEFT_MOTOR = 1;
 	const unsigned int FRONT_RIGHT_MOTOR = 2;
-	const unsigned int REAR_LEFT_MOTOR = 3;
+	const unsigned int REAR_LEFT_MOTOR = 8 ; //3
 	const unsigned int REAR_RIGHT_MOTOR = 4;
 	const unsigned int LEFT_WHEEL = 11;
 	const unsigned int RIGHT_WHEEL = 5;
 	const unsigned int LIFTER_ONE = 6;
 	const unsigned int LIFTER_TWO = 7;
-	const unsigned int RAKE_PORT_MOTOR = 8;
+	const unsigned int RAKE_PORT_MOTOR = 3; //8
 	const unsigned int RAKE_STARBOARD_MOTOR = 9;
 	const unsigned int CLOSE_FLAPS_MOTOR = 10;
 
@@ -106,27 +106,26 @@ namespace InputBoardPorts
 {
 	//digital inputs
 	const unsigned int LIFTER_PRESET_0 = 1;
-	const unsigned int LIFTER_PRESET_1 = 2;
-	const unsigned int LIFTER_PRESET_2 = 3;
-	const unsigned int LIFTER_PRESET_3 = 4;
-	const unsigned int LIFTER_PRESET_4 = 5;
+	const unsigned int LIFTER_PRESET_1 = 14; //2
+	const unsigned int LIFTER_PRESET_2 = 13; //3
+	const unsigned int LIFTER_PRESET_3 = 16; //4
+	const unsigned int LIFTER_PRESET_4 = 15;//5
 	const unsigned int LIFTER_PRESET_5 = 6;
 	const unsigned int LIFTER_PRESET_6 = 7;
 
 	const unsigned int LIFTER_DOWN_BUTTON = 8;
 	const unsigned int LIFTER_UP_BUTTON = 9;
 
-	//These currently don't appear to be wired up. OI NEEDS to be contacted to figure out why
 	const unsigned int STACK_ON_PLATFORM_SWITCH = 17;
 	const unsigned int STACK_ON_STEP_SWITCH = 18;
 
 	const unsigned int CAMERA_SELECT_SWITCH = 12;
 
-	const unsigned int LEFT_RAKE_UP_BUTTON = 14;
-	const unsigned int LEFT_RAKE_DOWN_BUTTON = 13;
+	const unsigned int LEFT_RAKE_UP_BUTTON = 3; //14
+	const unsigned int LEFT_RAKE_DOWN_BUTTON = 2; //13
 
-	const unsigned int RIGHT_RAKE_UP_BUTTON = 16;
-	const unsigned int RIGHT_RAKE_DOWN_BUTTON = 15;
+	const unsigned int RIGHT_RAKE_UP_BUTTON = 4;
+	const unsigned int RIGHT_RAKE_DOWN_BUTTON = 5;
 
 	//analog inputs
 	const unsigned int FLAP_POSITION_KNOB = 2;
