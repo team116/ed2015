@@ -22,6 +22,7 @@ public:
 	virtual double PIDGet();
 	float getAngle();
 	float getRate();
+	void reset();
 
 private:
 	I2CGyro();
@@ -35,6 +36,7 @@ private:
 
 	float last_angle;
 	float current_angle;
+	float offset;
 
 	float rate;
 

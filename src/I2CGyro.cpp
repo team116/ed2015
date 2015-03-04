@@ -19,6 +19,7 @@ I2CGyro::I2CGyro()
 
 	last_angle = 0.0;
 	current_angle = 0.0;
+	offset = 0.0;
 
 	rate = 0.0;
 	timer->Start();
@@ -27,6 +28,10 @@ I2CGyro::I2CGyro()
 void I2CGyro::process()
 {
 
+}
+
+void I2CGyro::reset() {
+	offset = current_angle;
 }
 
 double I2CGyro::PIDGet()
@@ -41,7 +46,7 @@ float I2CGyro::getRate()
 
 float I2CGyro::getAngle()
 {
-	return current_angle;
+	return current_angle - offset;
 }
 
 I2CGyro* I2CGyro::getInstance()
