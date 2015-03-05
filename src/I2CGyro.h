@@ -28,17 +28,26 @@ private:
 	I2CGyro();
 	static I2CGyro* INSTANCE;
 
+	enum InitStep {
+		POWER_UP = 0,
+		RANGE_AND_BANDWIDTH = 1,
+		SAMPLE_RATIO = 2,
+		PLL = 3,
+		DONE = 4
+	};
+	InitStep next_step;
+
 	I2C* channel;
 	// used to prevent heavy bus traffic
 	Timer* timer;
 
 	static const float READ_DELAY;
+	static const float CONFIG_DELAY;
+	static const unsigned int BUF_SIZE;
 
 	float last_angle;
 	float current_angle;
-	float offset;
-
-	float rate;
+	float offset = 0.0;
 
 };
 

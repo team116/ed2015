@@ -12,6 +12,10 @@
 
 I2CGyro* I2CGyro::INSTANCE = NULL;
 
+const float I2CGyro::READ_DELAY = 0.05f;
+const float I2CGyro::CONFIG_DELAY = 5.0f;
+const unsigned int I2CGyro::BUF_SIZE = 6;
+
 I2CGyro::I2CGyro()
 {
 	timer = new Timer();
@@ -21,13 +25,41 @@ I2CGyro::I2CGyro()
 	current_angle = 0.0;
 	offset = 0.0;
 
-	rate = 0.0;
+	channel->Write(RobotPorts::GYRO_REG_POWER, 0x80);
+	next_step = RANGE_AND_BANDWIDTH;
+
 	timer->Start();
+	timer->Reset();
 }
 
 void I2CGyro::process()
 {
+	if (next_step == DONE && timer->Get() > READ_DELAY) {
+		last_angle = current_angle;
 
+		unsigned char buff[BUF_SIZE];
+		channel->Read(RobotPorts::GYRO_REG_MXSB, BUF_SIZE, buff);
+		current_angle = (float)(-1 * ((((short)buff[4]) << 8) | buff[5]));
+
+		timer->Reset();
+	}
+	else if (timer->Get() > CONFIG_DELAY) {
+		switch (next_step) {
+		case RANGE_AND_BANDWIDTH:
+			channel->Write(RobotPorts::GYRO_REG_BANDWIDTH, 0x1B);
+			break;
+		case SAMPLE_RATIO:
+			channel->Write(RobotPorts::GYRO_REG_SAMPLE_RATIO, 0x0A);
+			break;
+		case PLL:
+			channel->Write(RobotPorts::GYRO_REG_PLL, 0x00);
+			break;
+		default:
+			// we got a problem
+			break;
+		}
+		timer->Reset();
+	}
 }
 
 void I2CGyro::reset() {
@@ -36,12 +68,12 @@ void I2CGyro::reset() {
 
 double I2CGyro::PIDGet()
 {
-	return 0.0;
+	return getAngle();
 }
 
 float I2CGyro::getRate()
 {
-	return rate;
+	return (last_angle - current_angle) / READ_DELAY;
 }
 
 float I2CGyro::getAngle()
