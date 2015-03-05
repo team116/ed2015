@@ -27,6 +27,8 @@ private:
 	I2CGyro();
 	static I2CGyro* INSTANCE;
 
+	static const unsigned int BUF_SIZE;
+
 	I2C* channel;
 	// used to prevent heavy bus traffic
 	Timer* timer;

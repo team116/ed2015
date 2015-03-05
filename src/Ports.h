@@ -47,7 +47,7 @@ namespace RobotPorts
 
 	// I2C, everything in hex cuz why the hell not
 	const unsigned int GYRO_ADDRESS = 0x68;
-	const unsigned int GYRO_REG_MXSB = 0xD1;
+	const unsigned int GYRO_REG_MXSB = 0x1D;
 	const unsigned int GYRO_REG_DLPF_FS = 0x16;
 	const unsigned int GYRO_REG_FULLSCALE = 0x18;
 	const unsigned int GYRO_REG_42HZ = 0x03;

@@ -12,6 +12,10 @@
 
 I2CGyro* I2CGyro::INSTANCE = NULL;
 
+#define DATA_SIZE 2U
+
+const unsigned int I2CGyro::BUF_SIZE = 6;
+
 I2CGyro::I2CGyro()
 {
 	timer = new Timer();
@@ -26,7 +30,15 @@ I2CGyro::I2CGyro()
 
 void I2CGyro::process()
 {
+	if(timer->Get() > 0.05) {
+		unsigned char buff[BUF_SIZE];
+		short gyro_data[BUF_SIZE / DATA_SIZE];
+		channel->Read(RobotPorts::GYRO_REG_MXSB, BUF_SIZE, buff);
 
+		for (unsigned int i = 0; i < BUF_SIZE / DATA_SIZE; ++i) {
+			gyro_data[i] = (short)buff[2 * i + 1] + (((short)buff[2 * i]) << 8);
+		}
+	}
 }
 
 double I2CGyro::PIDGet()
