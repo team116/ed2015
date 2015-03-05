@@ -46,7 +46,7 @@ void I2CGyro::process()
 	else if (timer->Get() > CONFIG_DELAY) {
 		switch (next_step) {
 		case RANGE_AND_BANDWIDTH:
-			channel->Write(RobotPorts::GYRO_REG_BANDWIDTH, 0x1B);
+			channel->Write(RobotPorts::GYRO_REG_DLPF_FS, 0x1B);
 			break;
 		case SAMPLE_RATIO:
 			channel->Write(RobotPorts::GYRO_REG_SAMPLE_RATIO, 0x0A);
