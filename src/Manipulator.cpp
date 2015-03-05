@@ -5,6 +5,7 @@
 #include <cmath>
 #include <ctime>
 #include <Servo.h>
+#include <RobotDrive.h>
 
 Manipulator* Manipulator::INSTANCE = NULL;
 
@@ -54,6 +55,8 @@ Manipulator::Manipulator() {
 
 	left_wheel = new CANTalon(RobotPorts::LEFT_WHEEL);
 	right_wheel = new CANTalon(RobotPorts::RIGHT_WHEEL);
+	tote_wheels = new RobotDrive(left_wheel, right_wheel);
+	tote_wheels->SetSafetyEnabled(false);
 	wheel_timer = new Timer();
 	wheel_state = WHEELS_STILL;
 
@@ -213,6 +216,12 @@ void Manipulator::process() {
 		moveStarboardRake(RAKE_STILL);
 		rake_pos = rake_pos_prev;
 	}
+}
+
+void Manipulator::moveTote(float forwards, float rotate)
+{
+	//Third value is "squaredinputs", need to figure out if this means it will square the value or if were telling it the value is already squared
+	tote_wheels->ArcadeDrive(forwards, rotate, false);
 }
 
 bool Manipulator::canMoveLifter() {
