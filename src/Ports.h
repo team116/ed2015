@@ -5,13 +5,13 @@ namespace RobotPorts
 	// motors
 	const unsigned int FRONT_LEFT_MOTOR = 1;
 	const unsigned int FRONT_RIGHT_MOTOR = 2;
-	const unsigned int REAR_LEFT_MOTOR = 8 ; //3
+	const unsigned int REAR_LEFT_MOTOR = 3; //3
 	const unsigned int REAR_RIGHT_MOTOR = 4;
 	const unsigned int LEFT_WHEEL = 11;
 	const unsigned int RIGHT_WHEEL = 5;
 	const unsigned int LIFTER_ONE = 6;
 	const unsigned int LIFTER_TWO = 7;
-	const unsigned int RAKE_PORT_MOTOR = 3; //8
+	const unsigned int RAKE_PORT_MOTOR = 8; //8
 	const unsigned int RAKE_STARBOARD_MOTOR = 9;
 	const unsigned int CLOSE_FLAPS_MOTOR = 10;
 
