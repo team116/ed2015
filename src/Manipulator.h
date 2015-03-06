@@ -201,6 +201,8 @@ private:
 	float surface;	//should always be equal to one of the platform constants
 
 	bool using_limits;
+
+	bool lifter_targeting;
 };
 
 
