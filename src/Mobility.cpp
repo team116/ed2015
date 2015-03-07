@@ -25,6 +25,7 @@ const float Mobility::MAX_ULTRASONIC_VOLTAGE = 5.5;
 const float Mobility::X_ODOMETRY_INCHES_PER_PULSE = 3.0 / 360.0;
 const float Mobility::Y_ODOMETRY_INCHES_PER_PULSE = 3.0 / 250.0;
 const float Mobility::MAX_VELOCITY = 555.1f;
+const float Mobility::VOLTS_PER_INCH = 5.0 / 512.0;
 // 250 PPR on drive wheel encoders
 
 
@@ -115,7 +116,7 @@ void Mobility::process()
 		// log->write(Log::ERROR_LEVEL, "Rotate Difference: %f\n", var);
 		// log->write(Log::ERROR_LEVEL, "Rotation Speed: %f\n", rotation + var);
 		// setRotationSpeed(rotation + var);
-		accel = 0.072f * (min((target_degrees - angle) / (angle - start_degrees), 1.0f) - (gyro->getRate() / max_rate));
+		accel = 0.072f * (min((target_degrees - angle) / (angle - start_degrees), 1.0f) - (rate / max_rate));
 		log->write(Log::ERROR_LEVEL, "%s\tRotation Speed: %f\n", Utils::getCurrentTime(), rotation);
 		log->write(Log::ERROR_LEVEL, "%s\tRotation Difference: %f\n", Utils::getCurrentTime(), accel);
 		// setRotationSpeed((float)rotate_direction * max(min(rotation + accel, max_rot_speed), min_rot_speed));
@@ -170,7 +171,8 @@ float Mobility::getUltrasonicDistance()
 	return currentDistance;
 	*/
 	// IDK how this is supposed to actually be but I'm going with this
-	return (ultrasonic->GetVoltage() * MAX_ULTRASONIC_DISTANCE) / MAX_ULTRASONIC_VOLTAGE;
+	float distance = ultrasonic->GetVoltage() / VOLTS_PER_INCH;
+	return distance;
 }
 
 void Mobility::setRotationDegrees(int degrees)

@@ -40,6 +40,7 @@ private:
 	static const float X_ODOMETRY_INCHES_PER_PULSE;
 	static const float Y_ODOMETRY_INCHES_PER_PULSE;
 	static const float MAX_VELOCITY;
+	static const float VOLTS_PER_INCH;
 	static float P_VALUE;
 	static float I_VALUE;
 	static float D_VALUE;
