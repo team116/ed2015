@@ -12,6 +12,7 @@ Autonomous* Autonomous::INSTANCE = NULL;
 const float Autonomous::INCHES_PER_SECOND = 30.0;
 
 Autonomous::Autonomous(int delay, int play, int location) {
+	log = Log::getInstance();
 	current_step = 1;
 	starting_location = location;
 	this->play = play;
@@ -22,7 +23,6 @@ Autonomous::Autonomous(int delay, int play, int location) {
 	timer = new Timer();
 	mobility = Mobility::getInstance();
 	manipulator = Manipulator::getInstance();
-	log = Log::getInstance();
 
 	delay_timer->Start();
 	timer->Start();
