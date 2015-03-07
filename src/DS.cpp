@@ -41,6 +41,7 @@ DS::DS() {
 
 	output_board->SetOutputs(0);
 
+
 }
 
 void DS::process() {
@@ -158,15 +159,24 @@ void DS::processManipulator() {
 	switch (Utils::convertFromVolts(input_board->GetRawAxis(InputBoardPorts::FLAP_POSITION_KNOB), 6, 5.0)) {
 	case 0:
 	case 1:
-		manipulator->setFlapPosition(Manipulator::FLAP_LOW);
+		if(last_flap_position != Manipulator::FLAP_LOW){
+			manipulator->setFlapPosition(Manipulator::FLAP_LOW);
+			last_flap_position = Manipulator::FLAP_LOW;
+		}
 		break;
 	case 2:
 	case 3:
-		manipulator->setFlapPosition(Manipulator::FLAP_MID);
+		if(last_flap_position != Manipulator::FLAP_MID){
+			manipulator->setFlapPosition(Manipulator::FLAP_MID);
+			last_flap_position = Manipulator::FLAP_MID;
+		}
 		break;
 	case 4:
 	case 5:
-		manipulator->setFlapPosition(Manipulator::FLAP_HIGH);
+		if(last_flap_position != Manipulator::FLAP_HIGH){
+			manipulator->setFlapPosition(Manipulator::FLAP_HIGH);
+			last_flap_position = Manipulator::FLAP_HIGH;
+		}
 		break;
 	}
 

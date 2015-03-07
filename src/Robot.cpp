@@ -33,6 +33,7 @@ public:
 		float delay_volt = delay_switch->GetVoltage();
 		float play_volt = play_switch->GetVoltage();
 		float location_volt = location_switch->GetVoltage();
+		log->write(Log::TRACE_LEVEL,"Delay Voltage: %f\nPlay Voltage: %f\n Location Voltage: %f\n",delay_volt, play_volt, location_volt);
 		const float max_volt = 5.2;
 
 		// initialize subsystems

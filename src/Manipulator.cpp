@@ -126,10 +126,12 @@ Manipulator* Manipulator::getInstance() {
 void Manipulator::process() {
 	//uses data from encoder to determine current height of lift
 	/*if (!lifter_two->IsControlEnabled()) {
-		DriverStation::ReportError("Lifter two (talon 7) not enabled");
-	}*/
-	current_height = lifter_one->GetPosition();
-	log->write(Log::TRACE_LEVEL, "%s\tCurrent Height: %f Target Height: %f\n", Utils::getCurrentTime(), current_height, target_height);
+	 DriverStation::ReportError("Lifter two (talon 7) not enabled");
+	 }*/
+	if (using_encoder) {
+		current_height = lifter_one->GetPosition();
+		log->write(Log::INFO_LEVEL, "%s\tCurrent Height: %f Target Height: %f\n", Utils::getCurrentTime(), current_height, target_height);
+	}
 
 	if (pushToteDone()) {
 		log->write(Log::TRACE_LEVEL, "%s\ttote pushed\n", Utils::getCurrentTime());
@@ -173,16 +175,11 @@ void Manipulator::process() {
 				break;
 		}
 	}
-
 	if (lifter_targeting) {
-		if (isInsignificantChange(current_height, target_height)) {
+		log->write(Log::TRACE_LEVEL, "%s\tCurrent lift timer reading: %f\n", Utils::getCurrentTime(), lift_timer->Get());
+		if (isInsignificantChange(current_height, target_height) && using_encoder) {
 			log->write(Log::TRACE_LEVEL, "%s\tChange insignificant: lift motors stopped\n", Utils::getCurrentTime());
-			if (using_encoder) {
-				lifter_one->Set(current_height);
-			}
-			else {
-				lifter_one->Set(0.0);
-			}
+			lifter_one->Set(current_height);
 			//lifter two is set to follower mode, should move by itself
 		}
 		else {
@@ -247,18 +244,24 @@ void Manipulator::moveTote(float forwards, float rotate) {
 bool Manipulator::canMoveLifter() {
 	if (lift_timer->Get() >= (lifter_timeout)) {
 		log->write(Log::INFO_LEVEL, "%s\tLifter has timed out\n", Utils::getCurrentTime());
+		if (!using_encoder) {
+			current_height = target_height;
+		}
 		lift_timer->Stop();
+		lift_timer->Reset();
 		lifter_targeting = false;
 		return false;
 	}
-	else if (current_height < target_height) {
+	else if (!using_encoder) {
+		return (lifter_one->IsRevLimitSwitchClosed() != 1 && lifter_one->IsRevLimitSwitchClosed() != 1) || !using_limits;
+	}
+	else if (current_height <= target_height) {
 		return (lifter_one->IsFwdLimitSwitchClosed() != 1 || !using_limits);
 	}
 	else {
 		return (lifter_one->IsRevLimitSwitchClosed() != 1 || !using_limits);
 	}
 }
-
 bool Manipulator::flapMotionDone() {	//TODO: add timeouts to flap positions
 	float posi = close_flaps->GetPosition();
 	switch (flap_pos) {
@@ -484,10 +487,10 @@ void Manipulator::setTargetLevel(int level) {
 	int new_target = level * TOTE_HEIGHT + surface;	//surface = height of surface on which we are trying to stack totes ((private variable))
 	if (abs(current_height - new_target) < abs(current_height - target_height) || current_height == target_height) {//in case of button mash, go to whichever instruction is closest to current position
 		target_height = new_target;
-		lifter_timeout = (float) ((target_height - current_height) / TOTE_HEIGHT) * LEVEL_TIMEOUT;
+		lifter_timeout = fabs(((target_height - current_height) / TOTE_HEIGHT) * LEVEL_TIMEOUT);
 		log->write(Log::TRACE_LEVEL, "%s\tSet lifter preset to %i, timeout is now %f\n", Utils::getCurrentTime(), level, lifter_timeout);
-		lift_timer->Start();
 		lift_timer->Reset();
+		lift_timer->Start();
 		lifter_targeting = true;
 	}
 }
@@ -553,11 +556,9 @@ void Manipulator::usingEncoder(bool enc) {
 }
 
 void Manipulator::liftLifters(lifter_directions direction) {
-	if (!using_encoder) {
-		lift_timer->Stop();
-	}
 	if (direction == MOVING_UP && (lifter_one->IsFwdLimitSwitchClosed() != 1 || !using_limits)) {
 		log->write(Log::INFO_LEVEL, "%s\tLift moving up\n", Utils::getCurrentTime());
+		lift_timer->Stop();
 		lifter_targeting = false;
 		/*double next_position = lifter_one->GetPosition() + ENCODER_INCREMENT;
 		 lifter_one->Set(next_position);*/
@@ -572,6 +573,7 @@ void Manipulator::liftLifters(lifter_directions direction) {
 
 	else if (direction == MOVING_DOWN && (lifter_one->IsRevLimitSwitchClosed() != 1 || !using_limits)) {
 		lifter_targeting = false;
+		lift_timer->Stop();
 		log->write(Log::TRACE_LEVEL, "%s\tLift moving down\n", Utils::getCurrentTime());
 		if (using_encoder) {
 			target_height = current_height - 2;
@@ -581,7 +583,8 @@ void Manipulator::liftLifters(lifter_directions direction) {
 		}
 
 	}
-	else if (direction == NOT_MOVING) {
+	else if (direction == NOT_MOVING && !lifter_targeting) {
+		lift_timer->Stop();
 		log->write(Log::TRACE_LEVEL, "%s\tLift motors stopped\n", Utils::getCurrentTime());
 		if (using_encoder) {
 			target_height = current_height;
