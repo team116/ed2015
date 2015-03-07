@@ -16,6 +16,7 @@ Autonomous::Autonomous(int delay, int play, int location) {
 	starting_location = location;
 	this->play = play;
 	this->delay = delay;
+	log->write(Log::TRACE_LEVEL, "Location: %d\nPlay: %d\nDelay: %d\n", Utils::getCurrentTime(), location, play, delay);
 
 	delay_timer = new Timer();
 	timer = new Timer();
@@ -60,10 +61,11 @@ void Autonomous::moveToZone() {
 	switch (current_step) {
 	case 1:
 		//163 inches is the distance from the wall to the autozone
-		if (mobility->getUltrasonicDistance() < 163 && mobility->getYEncoderDistance() < 140 && !timer->HasPeriodPassed(140.0/INCHES_PER_SECOND)) {
+		if (mobility->getUltrasonicDistance() < 163 && mobility->getYEncoderDistance() < 140 && !timer->HasPeriodPassed(140.0 / INCHES_PER_SECOND)) {
 			mobility->setDirection(0.0, 0.75);
 		}
 		else {
+			log->write(Log::TRACE_LEVEL, "%s\tFinished moving to autozone\n", Utils::getCurrentTime());
 			mobility->setDirection(0.0, 0.0);
 			timer->Stop();
 			++current_step;
@@ -81,10 +83,11 @@ void Autonomous::stackTote() {
 		// moving to the tote
 		// assumes the robot is at a 90 degree angle to the landmark (facing tote 1 from the right)
 		manipulator->closeFlaps(false);
-		if (mobility->getUltrasonicDistance() > 3 && mobility->getYEncoderDistance() < 12 && !timer->HasPeriodPassed(12.0/INCHES_PER_SECOND)) {
+		if (mobility->getUltrasonicDistance() > 3 && mobility->getYEncoderDistance() < 12 && !timer->HasPeriodPassed(12.0 / INCHES_PER_SECOND)) {
 			mobility->setDirection(0.0, 0.75);
 		}
 		else {
+			log->write(Log::TRACE_LEVEL, "%s\tMoved to tote\n", Utils::getCurrentTime());
 			mobility->setDirection(0.0, 0.0);
 			timer->Reset();
 			mobility->resetYEncoderDistance();
@@ -93,10 +96,11 @@ void Autonomous::stackTote() {
 		break;
 	case 2:
 		// picking up the tote
-		if(!timer->HasPeriodPassed(1.0)){
+		if (!timer->HasPeriodPassed(1.0)) {
 			manipulator->pullTote();
 		}
 		else {
+			log->write(Log::TRACE_LEVEL, "%s\tPulled tote in\n", Utils::getCurrentTime());
 			manipulator->closeFlaps(true);
 			manipulator->setTargetLevel(2);
 			timer->Reset();
@@ -107,106 +111,103 @@ void Autonomous::stackTote() {
 		break;
 	case 3:
 		// moving to autozone
-		switch (starting_location) {
-		case FAR_LEFT:
-		case FAR_RIGHT:
-			if (mobility->getUltrasonicDistance() < 187 && mobility->getYEncoderDistance() > -140 && !timer->HasPeriodPassed(140.0/INCHES_PER_SECOND)) {
-				mobility->setDirection(0.0, -0.75);
-			}
-			else {
-				mobility->setDirection(0.0, 0.0);
-				timer->Reset();
-				mobility->resetYEncoderDistance();
-				++current_step;
-			}
-			break;
-		case CENTER:
-			if (mobility->getUltrasonicDistance() < 148 && mobility->getYEncoderDistance() > -100 && !timer->HasPeriodPassed(100.0/INCHES_PER_SECOND)) {
-				mobility->setDirection(0.0, -0.75);
-			}
-			else {
-				mobility->setDirection(0.0, 0.0);
-				timer->Reset();
-				mobility->resetYEncoderDistance();
-				++current_step;
-			}
-			break;
+		if (mobility->getUltrasonicDistance() < 187 && mobility->getYEncoderDistance() > -140 && !timer->HasPeriodPassed(140.0 / INCHES_PER_SECOND)) {
+			mobility->setDirection(0.0, -0.75);
+		}
+		else {
+			log->write(Log::TRACE_LEVEL, "%s\tBrought tote to autozone\n", Utils::getCurrentTime());
+			mobility->setDirection(0.0, 0.0);
+			timer->Reset();
+			mobility->resetYEncoderDistance();
+			++current_step;
 		}
 		break;
 	case 4:
-		// turning in appropriate directions
-		switch (starting_location) {
+		/*
+		 // turning in appropriate directions
+		 switch (starting_location) {
 
-		case FAR_LEFT:
-			//turn to face wall so we can judge distance as we approach landmark
-			mobility->setRotationDegrees(-90);
-			++current_step;
-			break;
-		case FAR_RIGHT:
-			//turn to face wall so we can judge distance as we approach landmark
-			mobility->setRotationDegrees(90);
-			++current_step;
-			break;
-		case CENTER:
-			//turn to face landmark
-			mobility->setRotationDegrees(180);
-			++current_step;
-			break;
-		}
+		 case FAR_LEFT:
+		 //turn to face wall so we can judge distance as we approach landmark
+		 mobility->setRotationDegrees(-90);
+		 ++current_step;
+		 break;
+		 case FAR_RIGHT:
+		 //turn to face wall so we can judge distance as we approach landmark
+		 mobility->setRotationDegrees(90);
+		 ++current_step;
+		 break;
+		 case CENTER:
+		 //turn to face landmark
+		 mobility->setRotationDegrees(180);
+		 ++current_step;
+		 break;
+		 }
+		 */
+		++current_step;
 		break;
 	case 5:
-		// moving to landmark
-		switch (starting_location) {
-		case FAR_LEFT:
-		case FAR_RIGHT:
-			//move forward
-			if (mobility->getUltrasonicDistance() < 160 && mobility->getYEncoderDistance() > -53 && !timer->HasPeriodPassed(53.0/INCHES_PER_SECOND)) {
-				mobility->setDirection(0.0, -0.75);
-			}
-			else {
-				mobility->setDirection(0.0, 0.0);
-				timer->Reset();
-				timer->Stop();
-				mobility->resetYEncoderDistance();
-				++current_step;
-			}
-			break;
-		case CENTER:
-			//nothing to do in this step - we're already right by the landmark
-			++current_step;
-			break;
-		}
+		/*
+		 // moving to landmark
+		 switch (starting_location) {
+		 case FAR_LEFT:
+		 case FAR_RIGHT:
+		 //move forward
+		 if (mobility->getUltrasonicDistance() < 160 && mobility->getYEncoderDistance() > -53 && !timer->HasPeriodPassed(53.0 / INCHES_PER_SECOND)) {
+		 mobility->setDirection(0.0, -0.75);
+		 }
+		 else {
+		 mobility->setDirection(0.0, 0.0);
+		 timer->Reset();
+		 timer->Stop();
+		 mobility->resetYEncoderDistance();
+		 ++current_step;
+		 }
+		 break;
+		 case CENTER:
+		 //nothing to do in this step - we're already right by the landmark
+		 ++current_step;
+		 break;
+		 }
+		 */
+		++current_step;
 		break;
 	case 6:
-		// turning for the final time
-		switch (starting_location) {
-		case FAR_LEFT:
-		case FAR_RIGHT:
-			// turn towards landmark
-			mobility->setRotationDegrees(180);
-			++current_step;
-			break;
-		case CENTER:
-			// still nothing to do yet
-			++current_step;
-			break;
-		}
-		// reset/start a timer so that we can move forward for a brief time
-		timer->Reset();
-		timer->Start();
+		/*
+		 // turning for the final time
+		 switch (starting_location) {
+		 case FAR_LEFT:
+		 case FAR_RIGHT:
+		 // turn towards landmark
+		 mobility->setRotationDegrees(180);
+		 ++current_step;
+		 break;
+		 case CENTER:
+		 // still nothing to do yet
+		 ++current_step;
+		 break;
+		 }
+		 // reset/start a timer so that we can move forward for a brief time
+		 timer->Reset();
+		 timer->Start();
+		 */
+		++current_step;
 		break;
 	case 7:
-		// scoot forward towards the landmark
-		// we can tweak the time and the speed to move us in the appopriate amount
-		if (!timer->HasPeriodPassed(0.5)) {
-			mobility->setDirection(0.0, 0.2);
-		}
-		else {
-			timer->Reset();
-			timer->Start();
-			mobility->setDirection(0.0, 0.0);
-			++current_step;
-		}
+		/*
+		 // scoot forward towards the landmark
+		 // we can tweak the time and the speed to move us in the appopriate amount
+		 if (!timer->HasPeriodPassed(0.5)) {
+		 mobility->setDirection(0.0, 0.2);
+		 }
+		 else {
+		 timer->Reset();
+		 timer->Start();
+		 mobility->setDirection(0.0, 0.0);
+		 ++current_step;
+		 }
+		 */
+		++current_step;
 		break;
 	case 8:
 		// place the tote
@@ -214,13 +215,15 @@ void Autonomous::stackTote() {
 		manipulator->pushTote();
 		// wait a brief moment to be sure that we've actually placed the tote
 		if (timer->HasPeriodPassed(0.5)) {
+			log->write(Log::TRACE_LEVEL, "%s\tPlaced tote in autozone\n", Utils::getCurrentTime());
 			++current_step;
 			timer->Reset();
 		}
 		break;
 	case 9:
 		// back up
-		if (timer->HasPeriodPassed(1.0)) {
+		if (timer->HasPeriodPassed(0.5)) {
+			log->write(Log::TRACE_LEVEL, "%s\tBacked up from tote\n", Utils::getCurrentTime());
 			mobility->setDirection(0.0, 0.0);
 			++current_step;
 		}
@@ -242,10 +245,11 @@ void Autonomous::moveContainer() {
 		// moving to the container
 		// assumes the robot is at a +90 degree angle to the landmark (facing container 1 from the left)
 		manipulator->closeFlaps(false);
-		if (mobility->getUltrasonicDistance() > 3 && mobility->getYEncoderDistance() < 12 && !timer->HasPeriodPassed(12.0/INCHES_PER_SECOND)) {
+		if (mobility->getUltrasonicDistance() > 3 && mobility->getYEncoderDistance() < 12 && !timer->HasPeriodPassed(12.0 / INCHES_PER_SECOND)) {
 			mobility->setDirection(0.0, 0.75);
 		}
 		else {
+			log->write(Log::TRACE_LEVEL, "%s\tMoved to container\n", Utils::getCurrentTime());
 			mobility->setDirection(0.0, 0.0);
 			timer->Reset();
 			mobility->resetYEncoderDistance();
@@ -255,7 +259,8 @@ void Autonomous::moveContainer() {
 	case 2:
 		// picking up the container
 		manipulator->pullTote();
-		if(timer->HasPeriodPassed(1.0)){
+		if (timer->HasPeriodPassed(1.0)) {
+			log->write(Log::TRACE_LEVEL, "%s\tPicked up container\n", Utils::getCurrentTime());
 			manipulator->closeFlaps(true);
 			manipulator->setTargetLevel(1);
 			// turn to face the alliance wall
@@ -266,32 +271,15 @@ void Autonomous::moveContainer() {
 		break;
 	case 3:
 		// move into the auto zone
-		switch (starting_location) {
-		case FAR_LEFT:
-		case FAR_RIGHT:
-			//this gets us aligned with the landmark
-			if (mobility->getUltrasonicDistance() < 187 && mobility->getYEncoderDistance() > -140 && !timer->HasPeriodPassed(140.0/INCHES_PER_SECOND)) {
-				mobility->setDirection(0.0, -0.75);
-			}
-			else {
-				mobility->setDirection(0.0, 0.0);
-				timer->Reset();
-				mobility->resetYEncoderDistance();
-				++current_step;
-			}
-			break;
-		case CENTER:
-			// this gets us into the zone without running over the stack that might be built at the landmark
-			if (mobility->getUltrasonicDistance() < 160 && mobility->getYEncoderDistance() > -100 && !timer->HasPeriodPassed(100.0/INCHES_PER_SECOND)) {
-				mobility->setDirection(0.0, -0.75);
-			}
-			else {
-				mobility->setDirection(0.0, 0.0);
-				mobility->resetYEncoderDistance();
-				timer->Reset();
-				++current_step;
-			}
-			break;
+		if (mobility->getUltrasonicDistance() < 187 && mobility->getYEncoderDistance() > -140 && !timer->HasPeriodPassed(140.0 / INCHES_PER_SECOND)) {
+			mobility->setDirection(0.0, -0.75);
+		}
+		else {
+			log->write(Log::TRACE_LEVEL, "%s\tMoved into the autozone with a container\n", Utils::getCurrentTime());
+			mobility->setDirection(0.0, 0.0);
+			timer->Reset();
+			mobility->resetYEncoderDistance();
+			++current_step;
 		}
 		break;
 	case 4:
@@ -305,10 +293,11 @@ void Autonomous::moveContainer() {
 		break;
 	case 5:
 		// backing up to be sure we aren't touching the container
-		if (mobility->getUltrasonicDistance() < 14 && mobility->getYEncoderDistance() > -16 && !timer->HasPeriodPassed(16.0/INCHES_PER_SECOND)) {
+		if (mobility->getUltrasonicDistance() < 14 && mobility->getYEncoderDistance() > -16 && !timer->HasPeriodPassed(0.4)) {
 			mobility->setDirection(0.0, -0.75);
 		}
 		else {
+			log->write(Log::TRACE_LEVEL, "%s\tPlaced container and backed up\n", Utils::getCurrentTime());
 			mobility->setDirection(0.0, 0.0);
 			mobility->resetYEncoderDistance();
 			++current_step;
@@ -321,14 +310,14 @@ void Autonomous::moveContainer() {
 }
 
 void Autonomous::moveContainerAndTote() {
-	//assuming we're facing container, we pick up container, place it on tote, then move into autozone
+//assuming we're facing container, we pick up container, place it on tote, then move into autozone
 	switch (current_step) {
 	case 1:
 		// moving to the container
 		// assumes the robot is at a +90 degree angle to the landmark (facing container 1 from the left)
 		//sam chanesman
 		manipulator->closeFlaps(false);
-		if (mobility->getUltrasonicDistance() > 3 && mobility->getYEncoderDistance() < 12 && !timer->HasPeriodPassed(12/INCHES_PER_SECOND)) {
+		if (mobility->getUltrasonicDistance() > 3 && mobility->getYEncoderDistance() < 12 && !timer->HasPeriodPassed(12 / INCHES_PER_SECOND)) {
 			mobility->setDirection(0.0, 0.75);
 		}
 		else {
@@ -341,7 +330,7 @@ void Autonomous::moveContainerAndTote() {
 	case 2:
 		// picking up the container
 		manipulator->pullTote();
-		if(timer->HasPeriodPassed(1.0)){
+		if (timer->HasPeriodPassed(1.0)) {
 			manipulator->closeFlaps(true);
 			manipulator->setTargetLevel(1);
 			mobility->setRotationDegrees(90);
@@ -351,7 +340,7 @@ void Autonomous::moveContainerAndTote() {
 		break;
 	case 3:
 		// moving to the tote
-		if (mobility->getUltrasonicDistance() > 3 && mobility->getYEncoderDistance() < 18 && !timer->HasPeriodPassed(18.0/INCHES_PER_SECOND)) {
+		if (mobility->getUltrasonicDistance() > 3 && mobility->getYEncoderDistance() < 18 && !timer->HasPeriodPassed(18.0 / INCHES_PER_SECOND)) {
 			mobility->setDirection(0.0, 0.75);
 		}
 		else {
@@ -378,7 +367,7 @@ void Autonomous::moveContainerAndTote() {
 		// back up + lower manipulator lift
 		manipulator->setTargetLevel(0);
 		// one foot is an arbitrary distance to back up
-		if (mobility->getUltrasonicDistance() < 12 && mobility->getYEncoderDistance() > -14 && !timer->HasPeriodPassed(14.0/INCHES_PER_SECOND)) {
+		if (mobility->getUltrasonicDistance() < 12 && mobility->getYEncoderDistance() > -14 && !timer->HasPeriodPassed(14.0 / INCHES_PER_SECOND)) {
 			mobility->setDirection(0.0, -0.75);
 		}
 		else {
@@ -393,7 +382,7 @@ void Autonomous::moveContainerAndTote() {
 		break;
 	case 6:
 		//scoot forward again :D
-		if (mobility->getUltrasonicDistance() > 3 && mobility->getYEncoderDistance() < 14 && !timer->HasPeriodPassed(14.0/INCHES_PER_SECOND)) {
+		if (mobility->getUltrasonicDistance() > 3 && mobility->getYEncoderDistance() < 14 && !timer->HasPeriodPassed(14.0 / INCHES_PER_SECOND)) {
 			mobility->setDirection(0.0, 0.75);
 		}
 		else {
@@ -406,7 +395,7 @@ void Autonomous::moveContainerAndTote() {
 	case 7:
 		//pick up tote/container stack
 		manipulator->pullTote();
-		if(timer->HasPeriodPassed(1.0)){
+		if (timer->HasPeriodPassed(1.0)) {
 			manipulator->closeFlaps(true);
 			manipulator->setTargetLevel(1);
 			timer->Reset();
@@ -419,7 +408,7 @@ void Autonomous::moveContainerAndTote() {
 		case FAR_LEFT:
 		case FAR_RIGHT:
 			//this gets us aligned with the landmark
-			if (mobility->getUltrasonicDistance() < 187 && mobility->getYEncoderDistance() > -140 && !timer->HasPeriodPassed(140.0/INCHES_PER_SECOND)) {
+			if (mobility->getUltrasonicDistance() < 187 && mobility->getYEncoderDistance() > -140 && !timer->HasPeriodPassed(140.0 / INCHES_PER_SECOND)) {
 				mobility->setDirection(0.0, -0.75);
 			}
 			else {
@@ -431,7 +420,7 @@ void Autonomous::moveContainerAndTote() {
 			break;
 		case CENTER:
 			// this gets us into the zone without running over the stack that might be built at the landmark
-			if (mobility->getUltrasonicDistance() < 160 && mobility->getYEncoderDistance() > -100 &&!timer->HasPeriodPassed(100.0/INCHES_PER_SECOND)) {
+			if (mobility->getUltrasonicDistance() < 160 && mobility->getYEncoderDistance() > -100 && !timer->HasPeriodPassed(100.0 / INCHES_PER_SECOND)) {
 				mobility->setDirection(0.0, -0.75);
 			}
 			else {
@@ -455,7 +444,7 @@ void Autonomous::moveContainerAndTote() {
 		break;
 	case 10:
 		//back up so we're sure we aren't touching the tote/container
-		if (mobility->getUltrasonicDistance() < 14 && mobility->getYEncoderDistance() > -14 && !timer->HasPeriodPassed(14.0/INCHES_PER_SECOND)) {
+		if (mobility->getUltrasonicDistance() < 14 && mobility->getYEncoderDistance() > -14 && !timer->HasPeriodPassed(14.0 / INCHES_PER_SECOND)) {
 			mobility->setDirection(0.0, -0.75);
 		}
 		else {
@@ -471,15 +460,16 @@ void Autonomous::moveContainerAndTote() {
 }
 
 void Autonomous::centerContainers() {
-	//facing wall, starting in between auto zone and landfill zone, move to pick up containers on step
+//facing wall, starting in between auto zone and landfill zone, move to pick up containers on step
 	switch (current_step) {
 	case 1:
 		// move backwards towards step
 		// 240 is a guess - we need to move back until the back of the robot is at the landfill
-		if (mobility->getUltrasonicDistance() < 240 && mobility->getYEncoderDistance() > -24 && !timer->HasPeriodPassed(24.0/INCHES_PER_SECOND)) { //distance to alliance wall
+		if (mobility->getUltrasonicDistance() < 240 && mobility->getYEncoderDistance() > -24 && !timer->HasPeriodPassed(24.0 / INCHES_PER_SECOND)) { //distance to alliance wall
 			mobility->setDirection(0.0, -0.75);
 		}
 		else {
+			log->write(Log::TRACE_LEVEL, "%s\tMoved to landfill zone\n", Utils::getCurrentTime());
 			mobility->setDirection(0.0, 0.0);
 			timer->Reset();
 			mobility->resetYEncoderDistance();
@@ -489,17 +479,19 @@ void Autonomous::centerContainers() {
 	case 2:
 		// extend rakes and hook the containers
 		manipulator->liftRakes(true);
-		// wait a moment to allow the rakes to do their thing. this might need to be longer
-		if(timer->HasPeriodPassed(2.5)){
+		// wait a moment to allow the rakes to do their thing. not sure how long this will take
+		if (timer->HasPeriodPassed(1.5)) {
+			log->write(Log::TRACE_LEVEL, "%s\tExtended rakes to grab center containers\n", Utils::getCurrentTime());
 			++current_step;
 		}
 		break;
 	case 3:
-		//move forward again to pull the containers off
-		if (mobility->getUltrasonicDistance() > 220 && mobility->getYEncoderDistance() < 30 && !timer->HasPeriodPassed(30.0/INCHES_PER_SECOND)) {
+		//move forward again to pull the containers off, and to get ourselves into the autozone
+		if (mobility->getUltrasonicDistance() > 190 && mobility->getYEncoderDistance() < 60 && !timer->HasPeriodPassed(60.0 / INCHES_PER_SECOND)) {
 			mobility->setDirection(0.0, 0.75);
 		}
 		else {
+			log->write(Log::TRACE_LEVEL, "%s\tMoved into autozone with center containers\n", Utils::getCurrentTime());
 			mobility->setDirection(0.0, 0.0);
 			++current_step;
 		}
@@ -511,11 +503,11 @@ void Autonomous::centerContainers() {
 }
 
 void Autonomous::moveTwoTotes() {
-	// move two tote stack into the auto zone on landmark
+// move two tote stack into the auto zone on landmark
 	switch (current_step) {
 	case 1:
 		// scoot in towards tote
-		if (mobility->getUltrasonicDistance() > 3 && mobility->getYEncoderDistance() < 12 && !timer->HasPeriodPassed(12.0/INCHES_PER_SECOND)) {
+		if (mobility->getUltrasonicDistance() > 3 && mobility->getYEncoderDistance() < 12 && !timer->HasPeriodPassed(12.0 / INCHES_PER_SECOND)) {
 			mobility->setDirection(0.0, 0.75);
 		}
 		else {
@@ -540,7 +532,7 @@ void Autonomous::moveTwoTotes() {
 		break;
 	case 3:
 		// navigate the container - we move infield to move around it
-		if (mobility->getUltrasonicDistance() < 30 && mobility->getXEncoderDistance() < 36 && !timer->HasPeriodPassed(36.0/INCHES_PER_SECOND)) {
+		if (mobility->getUltrasonicDistance() < 30 && mobility->getXEncoderDistance() < 36 && !timer->HasPeriodPassed(36.0 / INCHES_PER_SECOND)) {
 			mobility->setDirection(0.5, 0.0);
 		}
 		else {
@@ -568,7 +560,7 @@ void Autonomous::moveTwoTotes() {
 		break;
 	case 5:
 		// scoot in sideways so that we can grab the tote
-		if (mobility->getUltrasonicDistance() > 15 && mobility->getXEncoderDistance() > -36 && !timer->HasPeriodPassed(36.0/INCHES_PER_SECOND)) {
+		if (mobility->getUltrasonicDistance() > 15 && mobility->getXEncoderDistance() > -36 && !timer->HasPeriodPassed(36.0 / INCHES_PER_SECOND)) {
 			mobility->setDirection(-0.5, 0.0);
 		}
 		else {
@@ -580,7 +572,7 @@ void Autonomous::moveTwoTotes() {
 		break;
 	case 6:
 		// scoot forward to second tote
-		if (mobility->getUltrasonicDistance() > 3 && fabs(mobility->getYEncoderDistance()) < 10 && !timer->HasPeriodPassed(10.0/INCHES_PER_SECOND)) {
+		if (mobility->getUltrasonicDistance() > 3 && fabs(mobility->getYEncoderDistance()) < 10 && !timer->HasPeriodPassed(10.0 / INCHES_PER_SECOND)) {
 			mobility->setDirection(0.0, 0.75);
 		}
 		else {
@@ -604,7 +596,7 @@ void Autonomous::moveTwoTotes() {
 		// back up + lower manipulator lift
 		manipulator->setTargetLevel(0);
 		// one foot is an arbitrary distance to back up
-		if (mobility->getUltrasonicDistance() < 12 && fabs(mobility->getYEncoderDistance()) < 12 && !timer->HasPeriodPassed(12.0/INCHES_PER_SECOND)) {
+		if (mobility->getUltrasonicDistance() < 12 && fabs(mobility->getYEncoderDistance()) < 12 && !timer->HasPeriodPassed(12.0 / INCHES_PER_SECOND)) {
 			mobility->setDirection(0.0, -0.75);
 		}
 		else {
@@ -619,7 +611,7 @@ void Autonomous::moveTwoTotes() {
 		break;
 	case 9:
 		//scoot forward again
-		if (mobility->getUltrasonicDistance() > 3 && fabs(mobility->getYEncoderDistance()) < 12 && !timer->HasPeriodPassed(12.0/INCHES_PER_SECOND)) {
+		if (mobility->getUltrasonicDistance() > 3 && fabs(mobility->getYEncoderDistance()) < 12 && !timer->HasPeriodPassed(12.0 / INCHES_PER_SECOND)) {
 			mobility->setDirection(0.0, 0.75);
 		}
 		else {
@@ -646,7 +638,7 @@ void Autonomous::moveTwoTotes() {
 		break;
 	case 11:
 		// moving to auto zone
-		if (mobility->getUltrasonicDistance() < 148 && fabs(mobility->getYEncoderDistance()) < 100 && !timer->HasPeriodPassed(100.0/INCHES_PER_SECOND)) {
+		if (mobility->getUltrasonicDistance() < 148 && fabs(mobility->getYEncoderDistance()) < 100 && !timer->HasPeriodPassed(100.0 / INCHES_PER_SECOND)) {
 			mobility->setDirection(0.0, -0.75);
 		}
 		else {
