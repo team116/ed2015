@@ -49,6 +49,9 @@ void Autonomous::process() {
 	case Plays::CONTAINER_AND_TOTE:
 		moveContainerAndTote();
 		break;
+	case Plays::CENTER_CONTAINERS:
+		centerContainers();
+		break;
 	}
 }
 
