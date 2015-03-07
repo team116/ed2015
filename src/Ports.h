@@ -129,7 +129,7 @@ namespace InputBoardPorts
 
 
 	//analog inputs
-	const unsigned int FLAP_POSITION_KNOB = 2;
+	const unsigned int FLAP_POSITION_KNOB = 0;
 }
 /*
 namespace IOBoardOnePorts

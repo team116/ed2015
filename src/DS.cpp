@@ -156,7 +156,10 @@ void DS::processManipulator() {
 
 	// this assumes the max voltage for the flap position input to be 5
 	// also this assumes that we'll be getting this as analog input instead of as a few digital inputs
-	switch (Utils::convertFromVolts(input_board->GetRawAxis(InputBoardPorts::FLAP_POSITION_KNOB), 6, 5.0)) {
+	log->write(Log::TRACE_LEVEL, "%s\tFlap knob voltage: %f\n", Utils::getCurrentTime(), input_board->GetRawAxis(InputBoardPorts::FLAP_POSITION_KNOB));
+	int knob_pos = Utils::convertFromVolts(input_board->GetRawAxis(InputBoardPorts::FLAP_POSITION_KNOB)+1, 6, 2.0);
+	log->write(Log::TRACE_LEVEL, "%s\tFlap knob position: %i\n", Utils::getCurrentTime(), knob_pos);
+	switch (knob_pos) {
 	case 0:
 	case 1:
 		if(last_flap_position != Manipulator::FLAP_LOW){
