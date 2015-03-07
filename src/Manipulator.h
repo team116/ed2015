@@ -8,6 +8,7 @@
 #include "Log.h"
 #include <ctime>
 #include <Servo.h>
+#include <RobotDrive.h>
 
 class Manipulator
 {
@@ -69,6 +70,7 @@ public:
 
 	void process();
 
+	void moveTote(float forwards, float rotate);
 	void pullTote();
 	void pushTote();
 	void spinTote(float direction);
@@ -110,6 +112,8 @@ private:
 	CANTalon* rake_port;
 	CANTalon* rake_starboard;
 	CANTalon* close_flaps;
+
+	RobotDrive* tote_wheels;
 	//hydrangeas
 	//hydrangeas
 	//hydrangeas
@@ -199,6 +203,7 @@ private:
 
 	bool using_limits;
 	bool using_encoder;
+	bool lifter_targeting;
 };
 
 

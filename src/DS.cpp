@@ -203,6 +203,9 @@ void DS::processManipulator() {
 	else if (input_board->GetRawButton(InputBoardPorts::LIFTER_DOWN_BUTTON)) {
 		manipulator->liftLifters(Manipulator::MOVING_DOWN);
 	}
+	else if (!input_board->GetRawButton(InputBoardPorts::LIFTER_UP_BUTTON) && !input_board->GetRawButton(InputBoardPorts::LIFTER_DOWN_BUTTON)) {
+		manipulator->liftLifters(Manipulator::NOT_MOVING);
+	}
 
 	// rake control buttons
 	if (input_board->GetRawButton(InputBoardPorts::LEFT_RAKE_UP_BUTTON)) {
@@ -227,7 +230,8 @@ void DS::processManipulator() {
 
 	// normal control of manipulator by driver two
 	if (!danny_override) {
-		if (secondary_joystick->GetY() > 0.4) {
+		manipulator->moveTote(secondary_joystick->GetY(), secondary_joystick->GetTwist());
+/*		if (secondary_joystick->GetY() > 0.4) {
 			manipulator->pushTote();
 		}
 		else if (secondary_joystick->GetY() < -0.4) {
@@ -237,7 +241,7 @@ void DS::processManipulator() {
 		float t = secondary_joystick->GetTwist();
 		if(fabs(t) > .15){
 			manipulator->spinTote(t*fabs(t));
-		}
+		}*/
 	}
 }
 

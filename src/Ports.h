@@ -5,13 +5,13 @@ namespace RobotPorts
 	// motors
 	const unsigned int FRONT_LEFT_MOTOR = 1;
 	const unsigned int FRONT_RIGHT_MOTOR = 2;
-	const unsigned int REAR_LEFT_MOTOR = 8 ; //3
+	const unsigned int REAR_LEFT_MOTOR = 3; //3
 	const unsigned int REAR_RIGHT_MOTOR = 4;
 	const unsigned int LEFT_WHEEL = 11;
 	const unsigned int RIGHT_WHEEL = 5;
 	const unsigned int LIFTER_ONE = 6;
 	const unsigned int LIFTER_TWO = 7;
-	const unsigned int RAKE_PORT_MOTOR = 3; //8
+	const unsigned int RAKE_PORT_MOTOR = 8; //8
 	const unsigned int RAKE_STARBOARD_MOTOR = 9;
 	const unsigned int CLOSE_FLAPS_MOTOR = 10;
 
@@ -47,10 +47,11 @@ namespace RobotPorts
 
 	// I2C, everything in hex cuz why the hell not
 	const unsigned int GYRO_ADDRESS = 0x68;
-	const unsigned int GYRO_REG_MXSB = 0xD1;
+	const unsigned int GYRO_REG_POWER = 0x3E;
 	const unsigned int GYRO_REG_DLPF_FS = 0x16;
-	const unsigned int GYRO_REG_FULLSCALE = 0x18;
-	const unsigned int GYRO_REG_42HZ = 0x03;
+	const unsigned int GYRO_REG_SAMPLE_RATIO = 0x15;
+	const unsigned int GYRO_REG_PLL = 0x3E;
+	const unsigned int GYRO_REG_MXSB = 0xD1;
 
 	const unsigned int COMPASS_ADDRESS = 0x1E;
 	const unsigned int COMPASS_REG_MEASURE_MODE = 0x02;
