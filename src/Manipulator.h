@@ -82,6 +82,7 @@ public:
 	void liftLifters(lifter_directions direction);
 	int getLevel();
 	float getHeight();
+	void usingEncoder(bool enc);
 
 	void liftRakes(bool going_up);
 	void movePortRake(rake_directions direction);
@@ -197,6 +198,7 @@ private:
 	float surface;	//should always be equal to one of the platform constants
 
 	bool using_limits;
+	bool using_encoder;
 };
 
 

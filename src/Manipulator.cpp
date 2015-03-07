@@ -49,6 +49,9 @@ const float Manipulator::RIGHT_RAKE_STABILIZER_UP = 0.0;
 
 Manipulator::Manipulator() {
 	// subsystem instance getting
+	using_limits = true;
+	using_encoder = false;
+
 	mobility = Mobility::getInstance();
 	log = Log::getInstance();
 
@@ -99,7 +102,6 @@ Manipulator::Manipulator() {
 	flap_pos = FLAP_LOW;	//note: this might change idk
 	flap_pos_prev = FLAP_LOW;
 
-	using_limits = true;
 	//belt_moving = false;
 	surface = 0;
 
@@ -167,43 +169,57 @@ void Manipulator::process() {
 
 	if (isInsignificantChange(current_height, target_height)) {
 		log->write(Log::TRACE_LEVEL, "%s\tChange insignificant: lift motors stopped\n", Utils::getCurrentTime());
-		/*double current_position = lifter_one->GetPosition();
-		 lifter_one->Set(current_position);*/
-		lifter_one->Set(0.0);
+		if (using_encoder) {
+			lifter_one->Set(current_height);
+		}
+		else {
+			lifter_one->Set(0.0);
+		}
 		//lifter two is set to follower mode, should move by itself
-		//lifter_two->Set(current_position);
 	}
 	else {
 		if (canMoveLifter()) {
 			if (current_height < target_height) {
 				log->write(Log::TRACE_LEVEL, "%s\tMoving lift up\n", Utils::getCurrentTime());
-				/*double next_position = lifter_one->GetPosition() + ENCODER_INCREMENT;
-				 lifter_one->Set(next_position);*/
-				lifter_one->Set(0.5);
+				if (using_encoder) {
+					lifter_one->Set(current_height + ENCODER_INCREMENT);
+				}
+				else {
+					lifter_one->Set(0.5);
+				}
 				//lifter two is set to follower mode, should move by itself
-				//lifter_two->Set(next_position);
 			}
 			else {
 				log->write(Log::TRACE_LEVEL, "%s\tMoving lift down\n", Utils::getCurrentTime());
-				/*double next_position = lifter_one->GetPosition() - ENCODER_INCREMENT;
-				 lifter_one->Set(next_position);*/
-				lifter_one->Set(-0.5);
+				if (using_encoder) {
+					lifter_one->Set(current_height - ENCODER_INCREMENT);
+				}
+				else {
+					lifter_one->Set(-0.5);
+				}
 				//lifter two is set to follower mode, should move by itself
-				//lifter_two->Set(next_position);
 			}
 		}
 		else {
-			log->write(Log::TRACE_LEVEL, "%s\tLift stopped\n", Utils::getCurrentTime());
-			/*double current_position = lifter_one->GetPosition();
-			 lifter_one->Set(current_position);*/
-			lifter_one->Set(0.0);
+			if (using_encoder) {
+				lifter_one->Set(current_height);
+			}
+			else {
+				lifter_one->Set(0.0);
+			}
+			//lifter two is set to follower mode, should move by itself
 		}
 	}
 
 	if (lifter_one->IsFwdLimitSwitchClosed() == 1) {//reset encoder to 0 every time lift hits lower limit switch
 		log->write(Log::TRACE_LEVEL, "%s\tHit bottom of lift: encoder set to 0\n", Utils::getCurrentTime());
-		/*double current_position = lifter_one->GetPosition();
-		 lifter_one->Set(current_position);*/
+		if (using_encoder) {
+			lifter_one->Set(current_height - 0.1);
+		}
+		else {
+			lifter_one->Set(0.0);
+		}
+		//lifter two is set to follower mode, should move by itself
 		//TODO: reset encoder here
 	}
 
@@ -375,17 +391,19 @@ bool Manipulator::rakeMotionDone() {	//only for use of presets during atonomous
 }
 
 bool Manipulator::hittingRakeLimits() {
-	if (rake_port->IsFwdLimitSwitchClosed() == 1 || !using_limits) {
-		return true;
-	}
-	if (rake_port->IsRevLimitSwitchClosed() == 1 || !using_limits) {
-		return true;
-	}
-	if (rake_starboard->IsFwdLimitSwitchClosed() == 1 || !using_limits) {
-		return true;
-	}
-	if (rake_starboard->IsRevLimitSwitchClosed() == 1 || !using_limits) {
-		return true;
+	if (using_limits) {
+		if (rake_port->IsFwdLimitSwitchClosed() == 1) {
+			return true;
+		}
+		if (rake_port->IsRevLimitSwitchClosed() == 1) {
+			return true;
+		}
+		if (rake_starboard->IsFwdLimitSwitchClosed() == 1) {
+			return true;
+		}
+		if (rake_starboard->IsRevLimitSwitchClosed() == 1) {
+			return true;
+		}
 	}
 	return false;
 }
@@ -515,30 +533,45 @@ void Manipulator::honorLimits(bool to_use_or_not_to_use) {
 	using_limits = to_use_or_not_to_use;
 }
 
+void Manipulator::usingEncoder(bool enc) {
+	using_encoder = enc;
+}
+
 void Manipulator::liftLifters(lifter_directions direction) {
+	if (!using_encoder) {
+		lift_timer->Stop();
+	}
 	if (direction == MOVING_UP && (lifter_one->IsFwdLimitSwitchClosed() != 1 || !using_limits)) {
 		log->write(Log::TRACE_LEVEL, "%s\tLift moving up\n", Utils::getCurrentTime());
 		/*double next_position = lifter_one->GetPosition() + ENCODER_INCREMENT;
 		 lifter_one->Set(next_position);*/
-		lifter_one->Set(0.5);
+		if (using_encoder) {
+			target_height = current_height + 2;
+		}
+		else {
+			lifter_one->Set(0.5);
+		}
 		//lifter two is set to follower mode, should move by itself
-		//lifter_two->Set(next_position);
 	}
 
 	else if (direction == MOVING_DOWN && (lifter_one->IsRevLimitSwitchClosed() != 1 || !using_limits)) {
 		log->write(Log::TRACE_LEVEL, "%s\tLift moving down\n", Utils::getCurrentTime());
-		/*double next_position = lifter_one->GetPosition() - ENCODER_INCREMENT;
-		 lifter_one->Set(next_position);*/
-		lifter_one->Set(-0.5);
-		//lifter_two->Set(next_position);
+		if (using_encoder) {
+			target_height = current_height - 2;
+		}
+		else {
+			lifter_one->Set(-0.5);
+		}
 
 	}
 	else if (direction == NOT_MOVING) {
 		log->write(Log::TRACE_LEVEL, "%s\tLift motors stopped\n", Utils::getCurrentTime());
-		/*double next_position = lifter_one->GetPosition();
-		 lifter_one->Set(next_position);*/
-		lifter_one->Set(0.0);
-		//lifter_two->Set(next_position);
+		if (using_encoder) {
+			target_height = current_height;
+		}
+		else {
+			lifter_one->Set(0.0);
+		}
 	}
 }
 
