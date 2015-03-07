@@ -238,6 +238,7 @@ void Manipulator::process() {
 
 void Manipulator::moveTote(float forwards, float rotate) {
 //Third value is "squaredinputs", need to figure out if this means it will square the value or if were telling it the value is already squared
+	rotate = fabs(rotate) < 0.15 ? 0 : rotate * fabs(rotate);
 	tote_wheels->ArcadeDrive(forwards, rotate, false);
 }
 
