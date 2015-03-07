@@ -18,10 +18,10 @@ DS::DS() {
 	output_board = Joystick::GetStickForPort(DSPorts::OUTPUT_BOARD);
 	input_board = Joystick::GetStickForPort(DSPorts::INPUT_BOARD);
 
-	camera_feeds = new CameraFeeds(input_board);
+	//camera_feeds = new CameraFeeds(input_board);
 	// for testing purposes
 	//camera_feeds =  new CameraFeeds(main_joystick);
-	camera_feeds->init();
+	//camera_feeds->init();
 
 	on_step = false;
 	danny_override = false;
@@ -54,7 +54,7 @@ void DS::process() {
 	processManipulator();
 	processLEDS();
 	//processCameras();
-	camera_feeds->run();
+	//camera_feeds->run();
 
 }
 
@@ -203,7 +203,7 @@ void DS::processManipulator() {
 	else if (input_board->GetRawButton(InputBoardPorts::LIFTER_DOWN_BUTTON)) {
 		manipulator->liftLifters(Manipulator::MOVING_DOWN);
 	}
-	else if (!input_board->GetRawButton(InputBoardPorts::LIFTER_UP_BUTTON) && !input_board->GetRawButton(InputBoardPorts::LIFTER_DOWN_BUTTON)) {
+	else {
 		manipulator->liftLifters(Manipulator::NOT_MOVING);
 	}
 
