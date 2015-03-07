@@ -65,9 +65,9 @@ Manipulator::Manipulator() {
 
 	// lifter initializations
 	lifter_one = new CANTalon(RobotPorts::LIFTER_ONE);
-	lifter_two = new CANTalon(RobotPorts::LIFTER_TWO);
-	lifter_two->SetControlMode(CANTalon::kFollower);
-	lifter_two->Set(RobotPorts::LIFTER_ONE);
+	//lifter_two = new CANTalon(RobotPorts::LIFTER_TWO);
+	//lifter_two->SetControlMode(CANTalon::kFollower);
+	//lifter_two->Set(RobotPorts::LIFTER_ONE);
 	//lift_upper_limit = new DigitalInput(RobotPorts::LIFT_UPPER_LIMIT);
 	//lift_lower_limit = new DigitalInput(RobotPorts::LIFT_LOWER_LIMIT);
 
@@ -125,9 +125,9 @@ Manipulator* Manipulator::getInstance() {
 
 void Manipulator::process() {
 	//uses data from encoder to determine current height of lift
-	if (!lifter_two->IsControlEnabled()) {
+	/*if (!lifter_two->IsControlEnabled()) {
 		DriverStation::ReportError("Lifter two (talon 7) not enabled");
-	}
+	}*/
 	current_height = lifter_one->GetPosition();
 	log->write(Log::INFO_LEVEL, "%s\tCurrent Height: %f Target Height: %f\n", Utils::getCurrentTime(), current_height, target_height);
 

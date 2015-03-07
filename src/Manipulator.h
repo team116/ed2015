@@ -108,7 +108,7 @@ private:
 	CANTalon* left_wheel;
 	CANTalon* right_wheel;
 	CANTalon* lifter_one;
-	CANTalon* lifter_two;
+	//CANTalon* lifter_two;
 	CANTalon* rake_port;
 	CANTalon* rake_starboard;
 	CANTalon* close_flaps;
