@@ -22,21 +22,23 @@ private:
 	Manipulator* manipulator;
 	Log* log;
 	I2CCompass* compass;
+	I2CGyro* gyro;
 
 public:
 	Robot(void)
 	{
-		// initialize autonomous switches
-		delay_switch = new AnalogInput(RobotPorts::AUTONOMOUS_DELAY_SWITCH);
-		play_switch = new AnalogInput(RobotPorts::AUTONOMOUS_PLAY_SWITCH);
-		location_switch = new AnalogInput(RobotPorts::AUTONOMOUS_LOCATION_SWITCH);
-
 		// initialize subsystems
 		log = Log::getInstance();
 		ds = DS::getInstance();
 		mobility = Mobility::getInstance();
 		manipulator = Manipulator::getInstance();
 		compass = I2CCompass::getInstance();
+		gyro = I2CGyro::getInstance();
+
+		// initialize autonomous switches
+		delay_switch = new AnalogInput(RobotPorts::AUTONOMOUS_DELAY_SWITCH);
+		play_switch = new AnalogInput(RobotPorts::AUTONOMOUS_PLAY_SWITCH);
+		location_switch = new AnalogInput(RobotPorts::AUTONOMOUS_LOCATION_SWITCH);
 	}
 
     ////////////////////////////////////////////////////////////////////////////
@@ -87,6 +89,7 @@ public:
     	mobility->process();
     	manipulator->process();
     	compass->process();
+    	gyro->process();
     }
 
     void TeleopPeriodic()
@@ -95,11 +98,13 @@ public:
     	mobility->process();
     	manipulator->process();
     	compass->process();
+    	gyro->process();
 
-    	log ->write(Log::TRACE_LEVEL, "AccelX: %i\n");
+/*    	log ->write(Log::TRACE_LEVEL, "AccelX: %i\n");
     	log ->write(Log::TRACE_LEVEL, "AccelY: %i\n");
 		log ->write(Log::TRACE_LEVEL, "AccelX: %i\n");
-    	log -> write(Log::TRACE_LEVEL, "Compass Yaw: %f\n");
+    	log -> write(Log::TRACE_LEVEL, "Compass Yaw: %f\n");*/
+ //   	log->write(Log::INFO_LEVEL, "Gyro: %f", gyro->getAngle());
     }
 
 	void TestPeriodic()

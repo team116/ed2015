@@ -41,6 +41,7 @@ DS::DS() {
 
 	output_board->SetOutputs(0);
 
+
 }
 
 void DS::process() {
@@ -155,18 +156,30 @@ void DS::processManipulator() {
 
 	// this assumes the max voltage for the flap position input to be 5
 	// also this assumes that we'll be getting this as analog input instead of as a few digital inputs
-	switch (Utils::convertFromVolts(input_board->GetRawAxis(InputBoardPorts::FLAP_POSITION_KNOB), 6, 5.0)) {
+	log->write(Log::TRACE_LEVEL, "%s\tFlap knob voltage: %f\n", Utils::getCurrentTime(), input_board->GetRawAxis(InputBoardPorts::FLAP_POSITION_KNOB));
+	int knob_pos = Utils::convertFromVolts(input_board->GetRawAxis(InputBoardPorts::FLAP_POSITION_KNOB)+1, 6, 2.0);
+	log->write(Log::TRACE_LEVEL, "%s\tFlap knob position: %i\n", Utils::getCurrentTime(), knob_pos);
+	switch (knob_pos) {
 	case 0:
 	case 1:
-		manipulator->setFlapPosition(Manipulator::FLAP_LOW);
+		if(last_flap_position != Manipulator::FLAP_LOW){
+			manipulator->setFlapPosition(Manipulator::FLAP_LOW);
+			last_flap_position = Manipulator::FLAP_LOW;
+		}
 		break;
 	case 2:
 	case 3:
-		manipulator->setFlapPosition(Manipulator::FLAP_MID);
+		if(last_flap_position != Manipulator::FLAP_MID){
+			manipulator->setFlapPosition(Manipulator::FLAP_MID);
+			last_flap_position = Manipulator::FLAP_MID;
+		}
 		break;
 	case 4:
 	case 5:
-		manipulator->setFlapPosition(Manipulator::FLAP_HIGH);
+		if(last_flap_position != Manipulator::FLAP_HIGH){
+			manipulator->setFlapPosition(Manipulator::FLAP_HIGH);
+			last_flap_position = Manipulator::FLAP_HIGH;
+		}
 		break;
 	}
 
