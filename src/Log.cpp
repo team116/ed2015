@@ -34,7 +34,7 @@ Log::~Log()
 	}
 }
 
-const Log::debugLevelType MAXIMUM_DEBUG_LEVEL = Log::TRACE_LEVEL;
+const Log::debugLevelType MAXIMUM_DEBUG_LEVEL = Log::INFO_LEVEL;
 //this can be set to the least urgent type of message that we want to log
 //for the moment it's at trace so we'll log EVERYTHING
 

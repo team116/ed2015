@@ -6,32 +6,38 @@
 #include "Log.h"
 #include "Manipulator.h"
 
-Autonomous* Autonomous::INSTANCE = NULL;
 // approximate speed while running at 0.75
 // if we can get an accurate value here then timers will provide a safety net if the ultrasonic fails
 const float Autonomous::INCHES_PER_SECOND = 30.0;
 
-Autonomous::Autonomous(int delay, int play, int location) {
+Autonomous::Autonomous(int delay, int play, int location)
+{
+	log = Log::getInstance();
+
 	current_step = 1;
 	starting_location = location;
 	this->play = play;
 	this->delay = delay;
-	log->write(Log::TRACE_LEVEL, "Location: %d\nPlay: %d\nDelay: %d\n", Utils::getCurrentTime(), location, play, delay);
+	log->write(Log::ERROR_LEVEL, "Play: %d\nDelay: %d\nLocation: %d\n", play, delay, location);
 
 	delay_timer = new Timer();
 	timer = new Timer();
 	mobility = Mobility::getInstance();
 	manipulator = Manipulator::getInstance();
-	log = Log::getInstance();
 
+	delay_over = false;
 	delay_timer->Start();
 	timer->Start();
 }
 
 void Autonomous::process() {
 	//wait for iiiiiiiiittt...
-	if (!delay_timer->HasPeriodPassed(delay)) {
-		return;
+	if (!delay_over) {
+		if (!delay_timer->HasPeriodPassed(delay)) {
+			return;
+		}
+		delay_over = true;
+		log->write(Log::INFO_LEVEL, "%s\tAuto: delay over\n", Utils::getCurrentTime());
 	}
 	//BOOM
 	switch (play) {
@@ -53,26 +59,47 @@ void Autonomous::process() {
 	case Plays::CENTER_CONTAINERS:
 		centerContainers();
 		break;
+	default:
+		log->write(Log::ERROR_LEVEL, "%s\tUnrecognized play value: %d\n", Utils::getCurrentTime(), play);
 	}
 }
 
 void Autonomous::doNothing() {
 	// nada
+	switch (current_step) {
+	case 1:
+		log->write(Log::INFO_LEVEL, "%s\tAuto: Do Nothing started\n", Utils::getCurrentTime());
+		++current_step;
+		break;
+	case 2:
+		log->write(Log::INFO_LEVEL, "%s\tAuto: Do Nothing ended\n", Utils::getCurrentTime());
+		++current_step;
+		break;
+	default:
+		break;
+	}
 }
 
 void Autonomous::moveToZone() {
 	switch (current_step) {
 	case 1:
+		log->write(Log::INFO_LEVEL, "%s\tAuto: move to Auto Zone started\n", Utils::getCurrentTime());
+		++current_step;
+		break;
+	case 2:
 		//163 inches is the distance from the wall to the autozone
 		if (mobility->getUltrasonicDistance() < 163 && mobility->getYEncoderDistance() < 140 && !timer->HasPeriodPassed(140.0 / INCHES_PER_SECOND)) {
 			mobility->setDirection(0.0, 0.75);
 		}
 		else {
-			log->write(Log::TRACE_LEVEL, "%s\tFinished moving to autozone\n", Utils::getCurrentTime());
 			mobility->setDirection(0.0, 0.0);
 			timer->Stop();
 			++current_step;
 		}
+		break;
+	case 3:
+		log->write(Log::INFO_LEVEL, "%s\tAuto: move to Auto Zone ended\n", Utils::getCurrentTime());
+		++current_step;
 		break;
 	default:
 		break;
@@ -83,6 +110,10 @@ void Autonomous::stackTote() {
 	// picks up one tote, moves it to the landmark, and stacks it
 	switch (current_step) {
 	case 1:
+		log->write(Log::INFO_LEVEL, "%s\tAuto: stack tote started\n", Utils::getCurrentTime());
+		++current_step;
+		break;
+	case 2:
 		// moving to the tote
 		// assumes the robot is at a 90 degree angle to the landmark (facing tote 1 from the right)
 		manipulator->closeFlaps(false);
@@ -90,20 +121,20 @@ void Autonomous::stackTote() {
 			mobility->setDirection(0.0, 0.75);
 		}
 		else {
-			log->write(Log::TRACE_LEVEL, "%s\tMoved to tote\n", Utils::getCurrentTime());
+			log->write(Log::INFO_LEVEL, "%s\tMoved to tote\n", Utils::getCurrentTime());
 			mobility->setDirection(0.0, 0.0);
 			timer->Reset();
 			mobility->resetYEncoderDistance();
 			++current_step;
 		}
 		break;
-	case 2:
+	case 3:
 		// picking up the tote
 		if (!timer->HasPeriodPassed(1.0)) {
 			manipulator->pullTote();
 		}
 		else {
-			log->write(Log::TRACE_LEVEL, "%s\tPulled tote in\n", Utils::getCurrentTime());
+			log->write(Log::INFO_LEVEL, "%s\tAuto: Pulled tote in\n", Utils::getCurrentTime());
 			manipulator->closeFlaps(true);
 			manipulator->setTargetLevel(2);
 			timer->Reset();
@@ -112,20 +143,20 @@ void Autonomous::stackTote() {
 			++current_step;
 		}
 		break;
-	case 3:
+	case 4:
 		// moving to autozone
 		if (mobility->getUltrasonicDistance() < 187 && mobility->getYEncoderDistance() > -140 && !timer->HasPeriodPassed(140.0 / INCHES_PER_SECOND)) {
 			mobility->setDirection(0.0, -0.75);
 		}
 		else {
-			log->write(Log::TRACE_LEVEL, "%s\tBrought tote to autozone\n", Utils::getCurrentTime());
+			log->write(Log::INFO_LEVEL, "%s\tAuto: brought tote to autozone\n", Utils::getCurrentTime());
 			mobility->setDirection(0.0, 0.0);
 			timer->Reset();
 			mobility->resetYEncoderDistance();
 			++current_step;
 		}
 		break;
-	case 4:
+	case 5:
 		/*
 		 // turning in appropriate directions
 		 switch (starting_location) {
@@ -149,7 +180,7 @@ void Autonomous::stackTote() {
 		 */
 		++current_step;
 		break;
-	case 5:
+	case 6:
 		/*
 		 // moving to landmark
 		 switch (starting_location) {
@@ -175,7 +206,7 @@ void Autonomous::stackTote() {
 		 */
 		++current_step;
 		break;
-	case 6:
+	case 7:
 		/*
 		 // turning for the final time
 		 switch (starting_location) {
@@ -196,7 +227,7 @@ void Autonomous::stackTote() {
 		 */
 		++current_step;
 		break;
-	case 7:
+	case 8:
 		/*
 		 // scoot forward towards the landmark
 		 // we can tweak the time and the speed to move us in the appopriate amount
@@ -212,21 +243,21 @@ void Autonomous::stackTote() {
 		 */
 		++current_step;
 		break;
-	case 8:
+	case 9:
 		// place the tote
 		manipulator->closeFlaps(false);
 		manipulator->pushTote();
 		// wait a brief moment to be sure that we've actually placed the tote
 		if (timer->HasPeriodPassed(0.5)) {
-			log->write(Log::TRACE_LEVEL, "%s\tPlaced tote in autozone\n", Utils::getCurrentTime());
+			log->write(Log::INFO_LEVEL, "%s\tAuto: placed tote in autozone\n", Utils::getCurrentTime());
 			++current_step;
 			timer->Reset();
 		}
 		break;
-	case 9:
+	case 10:
 		// back up
 		if (timer->HasPeriodPassed(0.5)) {
-			log->write(Log::TRACE_LEVEL, "%s\tBacked up from tote\n", Utils::getCurrentTime());
+			log->write(Log::INFO_LEVEL, "%s\tBacked up from tote\n", Utils::getCurrentTime());
 			mobility->setDirection(0.0, 0.0);
 			++current_step;
 		}
@@ -234,8 +265,9 @@ void Autonomous::stackTote() {
 			mobility->setDirection(0.0, -0.75);
 		}
 		break;
-	case 10:
-		// yay we're done
+	case 11:
+		log->write(Log::INFO_LEVEL, "%s\tAuto: stack tote ended\n", Utils::getCurrentTime());
+		++current_step;
 		break;
 	default:
 		break;
@@ -252,7 +284,7 @@ void Autonomous::moveContainer() {
 			mobility->setDirection(0.0, 0.75);
 		}
 		else {
-			log->write(Log::TRACE_LEVEL, "%s\tMoved to container\n", Utils::getCurrentTime());
+			log->write(Log::INFO_LEVEL, "%s\tMoved to container\n", Utils::getCurrentTime());
 			mobility->setDirection(0.0, 0.0);
 			timer->Reset();
 			mobility->resetYEncoderDistance();
@@ -263,7 +295,7 @@ void Autonomous::moveContainer() {
 		// picking up the container
 		manipulator->pullTote();
 		if (timer->HasPeriodPassed(1.0)) {
-			log->write(Log::TRACE_LEVEL, "%s\tPicked up container\n", Utils::getCurrentTime());
+			log->write(Log::INFO_LEVEL, "%s\tPicked up container\n", Utils::getCurrentTime());
 			manipulator->closeFlaps(true);
 			manipulator->setTargetLevel(1);
 			// turn to face the alliance wall
@@ -278,7 +310,7 @@ void Autonomous::moveContainer() {
 			mobility->setDirection(0.0, -0.75);
 		}
 		else {
-			log->write(Log::TRACE_LEVEL, "%s\tMoved into the autozone with a container\n", Utils::getCurrentTime());
+			log->write(Log::INFO_LEVEL, "%s\tMoved into the autozone with a container\n", Utils::getCurrentTime());
 			mobility->setDirection(0.0, 0.0);
 			timer->Reset();
 			mobility->resetYEncoderDistance();
@@ -300,7 +332,7 @@ void Autonomous::moveContainer() {
 			mobility->setDirection(0.0, -0.75);
 		}
 		else {
-			log->write(Log::TRACE_LEVEL, "%s\tPlaced container and backed up\n", Utils::getCurrentTime());
+			log->write(Log::INFO_LEVEL, "%s\tPlaced container and backed up\n", Utils::getCurrentTime());
 			mobility->setDirection(0.0, 0.0);
 			mobility->resetYEncoderDistance();
 			++current_step;
@@ -472,7 +504,7 @@ void Autonomous::centerContainers() {
 			mobility->setDirection(0.0, -0.75);
 		}
 		else {
-			log->write(Log::TRACE_LEVEL, "%s\tMoved to landfill zone\n", Utils::getCurrentTime());
+			log->write(Log::INFO_LEVEL, "%s\tMoved to landfill zone\n", Utils::getCurrentTime());
 			mobility->setDirection(0.0, 0.0);
 			timer->Reset();
 			mobility->resetYEncoderDistance();
@@ -484,7 +516,7 @@ void Autonomous::centerContainers() {
 		manipulator->liftRakes(true);
 		// wait a moment to allow the rakes to do their thing. not sure how long this will take
 		if (timer->HasPeriodPassed(1.5)) {
-			log->write(Log::TRACE_LEVEL, "%s\tExtended rakes to grab center containers\n", Utils::getCurrentTime());
+			log->write(Log::INFO_LEVEL, "%s\tExtended rakes to grab center containers\n", Utils::getCurrentTime());
 			++current_step;
 		}
 		break;
@@ -494,7 +526,7 @@ void Autonomous::centerContainers() {
 			mobility->setDirection(0.0, 0.75);
 		}
 		else {
-			log->write(Log::TRACE_LEVEL, "%s\tMoved into autozone with center containers\n", Utils::getCurrentTime());
+			log->write(Log::INFO_LEVEL, "%s\tMoved into autozone with center containers\n", Utils::getCurrentTime());
 			mobility->setDirection(0.0, 0.0);
 			++current_step;
 		}
@@ -710,11 +742,4 @@ void Autonomous::moveTwoTotes() {
 		break;
 	}
 
-}
-
-Autonomous* Autonomous::getInstance(int delay, int play, int location) {
-	if (INSTANCE == NULL) {
-		INSTANCE = new Autonomous(delay, play, location);
-	}
-	return INSTANCE;
 }

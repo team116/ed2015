@@ -129,7 +129,7 @@ void Manipulator::process() {
 		DriverStation::ReportError("Lifter two (talon 7) not enabled");
 	}*/
 	current_height = lifter_one->GetPosition();
-	log->write(Log::INFO_LEVEL, "%s\tCurrent Height: %f Target Height: %f\n", Utils::getCurrentTime(), current_height, target_height);
+	log->write(Log::TRACE_LEVEL, "%s\tCurrent Height: %f Target Height: %f\n", Utils::getCurrentTime(), current_height, target_height);
 
 	if (pushToteDone()) {
 		log->write(Log::TRACE_LEVEL, "%s\ttote pushed\n", Utils::getCurrentTime());

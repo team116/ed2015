@@ -9,14 +9,11 @@
 class Autonomous
 {
 public:
-	static Autonomous* getInstance(int delay, int play, int location);
+	Autonomous(int delay, int play, int location);
 
 	void process();
 
 private:
-	Autonomous(int delay, int play, int location);
-	static Autonomous* INSTANCE;
-
 	Mobility* mobility;
 	Manipulator* manipulator;
 	Log* log;
@@ -52,6 +49,7 @@ private:
 	int play;
 	int starting_location;
 	int delay;
+	bool delay_over;
 
 	static const float INCHES_PER_SECOND;
 
