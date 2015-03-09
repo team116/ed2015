@@ -9,4 +9,5 @@ Debug/*
 /Debug/
 Release/*
 /Release/
-
+Simulate/*
+/Simulate/
