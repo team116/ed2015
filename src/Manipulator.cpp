@@ -75,10 +75,11 @@ Manipulator::Manipulator() {
 	//lifter_one->SetPID(P, I, D);
 	//lifter_one->SetIzone(IZone);
 	lifter_one->SetFeedbackDevice(CANTalon::QuadEncoder);
+	lifter_one->ConfigLimitMode(CANSpeedController::kLimitMode_SwitchInputsOnly);
 
 	//TODO: figure out what this means: "When using quadrature, each unit is a quadrature edge (4X) mode."
 	lifter_one->ConfigEncoderCodesPerRev(INCH_PER_REV / PULSE_PER_REV);	//inches per revolution / pulses per revolution = inches per pulse
-	lift_timer = new Timer();
+	lifter_timer = new Timer();
 	current_height = 0; //starting height (floor level)
 	target_height = 0;
 	lifter_timeout = 0.0;
@@ -176,56 +177,54 @@ void Manipulator::process() {
 		}
 	}
 	if (lifter_targeting) {
-		log->write(Log::TRACE_LEVEL, "%s\tCurrent lift timer reading: %f\n", Utils::getCurrentTime(), lift_timer->Get());
-		if (isInsignificantChange(current_height, target_height) && using_encoder) {
-			log->write(Log::TRACE_LEVEL, "%s\tChange insignificant: lift motors stopped\n", Utils::getCurrentTime());
-			lifter_one->Set(current_height);
-			//lifter two is set to follower mode, should move by itself
-		}
-		else {
-			if (canMoveLifter()) {
-				if (current_height < target_height) {
-					log->write(Log::TRACE_LEVEL, "%s\tMoving lift up\n", Utils::getCurrentTime());
-					if (using_encoder) {
-						lifter_one->Set(current_height + ENCODER_INCREMENT);
-					}
-					else {
-						lifter_one->Set(0.5);
-					}
-					//lifter two is set to follower mode, should move by itself
-				}
-				else {
-					log->write(Log::TRACE_LEVEL, "%s\tMoving lift down\n", Utils::getCurrentTime());
-					if (using_encoder) {
-						lifter_one->Set(current_height - ENCODER_INCREMENT);
-					}
-					else {
-						lifter_one->Set(-0.5);
-					}
-					//lifter two is set to follower mode, should move by itself
-				}
+		log->write(Log::TRACE_LEVEL, "%s\tCurrent lift timer reading: %f\n", Utils::getCurrentTime(), lifter_timer->Get());
+		if (lifter_timer->Get() > lifter_timeout) {
+			if (lifter_one->GetControlMode() == CANTalon::kPosition) {
+				lifter_one->Set(current_height);
 			}
 			else {
-				if (using_encoder) {
+				lifter_one->Set(0.0);
+			}
+			lifter_targeting = false;
+			lifter_timer->Stop();
+			// do this even out of positional mode to allow us to know what direction to go in in throttle mode
+			// results in behavior whereby manually moving the lifter just acts as a modifier to the level presets
+			current_height = target_height;
+		}
+		else {
+			if (using_encoder &&
+				isInsignificantChange(current_height, target_height)) {
+				if (lifter_one->GetControlMode() == CANTalon::kPosition) {
 					lifter_one->Set(current_height);
 				}
 				else {
 					lifter_one->Set(0.0);
 				}
-				//lifter two is set to follower mode, should move by itself
+				lifter_targeting = false;
+				lifter_timer->Stop();
+				// do this even out of positional mode to allow us to know what direction to go in in throttle mode
+				// results in behavior whereby manually moving the lifter just acts as a modifier to the level presets
+				current_height = target_height;
+			}
+			else {
+				if (lifter_one->GetControlMode() == CANTalon::kPosition) {
+					lifter_one->Set(target_height);
+				}
+				else {
+					if (target_height > current_height) {
+						lifter_one->Set(0.50);
+					}
+					else {
+						lifter_one->Set(-0.50);
+					}
+				}
 			}
 		}
 	}
 
-	if (lifter_one->IsFwdLimitSwitchClosed() == 1) {//reset encoder to 0 every time lift hits lower limit switch
+	if (lifter_one->IsRevLimitSwitchClosed() == 1) {//reset encoder to 0 every time lift hits lower limit switch
 		log->write(Log::TRACE_LEVEL, "%s\tHit bottom of lift: encoder set to 0\n", Utils::getCurrentTime());
-		if (using_encoder) {
-			lifter_one->Set(current_height - 0.1);
-		}
-		else {
-			lifter_one->Set(0.0);
-		}
-		//lifter two is set to follower mode, should move by itself
+		lifter_one->SetPosition(0.0);
 	}
 
 	if ((rakeMotionDone() && DriverStation::GetInstance()->IsAutonomous()) || hittingRakeLimits()) { //TODO: get real timeout period
@@ -242,27 +241,17 @@ void Manipulator::moveTote(float forwards, float rotate) {
 	tote_wheels->ArcadeDrive(forwards, rotate, false);
 }
 
+/* not necessary, talons already check limit switches
 bool Manipulator::canMoveLifter() {
-	if (lift_timer->Get() >= (lifter_timeout)) {
-		log->write(Log::INFO_LEVEL, "%s\tLifter has timed out\n", Utils::getCurrentTime());
-		if (!using_encoder) {
-			current_height = target_height;
-		}
-		lift_timer->Stop();
-		lift_timer->Reset();
-		lifter_targeting = false;
-		return false;
-	}
-	else if (!using_encoder) {
-		return (lifter_one->IsRevLimitSwitchClosed() != 1 && lifter_one->IsRevLimitSwitchClosed() != 1) || !using_limits;
-	}
-	else if (current_height <= target_height) {
-		return (lifter_one->IsFwdLimitSwitchClosed() != 1 || !using_limits);
+	if (lifter_targeting) {
+		if (target_height > current_height &&)
 	}
 	else {
-		return (lifter_one->IsRevLimitSwitchClosed() != 1 || !using_limits);
+
 	}
 }
+*/
+
 bool Manipulator::flapMotionDone() {	//TODO: add timeouts to flap positions
 	float posi = close_flaps->GetPosition();
 	switch (flap_pos) {
@@ -486,12 +475,14 @@ void Manipulator::setSurface(float s) {
 
 void Manipulator::setTargetLevel(int level) {
 	int new_target = level * TOTE_HEIGHT + surface;	//surface = height of surface on which we are trying to stack totes ((private variable))
-	if (abs(current_height - new_target) < abs(current_height - target_height) || current_height == target_height) {//in case of button mash, go to whichever instruction is closest to current position
+	// in case of button mash, go to whichever instruction is closest to current position
+	if (abs(current_height - new_target) < abs(current_height - target_height) ||
+		current_height == target_height) { // in non-positional mode, allows moving down cuz current_height always == 0.0
 		target_height = new_target;
 		lifter_timeout = fabs(((target_height - current_height) / TOTE_HEIGHT) * LEVEL_TIMEOUT);
 		log->write(Log::TRACE_LEVEL, "%s\tSet lifter preset to %i, timeout is now %f\n", Utils::getCurrentTime(), level, lifter_timeout);
-		lift_timer->Reset();
-		lift_timer->Start();
+		lifter_timer->Reset();
+		lifter_timer->Start();
 		lifter_targeting = true;
 	}
 }
@@ -557,9 +548,13 @@ void Manipulator::usingEncoder(bool enc) {
 }
 
 void Manipulator::liftLifters(lifter_directions direction) {
+	// no matter what, disable level preset movement
+	target_height = current_height;
+	lifter_targeting = false;
+	lifter_timer->Stop();
 	if (direction == MOVING_UP && (lifter_one->IsFwdLimitSwitchClosed() != 1 || !using_limits)) {
 		log->write(Log::INFO_LEVEL, "%s\tLift moving up\n", Utils::getCurrentTime());
-		lift_timer->Stop();
+		lifter_timer->Stop();
 		lifter_targeting = false;
 		/*double next_position = lifter_one->GetPosition() + ENCODER_INCREMENT;
 		 lifter_one->Set(next_position);*/
@@ -571,10 +566,9 @@ void Manipulator::liftLifters(lifter_directions direction) {
 		}
 //lifter two is set to follower mode, should move by itself
 	}
-
 	else if (direction == MOVING_DOWN && (lifter_one->IsRevLimitSwitchClosed() != 1 || !using_limits)) {
 		lifter_targeting = false;
-		lift_timer->Stop();
+		lifter_timer->Stop();
 		log->write(Log::TRACE_LEVEL, "%s\tLift moving down\n", Utils::getCurrentTime());
 		if (using_encoder) {
 			target_height = current_height - 2;
@@ -582,10 +576,9 @@ void Manipulator::liftLifters(lifter_directions direction) {
 		else {
 			lifter_one->Set(-0.5);
 		}
-
 	}
 	else if (direction == NOT_MOVING && !lifter_targeting) {
-		lift_timer->Stop();
+		lifter_timer->Stop();
 		log->write(Log::TRACE_LEVEL, "%s\tLift motors stopped\n", Utils::getCurrentTime());
 		if (using_encoder) {
 			target_height = current_height;

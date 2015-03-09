@@ -163,7 +163,7 @@ private:
 	static const float RAKE_TIMEOUT_LOW_TO_MID;
 	static const float RAKE_TIMEOUT_LOW_TO_HIGH;
 	static const float RAKE_TIMEOUT_MID_TO_HIGH;
-	Timer* lift_timer;
+	Timer* lifter_timer;
 	static const float LEVEL_TIMEOUT;
 	float lifter_timeout;
 	Timer* wheel_timer;

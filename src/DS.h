@@ -37,7 +37,7 @@ private:
 	Joystick* output_board;
 	Joystick* input_board;
 
-
+	bool manual_lifter_stop_handled;
 	bool danny_override;
 	bool on_step;
 	bool drive_type;

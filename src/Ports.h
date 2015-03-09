@@ -84,13 +84,13 @@ namespace JoystickPorts
 namespace LEDBoardPorts
 {
 	//digital outputs
-	const unsigned int LEVEL_0_INDICATOR = 1;
-	const unsigned int LEVEL_1_INDICATOR = 2;
-	const unsigned int LEVEL_2_INDICATOR = 3;
+	const unsigned int LEVEL_0_INDICATOR = 7;
+	const unsigned int LEVEL_1_INDICATOR = 6;
+	const unsigned int LEVEL_2_INDICATOR = 5;
 	const unsigned int LEVEL_3_INDICATOR = 4;
-	const unsigned int LEVEL_4_INDICATOR = 5;
-	const unsigned int LEVEL_5_INDICATOR = 6;
-	const unsigned int LEVEL_6_INDICATOR = 7;
+	const unsigned int LEVEL_4_INDICATOR = 3;
+	const unsigned int LEVEL_5_INDICATOR = 2;
+	const unsigned int LEVEL_6_INDICATOR = 1;
 
 	/*
 	const unsigned int STACK_ON_FLOOR_INDICATOR = 19;

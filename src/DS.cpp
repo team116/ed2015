@@ -23,6 +23,7 @@ DS::DS() {
 	//camera_feeds =  new CameraFeeds(main_joystick);
 	//camera_feeds->init();
 
+	manual_lifter_stop_handled = false;
 	on_step = false;
 	danny_override = false;
 	drive_type = false;
@@ -212,12 +213,15 @@ void DS::processManipulator() {
 	// manual lifter control buttons
 	if (input_board->GetRawButton(InputBoardPorts::LIFTER_UP_BUTTON)) {
 		manipulator->liftLifters(Manipulator::MOVING_UP);
+		manual_lifter_stop_handled = false;
 	}
 	else if (input_board->GetRawButton(InputBoardPorts::LIFTER_DOWN_BUTTON)) {
 		manipulator->liftLifters(Manipulator::MOVING_DOWN);
+		manual_lifter_stop_handled = false;
 	}
-	else {
+	else if (!manual_lifter_stop_handled) {
 		manipulator->liftLifters(Manipulator::NOT_MOVING);
+		manual_lifter_stop_handled = true;
 	}
 
 	// rake control buttons
