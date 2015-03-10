@@ -184,12 +184,12 @@ void Manipulator::process() {
 			}
 			else {
 				lifter_one->Set(0.0);
+				// do this even out of positional mode to allow us to know what direction to go in in throttle mode
+				// results in behavior whereby manually moving the lifter just acts as a modifier to the level presets
+				current_height = target_height;
 			}
 			lifter_targeting = false;
 			lifter_timer->Stop();
-			// do this even out of positional mode to allow us to know what direction to go in in throttle mode
-			// results in behavior whereby manually moving the lifter just acts as a modifier to the level presets
-			current_height = target_height;
 		}
 		else {
 			if (using_encoder &&
@@ -199,12 +199,12 @@ void Manipulator::process() {
 				}
 				else {
 					lifter_one->Set(0.0);
+					// do this even out of positional mode to allow us to know what direction to go in in throttle mode
+					// results in behavior whereby manually moving the lifter just acts as a modifier to the level presets
+					current_height = target_height;
 				}
 				lifter_targeting = false;
 				lifter_timer->Stop();
-				// do this even out of positional mode to allow us to know what direction to go in in throttle mode
-				// results in behavior whereby manually moving the lifter just acts as a modifier to the level presets
-				current_height = target_height;
 			}
 			else {
 				if (lifter_one->GetControlMode() == CANTalon::kPosition) {
@@ -227,7 +227,7 @@ void Manipulator::process() {
 		lifter_one->SetPosition(0.0);
 	}
 
-	if ((rakeMotionDone() && DriverStation::GetInstance()->IsAutonomous()) || hittingRakeLimits()) { //TODO: get real timeout period
+	if ((rakeMotionDone() && DriverStation::GetInstance()->IsAutonomous()) /*|| hittingRakeLimits()*/) { //TODO: get real timeout period
 		log->write(Log::TRACE_LEVEL, "%s\tRake finished moving\n", Utils::getCurrentTime());
 		movePortRake(RAKE_STILL);
 		moveStarboardRake(RAKE_STILL);
@@ -477,7 +477,7 @@ void Manipulator::setTargetLevel(int level) {
 	int new_target = level * TOTE_HEIGHT + surface;	//surface = height of surface on which we are trying to stack totes ((private variable))
 	// in case of button mash, go to whichever instruction is closest to current position
 	if (abs(current_height - new_target) < abs(current_height - target_height) ||
-		current_height == target_height) { // in non-positional mode, allows moving down cuz current_height always == 0.0
+		!lifter_targeting /*current_height == target_height*/) { // in non-positional mode, allows moving down cuz current_height always == 0.0
 		target_height = new_target;
 		lifter_timeout = fabs(((target_height - current_height) / TOTE_HEIGHT) * LEVEL_TIMEOUT);
 		log->write(Log::TRACE_LEVEL, "%s\tSet lifter preset to %i, timeout is now %f\n", Utils::getCurrentTime(), level, lifter_timeout);
@@ -613,6 +613,7 @@ void Manipulator::liftRakes(bool going_up) {
 		}
 		if (rake_starboard->IsRevLimitSwitchClosed() != 1 || !using_limits) {
 			log->write(Log::TRACE_LEVEL, "%s\tStarboard Rake moving down", Utils::getCurrentTime());
+			moveStarboardRake(RAKE_LOWERING);
 		}
 	}
 //controls moving rakes up/down
@@ -629,7 +630,7 @@ void Manipulator::movePortRake(rake_directions direction) {
 			break;
 		case RAKE_LIFTING:
 			if (rake_port->IsFwdLimitSwitchClosed() != 1 || !using_limits) {
-				rake_port->Set(0.25);
+				rake_port->Set(0.50);
 
 			}
 			break;
@@ -647,7 +648,7 @@ void Manipulator::moveStarboardRake(rake_directions direction) {
 			break;
 		case RAKE_LIFTING:
 			if (rake_starboard->IsFwdLimitSwitchClosed() != 1 || !using_limits) {
-				rake_starboard->Set(-0.25);
+				rake_starboard->Set(-0.50);
 			}
 			break;
 		case RAKE_STILL:
