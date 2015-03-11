@@ -90,6 +90,8 @@ Mobility::Mobility()
 	ultrasonic->SetOversampleBits(2);
 	//gyro = new Gyro(RobotPorts::GYRO);
 	gyro = I2CGyro::getInstance();
+
+	turn_timer = new Timer();
 }
 
 void Mobility::process()
@@ -105,7 +107,7 @@ void Mobility::process()
 	{
 		float accel = 0.0;
 		log->write(Log::ERROR_LEVEL, "%s\tGyro: %f\n", Utils::getCurrentTime(), angle);
-		if(((rotate_direction == 1) && (angle >= target_degrees)) || ((rotate_direction == -1) && (angle <= target_degrees))) {
+		if(((rotate_direction == 1) && (angle >= target_degrees)) || ((rotate_direction == -1) && (angle <= target_degrees)) || turn_timer->Get() > 1.5) {
 			rotate_direction = 0;
 		}
 		if (rotate_direction == 0) {
@@ -189,6 +191,8 @@ void Mobility::setRotationDegrees(int degrees)
 	log->write(Log::ERROR_LEVEL, "%s\tStart Degrees: %f\n", Utils::getCurrentTime(), start_degrees);
 	rotating_degrees = true;
 	setRotationSpeed(rotate_direction);
+	turn_timer->Reset();
+	turn_timer->Start();
 }
 
 void Mobility::resetXEncoderDistance()

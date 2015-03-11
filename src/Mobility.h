@@ -63,6 +63,8 @@ private:
 
 	BuiltInAccelerometer* accel;
 
+	Timer* turn_timer;
+
 	bool real_orientation;
 
 	bool field_centric;

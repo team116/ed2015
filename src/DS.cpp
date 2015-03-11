@@ -163,23 +163,23 @@ void DS::processManipulator() {
 	switch (knob_pos) {
 	case 0:
 	case 1:
-		if(last_flap_position != Manipulator::FLAP_LOW){
-			manipulator->setFlapPosition(Manipulator::FLAP_LOW);
-			last_flap_position = Manipulator::FLAP_LOW;
+		if(last_set_flap_position != Manipulator::FLAP_ANGLE_LOW){
+			manipulator->setFlapPosition(Manipulator::FLAP_ANGLE_LOW);
+			last_set_flap_position = Manipulator::FLAP_ANGLE_LOW;
 		}
 		break;
 	case 2:
 	case 3:
-		if(last_flap_position != Manipulator::FLAP_MID){
-			manipulator->setFlapPosition(Manipulator::FLAP_MID);
-			last_flap_position = Manipulator::FLAP_MID;
+		if(last_set_flap_position != Manipulator::FLAP_ANGLE_MID){
+			manipulator->setFlapPosition(Manipulator::FLAP_ANGLE_MID);
+			last_set_flap_position = Manipulator::FLAP_ANGLE_MID;
 		}
 		break;
 	case 4:
 	case 5:
-		if(last_flap_position != Manipulator::FLAP_HIGH){
-			manipulator->setFlapPosition(Manipulator::FLAP_HIGH);
-			last_flap_position = Manipulator::FLAP_HIGH;
+		if(last_set_flap_position != Manipulator::FLAP_ANGLE_HIGH){
+			manipulator->setFlapPosition(Manipulator::FLAP_ANGLE_HIGH);
+			last_set_flap_position = Manipulator::FLAP_ANGLE_HIGH;
 		}
 		break;
 	}
