@@ -87,7 +87,9 @@ Manipulator::Manipulator() {
 
 	// rake initializations
 	rake_port = new CANTalon(RobotPorts::RAKE_PORT_MOTOR);
+	rake_port->ConfigLimitMode(CANSpeedController::kLimitMode_SwitchInputsOnly);
 	rake_starboard = new CANTalon(RobotPorts::RAKE_STARBOARD_MOTOR);
+	rake_starboard->ConfigLimitMode(CANSpeedController::kLimitMode_SwitchInputsOnly);
 	//port_rake_limit = new DigitalInput(RobotPorts::PORT_RAKE_LIMIT);
 	//starboard_rake_limit = new DigitalInput(RobotPorts::STARBOARD_RAKE_LIMIT);
 	rake_timer = new Timer();
