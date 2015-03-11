@@ -156,9 +156,9 @@ private:
 
 	// timers
 	Timer* flap_timer;
-	static const float FLAP_LOW_TO_MID_TIMEOUT;
-	static const float FLAP_HIGH_TO_MID_TIMEOUT;
-	static const float FLAP_LOW_TO_HIGH_TIMEOUT;
+	static const float FLAP_TIMEOUT_LOW_TO_MID;
+	static const float FLAP_TIMEOUT_LOW_TO_HIGH;
+	static const float FLAP_TIMEOUT_MID_TO_HIGH;
 	Timer* rake_timer;
 	static const float RAKE_TIMEOUT_LOW_TO_MID;
 	static const float RAKE_TIMEOUT_LOW_TO_HIGH;
@@ -200,10 +200,12 @@ private:
 	static const float FLAP_RANGE;
 
 	float surface;	//should always be equal to one of the platform constants
+	float flap_position_raw; // raw flap position, in degrees maybe?
 
 	bool using_limits;
 	bool using_encoder;
 	bool lifter_targeting;
+	bool using_flap_encoder;
 };
 
 
