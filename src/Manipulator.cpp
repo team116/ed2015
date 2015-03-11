@@ -498,14 +498,13 @@ float Manipulator::getHeight() {
 }
 
 int Manipulator::getLevel() {
-	return (current_height - surface) / TOTE_HEIGHT;
+	return (int)(((current_height - surface) / TOTE_HEIGHT) + 0.5);
 }
 
 /*
  * removing this since it messes with timeout logic
  void Manipulator::changeHeight(float change)
  {
- //this overrides whatever the previous target height was
  target_height = current_height + change;
  }
  */
@@ -535,10 +534,10 @@ void Manipulator::spinTote(float direction) {
 
 void Manipulator::honorLimits(bool to_use_or_not_to_use) {
 	if (to_use_or_not_to_use) {
-		log->write(Log::INFO_LEVEL, "%s\tStarted using limits\n", Utils::getCurrentTime());
+		log->write(Log::TRACE_LEVEL, "%s\tStarted using limits\n", Utils::getCurrentTime());
 	}
 	else {
-		log->write(Log::INFO_LEVEL, "%s\tStopped using limits\n", Utils::getCurrentTime());
+		log->write(Log::TRACE_LEVEL, "%s\tStopped using limits\n", Utils::getCurrentTime());
 	}
 	using_limits = to_use_or_not_to_use;
 }
@@ -553,7 +552,7 @@ void Manipulator::liftLifters(lifter_directions direction) {
 	lifter_targeting = false;
 	lifter_timer->Stop();
 	if (direction == MOVING_UP && (lifter_one->IsFwdLimitSwitchClosed() != 1 || !using_limits)) {
-		log->write(Log::INFO_LEVEL, "%s\tLift moving up\n", Utils::getCurrentTime());
+		log->write(Log::TRACE_LEVEL, "%s\tLift moving up\n", Utils::getCurrentTime());
 		lifter_timer->Stop();
 		lifter_targeting = false;
 		/*double next_position = lifter_one->GetPosition() + ENCODER_INCREMENT;
