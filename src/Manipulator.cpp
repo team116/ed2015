@@ -227,12 +227,12 @@ void Manipulator::process() {
 		lifter_one->SetPosition(0.0);
 	}
 
-	if ((rakeMotionDone() && DriverStation::GetInstance()->IsAutonomous()) /*|| hittingRakeLimits()*/) { //TODO: get real timeout period
-		log->write(Log::TRACE_LEVEL, "%s\tRake finished moving\n", Utils::getCurrentTime());
-		movePortRake(RAKE_STILL);
-		moveStarboardRake(RAKE_STILL);
-		rake_pos = rake_pos_prev;
-	}
+	//if ((rakeMotionDone() && DriverStation::GetInstance()->IsAutonomous()) /*|| hittingRakeLimits()*/) { //TODO: get real timeout period
+	//	log->write(Log::TRACE_LEVEL, "%s\tRake finished moving\n", Utils::getCurrentTime());
+	//	movePortRake(RAKE_STILL);
+	//	moveStarboardRake(RAKE_STILL);
+	//	rake_pos = rake_pos_prev;
+	//}
 }
 
 void Manipulator::moveTote(float forwards, float rotate) {

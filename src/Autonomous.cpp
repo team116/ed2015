@@ -8,7 +8,7 @@
 
 // approximate speed while running at 0.75
 // if we can get an accurate value here then timers will provide a safety net if the ultrasonic fails
-const float Autonomous::INCHES_PER_SECOND = 30.0;
+const float Autonomous::INCHES_PER_SECOND = 60.0;
 
 Autonomous::Autonomous(int delay, int play, int location) {
 	log = Log::getInstance();
@@ -479,6 +479,20 @@ void Autonomous::centerContainers() {
 //facing wall, starting in between auto zone and landfill zone, move to pick up containers on step
 	switch (current_step) {
 	case 1:
+
+		if (timer->HasPeriodPassed(1.5)) {
+			log->write(Log::INFO_LEVEL, "%s\tAuto: lowered rakes\n", Utils::getCurrentTime());
+			manipulator->movePortRake(Manipulator::RAKE_STILL);
+			manipulator->moveStarboardRake(Manipulator::RAKE_STILL);
+			timer->Reset();
+			++current_step;
+		}
+		else {
+			manipulator->movePortRake(Manipulator::RAKE_LOWERING);
+			manipulator->moveStarboardRake(Manipulator::RAKE_LOWERING);
+		}
+		break;
+	case 2:
 		// move backwards towards step
 		// 240 is a guess - we need to move back until the back of the robot is at the landfill
 		if (mobility->getUltrasonicDistance() < 240 && mobility->getYEncoderDistance() > -24 && !timer->HasPeriodPassed(24.0 / INCHES_PER_SECOND)) { //distance to alliance wall
@@ -492,16 +506,20 @@ void Autonomous::centerContainers() {
 			++current_step;
 		}
 		break;
-	case 2:
+	case 3:
 		// extend rakes and hook the containers
-		manipulator->liftRakes(true);
+		manipulator->movePortRake(Manipulator::RAKE_LIFTING);
+		manipulator->moveStarboardRake(Manipulator::RAKE_LIFTING);
 		// wait a moment to allow the rakes to do their thing. not sure how long this will take
-		if (timer->HasPeriodPassed(1.5)) {
+		if (timer->HasPeriodPassed(0.5)) {
 			log->write(Log::INFO_LEVEL, "%s\tExtended rakes to grab center containers\n", Utils::getCurrentTime());
+			manipulator->movePortRake(Manipulator::RAKE_STILL);
+			manipulator->moveStarboardRake(Manipulator::RAKE_STILL);
+			timer->Reset();
 			++current_step;
 		}
 		break;
-	case 3:
+	case 4:
 		//move forward again to pull the containers off, and to get ourselves into the autozone
 		if (mobility->getUltrasonicDistance() > 190 && mobility->getYEncoderDistance() < 60 && !timer->HasPeriodPassed(60.0 / INCHES_PER_SECOND)) {
 			mobility->setDirection(0.0, 0.75);
@@ -512,7 +530,7 @@ void Autonomous::centerContainers() {
 			++current_step;
 		}
 		break;
-	case 4:
+	case 5:
 		//yay done :D
 		break;
 	}
