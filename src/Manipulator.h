@@ -207,7 +207,7 @@ private:
 	bool using_limits;
 	bool using_encoder;
 	bool lifter_targeting;
-	bool using_flap_encoder;
+	bool using_flap_potentiometer;
 };
 
 

@@ -109,7 +109,7 @@ Manipulator::Manipulator() {
 	flap_state = FLAP_STILL;
 	target_flap_pos = FLAP_ANGLE_LOW;	//note: this might change idk
 	flap_pos_start = FLAP_ANGLE_LOW;
-	using_flap_encoder = false; // MAKE SURE TO CHANGE THIS WHEN APPROPRIATE
+	using_flap_potentiometer = false; // MAKE SURE TO CHANGE THIS WHEN APPROPRIATE
 
 	//belt_moving = false;
 	surface = 0;
@@ -256,7 +256,7 @@ void Manipulator::moveTote(float forwards, float rotate) {
  */
 
 bool Manipulator::flapMotionDone() {	//TODO: add timeouts to flap positions
-	if (using_flap_encoder) {
+	if (using_flap_potentiometer) {
 		flap_position_raw = close_flaps->GetPosition();
 	}
 	switch (target_flap_pos) {
@@ -268,7 +268,7 @@ bool Manipulator::flapMotionDone() {	//TODO: add timeouts to flap positions
 			if (flap_timer->Get() >= (FLAP_TIMEOUT_LOW_TO_MID)) {
 				flap_timer->Reset();
 				log->write(Log::TRACE_LEVEL, "%s\tMid-to-low flap motion has timed out.\n", Utils::getCurrentTime());
-				if (!using_flap_encoder) {
+				if (!using_flap_potentiometer) {
 					flap_position_raw = FLAP_ANGLE_LOW;
 				}
 				return true;
@@ -278,14 +278,14 @@ bool Manipulator::flapMotionDone() {	//TODO: add timeouts to flap positions
 			if (flap_timer->Get() >= (FLAP_TIMEOUT_LOW_TO_HIGH)) {
 				flap_timer->Reset();
 				log->write(Log::TRACE_LEVEL, "%s\tHigh-to-low flap motion has timed out.\n", Utils::getCurrentTime());
-				if (!using_flap_encoder) {
+				if (!using_flap_potentiometer) {
 					flap_position_raw = FLAP_ANGLE_LOW;
 				}
 				return true;
 			}
 			break;
 		default:
-			return false;
+			break;
 		}
 		return (fabs(flap_position_raw - FLAP_ANGLE_LOW) < FLAP_RANGE);
 		break;
@@ -295,7 +295,7 @@ bool Manipulator::flapMotionDone() {	//TODO: add timeouts to flap positions
 			if (flap_timer->Get() >= (FLAP_TIMEOUT_LOW_TO_MID)) {
 				flap_timer->Reset();
 				log->write(Log::TRACE_LEVEL, "%s\tLow-to-mid flap motion has timed out.\n", Utils::getCurrentTime());
-				if (!using_flap_encoder) {
+				if (!using_flap_potentiometer) {
 					flap_position_raw = FLAP_ANGLE_MID;
 				}
 				return true;
@@ -307,14 +307,14 @@ bool Manipulator::flapMotionDone() {	//TODO: add timeouts to flap positions
 			if (flap_timer->Get() >= (FLAP_TIMEOUT_MID_TO_HIGH)) {
 				flap_timer->Reset();
 				log->write(Log::TRACE_LEVEL, "%s\tHigh-to-mid flap motion has timed out.\n", Utils::getCurrentTime());
-				if (!using_flap_encoder) {
+				if (!using_flap_potentiometer) {
 					flap_position_raw = FLAP_ANGLE_MID;
 				}
 				return true;
 			}
 			break;
 		default:
-			return false;
+			break;
 		}
 		return (fabs(flap_position_raw - FLAP_ANGLE_MID) < FLAP_RANGE);
 		break;
@@ -324,7 +324,7 @@ bool Manipulator::flapMotionDone() {	//TODO: add timeouts to flap positions
 			if (flap_timer->Get() >= (FLAP_TIMEOUT_LOW_TO_HIGH)) {
 				flap_timer->Reset();
 				log->write(Log::TRACE_LEVEL, "%s\tLow-to-high flap motion has timed out.\n", Utils::getCurrentTime());
-				if (!using_flap_encoder) {
+				if (!using_flap_potentiometer) {
 					flap_position_raw = FLAP_ANGLE_HIGH;
 				}
 				return true;
@@ -334,7 +334,7 @@ bool Manipulator::flapMotionDone() {	//TODO: add timeouts to flap positions
 			if (flap_timer->Get() >= (FLAP_TIMEOUT_MID_TO_HIGH)) {
 				flap_timer->Reset();
 				log->write(Log::TRACE_LEVEL, "%s\tLow-to-mid flap motion has timed out.\n", Utils::getCurrentTime());
-				if (!using_flap_encoder) {
+				if (!using_flap_potentiometer) {
 					flap_position_raw = FLAP_ANGLE_HIGH;
 				}
 				return true;
@@ -343,7 +343,7 @@ bool Manipulator::flapMotionDone() {	//TODO: add timeouts to flap positions
 		case FLAP_ANGLE_HIGH:
 			break;
 		default:
-			return false;
+			break;
 		}
 		return (fabs(flap_position_raw - FLAP_ANGLE_HIGH) < FLAP_RANGE);
 		break;
@@ -528,6 +528,15 @@ void Manipulator::setTargetLevel(int level) {
 void Manipulator::setFlapPosition(float p) {
 	log->write(Log::TRACE_LEVEL, "flaps set to position %i\n", p);
 	flap_pos_start = flap_position_raw;
+	if(fabs(flap_pos_start - FLAP_ANGLE_LOW) < FLAP_RANGE){
+		flap_pos_start = FLAP_ANGLE_LOW;
+	}
+	else if(fabs(flap_pos_start - FLAP_ANGLE_MID) < FLAP_RANGE){
+		flap_pos_start = FLAP_ANGLE_MID;
+	}
+	else if(fabs(flap_pos_start - FLAP_ANGLE_HIGH) < FLAP_RANGE){
+		flap_pos_start = FLAP_ANGLE_HIGH;
+	}
 	target_flap_pos = p;
 	flap_timer->Reset();
 	flap_timer->Start();
