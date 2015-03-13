@@ -1,6 +1,7 @@
 #ifndef MOBILITY_H_
 #define MOBILITY_H_
 
+#include <Timer.h>
 #include <RobotDrive.h>
 #include <Gyro.h>
 #include <AnalogInput.h>
@@ -23,6 +24,7 @@ public:
 	void toggleFieldCentric();
 	int getXEncoderDistance();
 	int getYEncoderDistance();
+	bool getRotatingDegrees();
 	void resetXEncoderDistance();
 	void resetYEncoderDistance();
 	void useRealOrientation(bool real);
@@ -60,6 +62,8 @@ private:
 	Log* log;
 
 	I2CCompass* compass;
+	Timer* rotation_timer;
+	float rotation_timeout;
 
 	BuiltInAccelerometer* accel;
 

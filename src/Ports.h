@@ -127,6 +127,9 @@ namespace InputBoardPorts
 	const unsigned int RIGHT_RAKE_DOWN_BUTTON = 15;
 	const unsigned int RIGHT_RAKE_UP_BUTTON = 16;
 
+	const unsigned int FLAP_LOWER = 10;
+	const unsigned int FLAP_RAISE = 11;
+
 
 	//analog inputs
 	const unsigned int FLAP_POSITION_KNOB = 0;

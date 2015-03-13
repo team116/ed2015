@@ -14,9 +14,10 @@ const float Manipulator::I = 0.5;
 const unsigned int Manipulator::IZone = 1;
 const float Manipulator::D = 0.5;
 // TODO: get actual timeouts
-const float Manipulator::FLAP_TIMEOUT_LOW_TO_MID = 1.5;
-const float Manipulator::FLAP_TIMEOUT_LOW_TO_HIGH = 1.5;
-const float Manipulator::FLAP_TIMEOUT_MID_TO_HIGH = 1.5;
+const float Manipulator::FLAP_TIMEOUT_LOW_TO_MID = 1.0;
+const float Manipulator::FLAP_TIMEOUT_LOW_TO_HIGH = 0.5;
+const float Manipulator::FLAP_TIMEOUT_MID_TO_HIGH = 0.5;
+
 const float Manipulator::RAKE_TIMEOUT_LOW_TO_MID = 1.1;
 const float Manipulator::RAKE_TIMEOUT_LOW_TO_HIGH = 1.1;
 const float Manipulator::RAKE_TIMEOUT_MID_TO_HIGH = 1.1;
@@ -33,9 +34,9 @@ const float Manipulator::TOTE_HEIGHT = 12.1;
 const float Manipulator::FLOOR = 0.0;
 const float Manipulator::SCORING_PLATFORM = 2.0;
 const float Manipulator::STEP = 6.25;
-const float Manipulator::FLAP_ANGLE_HIGH = 270;
-const float Manipulator::FLAP_ANGLE_MID = 135; //note: this will change probably
-const float Manipulator::FLAP_ANGLE_LOW = 0;
+const int Manipulator::FLAP_ANGLE_HIGH = 270;
+const int Manipulator::FLAP_ANGLE_MID = 135; //note: this will change probably
+const int Manipulator::FLAP_ANGLE_LOW = 0;
 const float Manipulator::FLAP_RANGE = 10; 	//note: this will change probably
 
 const float Manipulator::LEFT_TREX_DOWN = 90.0;
@@ -50,8 +51,9 @@ const float Manipulator::RIGHT_RAKE_STABILIZER_UP = 0.0;
 
 Manipulator::Manipulator() {
 	// subsystem instance getting
-	using_limits = true;
+	using_limits = false;
 	using_encoder = false;
+	flap_position_raw = 0;
 
 	mobility = Mobility::getInstance();
 	log = Log::getInstance();
@@ -106,9 +108,9 @@ Manipulator::Manipulator() {
 	//potentiometer = new AnalogPotentiometer(RobotPorts::FLAP_POTENTIOMETER, 270, 0); //270 = full range of positions; 0 = lowest position
 	flap_timer = new Timer();
 	flap_state = FLAP_STILL;
-	flap_pos = FLAP_LOW;	//note: this might change idk
-	flap_pos_prev = FLAP_LOW;
-	using_flap_encoder = false; // MAKE SURE TO CHANGE THIS WHEN APPROPRIATE
+	target_flap_pos = FLAP_ANGLE_LOW;	//note: this might change idk
+	flap_pos_start = FLAP_ANGLE_LOW;
+	using_flap_potentiometer = false; // MAKE SURE TO CHANGE THIS WHEN APPROPRIATE
 
 	//belt_moving = false;
 	surface = 0;
@@ -152,7 +154,7 @@ void Manipulator::process() {
 	}
 
 	if (flapMotionDone()) {
-		if (flap_state == FLAP_CLOSING) {
+		if (flap_state == FLAP_RAISING) {
 			log->write(Log::TRACE_LEVEL, "%s\tFlaps closed\n", Utils::getCurrentTime());
 		}
 		else {
@@ -162,20 +164,20 @@ void Manipulator::process() {
 		flap_state = FLAP_STILL;
 	}
 	else {
-		switch (flap_pos) {
-		case FLAP_LOW:
-			closeFlaps(true);
+		switch (target_flap_pos) {
+		case FLAP_ANGLE_LOW:
+			raiseFlaps(true);
 			break;
-		case FLAP_MID:
-			if (close_flaps->GetPosition() < FLAP_ANGLE_MID) { //TODO: check to make sure orientation is correct (aka small value from potentiometer = more closed)
-				closeFlaps(true);
+		case FLAP_ANGLE_MID:
+			if (flap_position_raw < FLAP_ANGLE_MID) { //TODO: check to make sure orientation is correct (aka small value from potentiometer = more closed)
+				raiseFlaps(false);
 			}
 			else {
-				closeFlaps(false);
+				raiseFlaps(true);
 			}
 			break;
-		case FLAP_HIGH:
-			closeFlaps(false);
+		case FLAP_ANGLE_HIGH:
+			raiseFlaps(false);
 			break;
 		}
 	}
@@ -214,10 +216,10 @@ void Manipulator::process() {
 				}
 				else {
 					if (target_height > current_height) {
-						lifter_one->Set(0.50);
+						lifter_one->Set(-0.50);
 					}
 					else {
-						lifter_one->Set(-0.50);
+						lifter_one->Set(0.50);
 					}
 				}
 			}
@@ -229,12 +231,12 @@ void Manipulator::process() {
 		lifter_one->SetPosition(0.0);
 	}
 
-	//if ((rakeMotionDone() && DriverStation::GetInstance()->IsAutonomous()) /*|| hittingRakeLimits()*/) { //TODO: get real timeout period
-	//	log->write(Log::TRACE_LEVEL, "%s\tRake finished moving\n", Utils::getCurrentTime());
-	//	movePortRake(RAKE_STILL);
-	//	moveStarboardRake(RAKE_STILL);
-	//	rake_pos = rake_pos_prev;
-	//}
+	if ((rakeMotionDone() && DriverStation::GetInstance()->IsAutonomous()) /*|| hittingRakeLimits()*/) { //TODO: get real timeout period
+		log->write(Log::TRACE_LEVEL, "%s\tRake finished moving\n", Utils::getCurrentTime());
+		movePortRake(RAKE_STILL);
+		moveStarboardRake(RAKE_STILL);
+		rake_pos = rake_pos_prev;
+	}
 }
 
 void Manipulator::moveTote(float forwards, float rotate) {
@@ -255,94 +257,94 @@ void Manipulator::moveTote(float forwards, float rotate) {
  */
 
 bool Manipulator::flapMotionDone() {	//TODO: add timeouts to flap positions
-	if (using_flap_encoder) {
+	if (using_flap_potentiometer) {
 		flap_position_raw = close_flaps->GetPosition();
 	}
-	switch (flap_pos) {
-	case FLAP_LOW:
-		switch (flap_pos_prev) {
-		case FLAP_LOW:
+	switch (target_flap_pos) {
+	case FLAP_ANGLE_LOW:
+		switch (flap_pos_start) {
+		case FLAP_ANGLE_LOW:
 			break;
-		case FLAP_MID:
+		case FLAP_ANGLE_MID:
 			if (flap_timer->Get() >= (FLAP_TIMEOUT_LOW_TO_MID)) {
 				flap_timer->Reset();
 				log->write(Log::TRACE_LEVEL, "%s\tMid-to-low flap motion has timed out.\n", Utils::getCurrentTime());
-				if (!using_flap_encoder) {
+				if (!using_flap_potentiometer) {
 					flap_position_raw = FLAP_ANGLE_LOW;
 				}
 				return true;
 			}
 			break;
-		case FLAP_HIGH:
+		case FLAP_ANGLE_HIGH:
 			if (flap_timer->Get() >= (FLAP_TIMEOUT_LOW_TO_HIGH)) {
 				flap_timer->Reset();
 				log->write(Log::TRACE_LEVEL, "%s\tHigh-to-low flap motion has timed out.\n", Utils::getCurrentTime());
-				if (!using_flap_encoder) {
+				if (!using_flap_potentiometer) {
 					flap_position_raw = FLAP_ANGLE_LOW;
 				}
 				return true;
 			}
 			break;
 		default:
-			return false;
+			break;
 		}
 		return (fabs(flap_position_raw - FLAP_ANGLE_LOW) < FLAP_RANGE);
 		break;
-	case FLAP_MID:
-		switch (flap_pos_prev) {
-		case FLAP_LOW:
+	case FLAP_ANGLE_MID:
+		switch (flap_pos_start) {
+		case FLAP_ANGLE_LOW:
 			if (flap_timer->Get() >= (FLAP_TIMEOUT_LOW_TO_MID)) {
 				flap_timer->Reset();
 				log->write(Log::TRACE_LEVEL, "%s\tLow-to-mid flap motion has timed out.\n", Utils::getCurrentTime());
-				if (!using_flap_encoder) {
+				if (!using_flap_potentiometer) {
 					flap_position_raw = FLAP_ANGLE_MID;
 				}
 				return true;
 			}
 			break;
-		case FLAP_MID:
+		case FLAP_ANGLE_MID:
 			break;
-		case FLAP_HIGH:
+		case FLAP_ANGLE_HIGH:
 			if (flap_timer->Get() >= (FLAP_TIMEOUT_MID_TO_HIGH)) {
 				flap_timer->Reset();
 				log->write(Log::TRACE_LEVEL, "%s\tHigh-to-mid flap motion has timed out.\n", Utils::getCurrentTime());
-				if (!using_flap_encoder) {
+				if (!using_flap_potentiometer) {
 					flap_position_raw = FLAP_ANGLE_MID;
 				}
 				return true;
 			}
 			break;
 		default:
-			return false;
+			break;
 		}
 		return (fabs(flap_position_raw - FLAP_ANGLE_MID) < FLAP_RANGE);
 		break;
-	case FLAP_HIGH:
-		switch (flap_pos_prev) {
-		case FLAP_LOW:
+	case FLAP_ANGLE_HIGH:
+		switch (flap_pos_start) {
+		case FLAP_ANGLE_LOW:
 			if (flap_timer->Get() >= (FLAP_TIMEOUT_LOW_TO_HIGH)) {
 				flap_timer->Reset();
 				log->write(Log::TRACE_LEVEL, "%s\tLow-to-high flap motion has timed out.\n", Utils::getCurrentTime());
-				if (!using_flap_encoder) {
+				if (!using_flap_potentiometer) {
 					flap_position_raw = FLAP_ANGLE_HIGH;
 				}
 				return true;
 			}
 			break;
-		case FLAP_MID:
+		case FLAP_ANGLE_MID:
 			if (flap_timer->Get() >= (FLAP_TIMEOUT_MID_TO_HIGH)) {
 				flap_timer->Reset();
 				log->write(Log::TRACE_LEVEL, "%s\tLow-to-mid flap motion has timed out.\n", Utils::getCurrentTime());
-				if (!using_flap_encoder) {
+				if (!using_flap_potentiometer) {
 					flap_position_raw = FLAP_ANGLE_HIGH;
 				}
 				return true;
 			}
 			break;
-		case FLAP_HIGH:
+		case FLAP_ANGLE_HIGH:
 			break;
 		default:
-			return false;
+			break;
 		}
 		return (fabs(flap_position_raw - FLAP_ANGLE_HIGH) < FLAP_RANGE);
 		break;
@@ -486,18 +488,22 @@ void Manipulator::pushTote() {
 	wheel_timer->Reset();
 }
 
-void Manipulator::closeFlaps(bool close) {
+void Manipulator::raiseFlaps(bool close) {
 
 	if (close && (close_flaps->IsFwdLimitSwitchClosed() != 1 || !using_limits)) {//close flaps
 		log->write(Log::TRACE_LEVEL, "%s\tClosing flaps\n", Utils::getCurrentTime());
-		close_flaps->Set(0.5);
-		flap_state = FLAP_CLOSING;
+		close_flaps->Set(0.75);
+		flap_state = FLAP_RAISING;
 	}
-	else if (close && (close_flaps->IsRevLimitSwitchClosed() != 1 || !using_limits)) {//open flaps
+	else if (!close && (close_flaps->IsRevLimitSwitchClosed() != 1 || !using_limits)) {//open flaps
 		log->write(Log::TRACE_LEVEL, "%s\tOpening flaps\n", Utils::getCurrentTime());
 		close_flaps->Set(-0.5);
-		flap_state = FLAP_OPENING;
+		flap_state = FLAP_LOWERING;
 	}
+}
+
+int Manipulator::getFlapAngle(){
+	return flap_position_raw;
 }
 
 void Manipulator::setSurface(float s) {
@@ -520,10 +526,19 @@ void Manipulator::setTargetLevel(int level) {
 	}
 }
 
-void Manipulator::setFlapPosition(flap_positions p) {
+void Manipulator::setFlapPosition(float p) {
 	log->write(Log::TRACE_LEVEL, "flaps set to position %i\n", p);
-	flap_pos_prev = flap_pos;
-	flap_pos = p;
+	flap_pos_start = flap_position_raw;
+	if(fabs(flap_pos_start - FLAP_ANGLE_LOW) < FLAP_RANGE){
+		flap_pos_start = FLAP_ANGLE_LOW;
+	}
+	else if(fabs(flap_pos_start - FLAP_ANGLE_MID) < FLAP_RANGE){
+		flap_pos_start = FLAP_ANGLE_MID;
+	}
+	else if(fabs(flap_pos_start - FLAP_ANGLE_HIGH) < FLAP_RANGE){
+		flap_pos_start = FLAP_ANGLE_HIGH;
+	}
+	target_flap_pos = p;
 	flap_timer->Reset();
 	flap_timer->Start();
 }
@@ -596,7 +611,7 @@ void Manipulator::liftLifters(lifter_directions direction) {
 			target_height = current_height + 2;
 		}
 		else {
-			lifter_one->Set(0.5);
+			lifter_one->Set(-0.5);
 		}
 //lifter two is set to follower mode, should move by itself
 	}
@@ -608,7 +623,7 @@ void Manipulator::liftLifters(lifter_directions direction) {
 			target_height = current_height - 2;
 		}
 		else {
-			lifter_one->Set(-0.5);
+			lifter_one->Set(0.5);
 		}
 	}
 	else if (direction == NOT_MOVING && !lifter_targeting) {

@@ -63,6 +63,8 @@ Mobility::Mobility()
 	odometry_wheel_y_encoder->SetDistancePerPulse(Y_ODOMETRY_INCHES_PER_PULSE);
 
 	compass = I2CCompass::getInstance();
+	rotation_timer = new Timer();
+	rotation_timeout = 0.0;
 
 	accel = new BuiltInAccelerometer(BuiltInAccelerometer::kRange_4G);
 
@@ -103,24 +105,33 @@ void Mobility::process()
 
 	if(rotating_degrees)
 	{
-		float accel = 0.0;
-		log->write(Log::ERROR_LEVEL, "%s\tGyro: %f\n", Utils::getCurrentTime(), angle);
-		if(((rotate_direction == 1) && (angle >= target_degrees)) || ((rotate_direction == -1) && (angle <= target_degrees))) {
+		//float accel = 0.0;
+		log->write(Log::TRACE_LEVEL, "%s\tGyro: %f\n", Utils::getCurrentTime(), angle);
+		if (rotation_timer->Get() > rotation_timeout) {
+			log->write(Log::TRACE_LEVEL, "Rotation stopeed after %f seconds", rotation_timeout);
 			rotate_direction = 0;
 		}
+		else if(((rotate_direction == 1) && (angle >= target_degrees)) || ((rotate_direction == -1) && (angle <= target_degrees))) {
+			rotate_direction = 0;
+		}
+
 		if (rotate_direction == 0) {
 			log->write(Log::ERROR_LEVEL, "%s\tRotating finished\n", Utils::getCurrentTime());
 			rotating_degrees = false;
+			rotation_timeout = 0.0;
+			rotation_timer->Stop();
 		}
 		// float var = ((((rate - min_rate)/(max_rate - min_rate))) - (max(min(fabs(target_degrees - angle),0.8f), 0.2f))) * 0.072f;
 		// log->write(Log::ERROR_LEVEL, "Rotate Difference: %f\n", var);
 		// log->write(Log::ERROR_LEVEL, "Rotation Speed: %f\n", rotation + var);
 		// setRotationSpeed(rotation + var);
+		/*
 		accel = 0.072f * (min((target_degrees - angle) / (angle - start_degrees), 1.0f) - (rate / max_rate));
 		log->write(Log::ERROR_LEVEL, "%s\tRotation Speed: %f\n", Utils::getCurrentTime(), rotation);
 		log->write(Log::ERROR_LEVEL, "%s\tRotation Difference: %f\n", Utils::getCurrentTime(), accel);
 		// setRotationSpeed((float)rotate_direction * max(min(rotation + accel, max_rot_speed), min_rot_speed));
 		rotation = (float)rotate_direction * max(min(rotation + accel, max_rot_speed), min_rot_speed);
+		*/
 	}
 	if (field_centric) {
 		robot_drive->MecanumDrive_Cartesian(x_direction, y_direction, rotation, angle);
@@ -188,6 +199,9 @@ void Mobility::setRotationDegrees(int degrees)
 	target_degrees = start_degrees + degrees;
 	log->write(Log::ERROR_LEVEL, "%s\tStart Degrees: %f\n", Utils::getCurrentTime(), start_degrees);
 	rotating_degrees = true;
+	rotation_timeout = (float)degrees * 0.75 / 90.0; // estimating 0.75 seconds for every 90 degrees
+	rotation_timer->Start();
+	rotation_timer->Reset();
 	setRotationSpeed(rotate_direction);
 }
 
@@ -209,6 +223,11 @@ int Mobility::getXEncoderDistance()
 int Mobility::getYEncoderDistance()
 {
 	return odometry_wheel_y_encoder->GetDistance();
+}
+
+bool Mobility::getRotatingDegrees()
+{
+	return rotating_degrees;
 }
 
 void Mobility::useRealOrientation(bool real)

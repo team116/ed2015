@@ -43,17 +43,17 @@ public:
 
 	enum flap_directions
 	{
-		FLAP_OPENING,
-		FLAP_CLOSING,
+		FLAP_LOWERING,
+		FLAP_RAISING,
 		FLAP_STILL
 	};
 
-	enum flap_positions
+	/*enum flap_positions
 	{
 		FLAP_LOW,
 		FLAP_MID,
 		FLAP_HIGH
-	};
+	};*/
 
 	enum wheel_directions
 	{
@@ -75,15 +75,16 @@ public:
 	void pushTote();
 	void spinTote(float direction);
 
-	void closeFlaps(bool close);
+	void raiseFlaps(bool close);
 
 	void setSurface(float s);
 	void setTargetLevel(int level);
-	void setFlapPosition(flap_positions p);	//see flap_position enum in private section
+	void setFlapPosition(float p);	//see flap_position enum in private section
 	void setRakePosition(rake_positions p);	//see rake_position enum in private section
 	void liftLifters(lifter_directions direction);
 	int getLevel();
 	float getHeight();
+	int getFlapAngle();
 	void usingEncoder(bool enc);
 
 	void liftRakes(bool going_up);
@@ -100,6 +101,11 @@ public:
 	static const float FLOOR;
 	static const float SCORING_PLATFORM;
 	static const float STEP;
+
+	// stores potentiometer values for the diff. positions for the flaps
+	static const int FLAP_ANGLE_LOW;	//closed
+	static const int FLAP_ANGLE_MID;
+	static const int FLAP_ANGLE_HIGH;	//opened
 
 private:
 	static Manipulator* INSTANCE; //																			   ,`~
@@ -187,14 +193,10 @@ private:
 	rake_positions rake_pos;	//note: useless during teleop, do not attempt to use!!!
 	rake_positions rake_pos_prev;
 	flap_directions flap_state;
-	flap_positions flap_pos;
-	flap_positions flap_pos_prev;
+	int target_flap_pos;
+	int flap_pos_start;
 	wheel_directions wheel_state;
 
-	// stores potentiometer values for the diff. positions for the flaps
-	static const float FLAP_ANGLE_LOW;	//closed
-	static const float FLAP_ANGLE_MID;
-	static const float FLAP_ANGLE_HIGH;	//opened
 
 	//stores grace range (aka how close is close enough)
 	static const float FLAP_RANGE;
@@ -205,7 +207,7 @@ private:
 	bool using_limits;
 	bool using_encoder;
 	bool lifter_targeting;
-	bool using_flap_encoder;
+	bool using_flap_potentiometer;
 };
 
 

@@ -53,7 +53,7 @@ private:
 	bool backCamSelect;
 	bool toggle_rotation;
 	bool toggle_cardinal;
-	int last_flap_position;
+	int last_set_flap_position;
 
 
 	void doLevelLEDS(int level);
