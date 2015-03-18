@@ -21,8 +21,8 @@ public:
 	void setRotationDegrees(int degrees);
 	float getUltrasonicDistance();
 	void toggleFieldCentric();
-	int getXEncoderDistance();
-	int getYEncoderDistance();
+	float getXEncoderDistance();
+	float getYEncoderDistance();
 	void resetXEncoderDistance();
 	void resetYEncoderDistance();
 	void useRealOrientation(bool real);

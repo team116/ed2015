@@ -205,12 +205,12 @@ void Mobility::resetYEncoderDistance()
 	odometry_wheel_y_encoder->Reset();
 }
 
-int Mobility::getXEncoderDistance()
+float Mobility::getXEncoderDistance()
 {
 	return odometry_wheel_x_encoder->GetDistance();
 }
 
-int Mobility::getYEncoderDistance()
+float Mobility::getYEncoderDistance()
 {
 	return odometry_wheel_y_encoder->GetDistance();
 }
