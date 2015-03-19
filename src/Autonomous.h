@@ -27,6 +27,7 @@ private:
 	void moveContainerAndTote();
 	void centerContainers();
 	void moveTwoTotes();
+	void moveThreeTotes();
 
 	enum Plays
 	{

@@ -500,6 +500,9 @@ int Manipulator::getFlapAngle(){
 	return flap_position_raw;
 }
 
+float Manipulator::getVoltageCount(){
+
+}
 void Manipulator::setSurface(float s) {
 	if (surface != s) {
 		log->write(Log::TRACE_LEVEL, "%s\tChanged surface height to %f", Utils::getCurrentTime(), s);

@@ -77,6 +77,7 @@ public:
 	void liftLifters(lifter_directions direction);
 	int getLevel();
 	float getHeight();
+	float getVoltageCount();
 	int getFlapAngle();
 	void usingEncoder(bool enc);
 
@@ -120,6 +121,8 @@ private:
 	//AnalogPotentiometer* potentiometer;	//TODO: rewrite potentiometer to go through Talon
 	static const int PULSE_PER_REV;
 	static const float INCH_PER_REV;
+	static const float rake_port_limit_current;
+	static const float rake_starboard_limit_current;
 
 	//servos
 	Servo* left_trex_arm;
