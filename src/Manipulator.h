@@ -82,6 +82,7 @@ public:
 	void setFlapPosition(float p);	//see flap_position enum in private section
 	void setRakePosition(rake_positions p);	//see rake_position enum in private section
 	void liftLifters(lifter_directions direction);
+	void setLifterModifier(float power);
 	int getLevel();
 	float getHeight();
 	int getFlapAngle();
@@ -172,6 +173,7 @@ private:
 	Timer* lifter_timer;
 	static const float LEVEL_TIMEOUT;
 	float lifter_timeout;
+	float lifter_modifier;
 	Timer* wheel_timer;
 	static const float WHEEL_TIMEOUT;
 
@@ -189,6 +191,7 @@ private:
 	bool hittingRakeLimits();
 	bool pushToteDone();
 	bool pullToteDone();
+	void usePID(bool use);
 
 	rake_positions rake_pos;	//note: useless during teleop, do not attempt to use!!!
 	rake_positions rake_pos_prev;

@@ -16,12 +16,14 @@ public:
 	void processLEDS();
 	void processCameras();
 	void processCamerasButton(); // to be removed -- DO NOT KEEP, DO NOT SAVE
+	/*
 	bool StopCamera(int cameraNum);
 	bool StartCamera(int cameraNum);
 	bool StartFrontCamera();
 	bool StartBackCamera();
 	bool StopFrontCamera();
 	bool StopBackCamera();
+	*/
 
 private:
 	DS();
@@ -29,13 +31,15 @@ private:
 	Mobility* mobility;
 	Manipulator* manipulator;
 	Log* log;
-	CameraServer* server;
-	CameraFeeds* camera_feeds;
+	//CameraServer* server;
+	//CameraFeeds* camera_feeds;
 
 	Joystick* main_joystick;
 	Joystick* secondary_joystick;
 	Joystick* output_board;
 	Joystick* input_board;
+
+	//void useBackCam(bool back);
 
 	bool manual_lifter_stop_handled;
 	bool danny_override;
@@ -45,10 +49,7 @@ private:
 	bool turn_degrees;
 	bool turn_degrees_handled;
 	bool flip_orientation_handled;
-	bool frontCamLatched;
-	bool backCamLatched;
-	bool frontCamFirstTime;
-	bool backCamFirstTime;
+	//bool using_back_cam;
 	bool frontCamSelect;
 	bool backCamSelect;
 	bool toggle_rotation;
@@ -61,13 +62,13 @@ private:
 	const static float LIFTER_BUTTON_CHANGE;
 
 	//cam0 is the front camera, cam1 is the back camera
-	IMAQdxSession sessionCam0;
-	IMAQdxSession sessionCam1;
+	//IMAQdxSession sessionCam0;
+	//IMAQdxSession sessionCam1;
 
-	Image *frameFrontCam;
-	Image *frameBackCam;
+	//Image *frameFrontCam;
+	//Image *frameBackCam;
 
-	IMAQdxError imaqError;
+	//IMAQdxError imaqError;
 
 };
 

@@ -52,7 +52,6 @@ const float Manipulator::RIGHT_RAKE_STABILIZER_UP = 0.0;
 Manipulator::Manipulator() {
 	// subsystem instance getting
 	using_limits = false;
-	using_encoder = false;
 	flap_position_raw = 0;
 
 	mobility = Mobility::getInstance();
@@ -67,6 +66,8 @@ Manipulator::Manipulator() {
 
 	// lifter initializations
 	lifter_one = new CANTalon(RobotPorts::LIFTER_ONE);
+	using_encoder = false; // not necessary, stops warning
+	usePID(false);
 	//lifter_two = new CANTalon(RobotPorts::LIFTER_TWO);
 	//lifter_two->SetControlMode(CANTalon::kFollower);
 	//lifter_two->Set(RobotPorts::LIFTER_ONE);
@@ -85,6 +86,7 @@ Manipulator::Manipulator() {
 	current_height = 0; //starting height (floor level)
 	target_height = 0;
 	lifter_timeout = 0.0;
+	lifter_modifier = 0.0;
 	lifter_targeting = false;
 
 	// rake initializations
@@ -107,9 +109,9 @@ Manipulator::Manipulator() {
 	//flaps_opened_limit = new DigitalInput(RobotPorts::FLAPS_LOWER_LIMIT);
 	//potentiometer = new AnalogPotentiometer(RobotPorts::FLAP_POTENTIOMETER, 270, 0); //270 = full range of positions; 0 = lowest position
 	flap_timer = new Timer();
-	flap_state = FLAP_STILL;
-	target_flap_pos = FLAP_ANGLE_LOW;	//note: this might change idk
-	flap_pos_start = FLAP_ANGLE_LOW;
+	flap_state = FLAP_RAISING;
+	target_flap_pos = FLAP_ANGLE_HIGH;	//note: this might change idk
+	flap_pos_start = FLAP_ANGLE_HIGH;
 	using_flap_potentiometer = false; // MAKE SURE TO CHANGE THIS WHEN APPROPRIATE
 
 	//belt_moving = false;
@@ -166,7 +168,7 @@ void Manipulator::process() {
 	else {
 		switch (target_flap_pos) {
 		case FLAP_ANGLE_LOW:
-			raiseFlaps(true);
+			raiseFlaps(false);
 			break;
 		case FLAP_ANGLE_MID:
 			if (flap_position_raw < FLAP_ANGLE_MID) { //TODO: check to make sure orientation is correct (aka small value from potentiometer = more closed)
@@ -177,10 +179,11 @@ void Manipulator::process() {
 			}
 			break;
 		case FLAP_ANGLE_HIGH:
-			raiseFlaps(false);
+			raiseFlaps(true);
 			break;
 		}
 	}
+	/*
 	if (lifter_targeting) {
 		log->write(Log::TRACE_LEVEL, "%s\tCurrent lift timer reading: %f\n", Utils::getCurrentTime(), lifter_timer->Get());
 		if (lifter_timer->Get() > lifter_timeout) {
@@ -225,6 +228,7 @@ void Manipulator::process() {
 			}
 		}
 	}
+	*/
 
 	if (lifter_one->IsRevLimitSwitchClosed() == 1) {//reset encoder to 0 every time lift hits lower limit switch
 		log->write(Log::TRACE_LEVEL, "%s\tHit bottom of lift: encoder set to 0\n", Utils::getCurrentTime());
@@ -605,36 +609,62 @@ void Manipulator::liftLifters(lifter_directions direction) {
 		log->write(Log::TRACE_LEVEL, "%s\tLift moving up\n", Utils::getCurrentTime());
 		lifter_timer->Stop();
 		lifter_targeting = false;
+		/*
+		if (using_encoder) {
+			usePID(false);
+		}
+		lifter_one->Set(-0.5 - lifter_modifier);
+		*/
 		/*double next_position = lifter_one->GetPosition() + ENCODER_INCREMENT;
 		 lifter_one->Set(next_position);*/
+
 		if (using_encoder) {
 			target_height = current_height + 2;
 		}
 		else {
 			lifter_one->Set(-0.5);
 		}
+
 //lifter two is set to follower mode, should move by itself
 	}
 	else if (direction == MOVING_DOWN && (lifter_one->IsRevLimitSwitchClosed() != 1 || !using_limits)) {
 		lifter_targeting = false;
 		lifter_timer->Stop();
 		log->write(Log::TRACE_LEVEL, "%s\tLift moving down\n", Utils::getCurrentTime());
+		/*
+		if (using_encoder) {
+			usePID(false);
+		}
+		lifter_one->Set(0.5);
+		*/
+
 		if (using_encoder) {
 			target_height = current_height - 2;
 		}
 		else {
 			lifter_one->Set(0.5);
 		}
+
 	}
 	else if (direction == NOT_MOVING && !lifter_targeting) {
+		int enc_pos = lifter_one->GetEncPosition();
 		lifter_timer->Stop();
 		log->write(Log::TRACE_LEVEL, "%s\tLift motors stopped\n", Utils::getCurrentTime());
+		/*
+		if (!using_encoder) {
+			usePID(true);
+		}
+		lifter_one->Set(enc_pos);
+		*/
+
 		if (using_encoder) {
 			target_height = current_height;
 		}
 		else {
-			lifter_one->Set(0.0);
+			log->write(Log::DEBUG_LEVEL, "%s\tUsing Lifter Modifier: %f", Utils::getCurrentTime(), lifter_modifier);
+			lifter_one->Set(0.0 - lifter_modifier);
 		}
+
 	}
 }
 
@@ -728,4 +758,21 @@ void Manipulator::moveRakeStabilizers(servos_position trex_arm_position) {
 		left_rake_stabilizer->SetAngle(LEFT_RAKE_STABILIZER_UP);
 		right_rake_stabilizer->SetAngle(RIGHT_RAKE_STABILIZER_UP);
 	}
+}
+
+void Manipulator::usePID(bool use)
+{
+	if (use) {
+		lifter_one->SetControlMode(CANSpeedController::kPosition);
+	}
+	else {
+		lifter_one->SetControlMode(CANSpeedController::kPercentVbus);
+	}
+	using_encoder = use;
+}
+
+void Manipulator::setLifterModifier(float power)
+{
+	log->write(Log::DEBUG_LEVEL, "%s\tLifter Modifier set to: %f\n", Utils::getCurrentTime(), power);
+	lifter_modifier = power;
 }

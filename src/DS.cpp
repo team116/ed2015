@@ -1,3 +1,5 @@
+#include <string.h>
+#include <stdlib.h>
 #include "WPILib.h"
 #include "Ports.h"
 #include "DS.h"
@@ -31,10 +33,14 @@ DS::DS() {
 	turn_degrees = false;
 	turn_degrees_handled = false;
 	flip_orientation_handled = false;
-	frontCamLatched = false;
-	backCamLatched = false;
-	frontCamFirstTime = true;
-	backCamFirstTime = true;
+	//frontCamLatched = false;
+	//backCamLatched = false;
+	//frontCamFirstTime = true;
+	//backCamFirstTime = true;
+	//using_back_cam = false;
+	//log->write(Log::INFO_LEVEL, "%s\tStarting camera code", Utils::getCurrentTime());
+	//useBackCam(false);
+	log->write(Log::INFO_LEVEL, "%s\tStarted camera code", Utils::getCurrentTime());
 	frontCamSelect = false;
 	backCamSelect = true;
 	toggle_rotation = false;
@@ -145,15 +151,17 @@ void DS::processMobility() {
 void DS::processManipulator() {
 
 	// surface switch
+	/*
 	if (input_board->GetRawButton(InputBoardPorts::STACK_ON_STEP_SWITCH)) {
 		manipulator->setSurface(Manipulator::STEP);
 	}
-	else if (input_board->GetRawButton(InputBoardPorts::STACK_ON_PLATFORM_SWITCH)) {
-		manipulator->setSurface(Manipulator::SCORING_PLATFORM);
-	}
-	else {
+	else if (input_board->GetRawButton(InputBoardPorts::STACK_ON_FLOOR_SWITCH)) {
 		manipulator->setSurface(Manipulator::FLOOR);
 	}
+	else {
+		manipulator->setSurface(Manipulator::SCORING_PLATFORM);
+	}
+	*/
 
 	// this assumes the max voltage for the flap position input to be 5
 	// also this assumes that we'll be getting this as analog input instead of as a few digital inputs
@@ -184,7 +192,8 @@ void DS::processManipulator() {
 		break;
 	}
 
-	// lifter preset buttons
+	// lifter preset buttons, have been repurposed as lift modifiers (below)
+	/*
 	if (input_board->GetRawButton(InputBoardPorts::LIFTER_PRESET_0)) {
 		manipulator->setTargetLevel(0);
 	}
@@ -209,6 +218,14 @@ void DS::processManipulator() {
 	else {
 		// do nothing
 	}
+	*/
+
+	if (input_board->GetRawButton(InputBoardPorts::STACK_ON_FLOOR_SWITCH)) {
+		manipulator->setLifterModifier(0.1);
+	}
+	else {
+		manipulator->setLifterModifier(0.0);
+	}
 
 	// manual lifter control buttons
 	if (input_board->GetRawButton(InputBoardPorts::LIFTER_UP_BUTTON)) {
@@ -219,30 +236,31 @@ void DS::processManipulator() {
 		manipulator->liftLifters(Manipulator::MOVING_DOWN);
 		manual_lifter_stop_handled = false;
 	}
-	else if (!manual_lifter_stop_handled) {
+	// lifter targeting disabled, don't worry about overriding
+	else /*if (!manual_lifter_stop_handled)*/ {
 		manipulator->liftLifters(Manipulator::NOT_MOVING);
 		manual_lifter_stop_handled = true;
 	}
 
 	// rake control buttons
 	if (input_board->GetRawButton(InputBoardPorts::LEFT_RAKE_UP_BUTTON)) {
-		manipulator->movePortRake(Manipulator::RAKE_LIFTING);
+		manipulator->movePortRake(Manipulator::rake_directions::RAKE_LIFTING);
 	}
 	else if (input_board->GetRawButton(InputBoardPorts::LEFT_RAKE_DOWN_BUTTON)) {
-		manipulator->movePortRake(Manipulator::RAKE_LOWERING);
+		manipulator->movePortRake(Manipulator::rake_directions::RAKE_LOWERING);
 	}
 	else {
-		manipulator->movePortRake(Manipulator::RAKE_STILL);
+		manipulator->movePortRake(Manipulator::rake_directions::RAKE_STILL);
 	}
 
 	if (input_board->GetRawButton(InputBoardPorts::RIGHT_RAKE_UP_BUTTON)) {
-		manipulator->moveStarboardRake(Manipulator::RAKE_LIFTING);
+		manipulator->moveStarboardRake(Manipulator::rake_directions::RAKE_LIFTING);
 	}
 	else if (input_board->GetRawButton(InputBoardPorts::RIGHT_RAKE_DOWN_BUTTON)) {
-		manipulator->moveStarboardRake(Manipulator::RAKE_LOWERING);
+		manipulator->moveStarboardRake(Manipulator::rake_directions::RAKE_LOWERING);
 	}
 	else {
-		manipulator->moveStarboardRake(Manipulator::RAKE_STILL);
+		manipulator->moveStarboardRake(Manipulator::rake_directions::RAKE_STILL);
 	}
 
 	// normal control of manipulator by driver two
@@ -503,7 +521,31 @@ bool DS::StopCamera(int cameraNum) {
 	return true;
 }
 */
+/*
+void DS::processCameras()
+{
+	bool use_back_cam = input_board->GetRawButton(InputBoardPorts::CAMERA_SELECT_SWITCH);
+	if (use_back_cam != using_back_cam) {
+		useBackCam(use_back_cam);
+	}
+}
 
+void DS::useBackCam(bool back)
+{
+	char command[255];
+	strcpy(command, "/usr/bin/killall -15 mjpg_streamer");
+	system(command);
+	if (back) {
+		strcpy(command, "/home/mjpg_streamer/mjpg_streamer -i \"/home/mjpg_streamer/input_uvc.so -d /dev/video0 -f 10 -r 320x240 -q 20\" -o \"/home/mjpg_streamer/output_http.so -p 5800 -w /home/mjpg_streamer/www\"& ");
+		system(command);
+	}
+	else {
+		strcpy(command, "/home/mjpg_streamer/mjpg_streamer -i \"/home/mjpg_streamer/input_uvc.so -d /dev/video1 -f 10 -r 320x240 -q 20\" -o \"/home/mjpg_streamer/output_http.so -p 5801 -w /home/mjpg_streamer/www1\"& ");
+		system(command);
+	}
+	using_back_cam = back;
+}
+*/
 DS* DS::getInstance() {
 	if (INSTANCE == NULL) {
 		INSTANCE = new DS();
