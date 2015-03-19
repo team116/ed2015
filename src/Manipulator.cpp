@@ -438,15 +438,19 @@ bool Manipulator::rakeMotionDone() {//only for use of presets during atonomous
 bool Manipulator::hittingRakeLimits() {
 	if (using_limits) {
 		if (rake_port->IsFwdLimitSwitchClosed() == 1) {
+			rake_port_limit_current_fwd = rake_port->GetOutputCurrent();
 			return true;
 		}
 		if (rake_port->IsRevLimitSwitchClosed() == 1) {
+			rake_port_limit_current_rev = rake_port->GetOutputCurrent();
 			return true;
 		}
 		if (rake_starboard->IsFwdLimitSwitchClosed() == 1) {
+			rake_starboard_limit_current_fwd = rake_starboard->GetOutputCurrent();
 			return true;
 		}
 		if (rake_starboard->IsRevLimitSwitchClosed() == 1) {
+			rake_starboard_limit_current_rev = rake_starboard->GetOutputCurrent();
 			return true;
 		}
 	}
@@ -505,6 +509,9 @@ int Manipulator::getFlapAngle(){
 	return flap_position_raw;
 }
 
+float Manipulator::getVoltageCount(){
+
+}
 void Manipulator::setSurface(float s) {
 	if (surface != s) {
 		log->write(Log::TRACE_LEVEL, "%s\tChanged surface height to %f", Utils::getCurrentTime(), s);
