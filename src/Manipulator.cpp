@@ -438,19 +438,15 @@ bool Manipulator::rakeMotionDone() {//only for use of presets during atonomous
 bool Manipulator::hittingRakeLimits() {
 	if (using_limits) {
 		if (rake_port->IsFwdLimitSwitchClosed() == 1) {
-			rake_port_limit_current_fwd = rake_port->GetOutputCurrent();
 			return true;
 		}
 		if (rake_port->IsRevLimitSwitchClosed() == 1) {
-			rake_port_limit_current_rev = rake_port->GetOutputCurrent();
 			return true;
 		}
 		if (rake_starboard->IsFwdLimitSwitchClosed() == 1) {
-			rake_starboard_limit_current_fwd = rake_starboard->GetOutputCurrent();
 			return true;
 		}
 		if (rake_starboard->IsRevLimitSwitchClosed() == 1) {
-			rake_starboard_limit_current_rev = rake_starboard->GetOutputCurrent();
 			return true;
 		}
 	}

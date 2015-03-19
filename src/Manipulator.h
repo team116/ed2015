@@ -143,10 +143,8 @@ private:
 	//AnalogPotentiometer* potentiometer;	//TODO: rewrite potentiometer to go through Talon
 	static const int PULSE_PER_REV;
 	static const float INCH_PER_REV;
-	static const float rake_port_limit_current_fwd;
-	static const float rake_port_limit_current_rev;
-	static const float rake_starboard_limit_current_fwd;
-	static const float rake_starboard_limit_current_rev;
+	static const float rake_port_limit_current;
+	static const float rake_starboard_limit_current;
 
 	static const float ENCODER_INCREMENT;
 
