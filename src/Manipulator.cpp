@@ -27,7 +27,7 @@ const float Manipulator::WHEEL_TIMEOUT = 1.1;
 const float Manipulator::LIFTER_RANGE = 0.01; // the acceptable height range for our presets
 const int Manipulator::PULSE_PER_REV = 64;
 const float Manipulator::INCH_PER_REV = 4.0;
-const float Manipulator::ENCODER_INCREMENT = 1.0;
+const float Manipulator::MAX_LIFTER_INCR_PER_SEC = 10.0;
 
 const float Manipulator::TOTE_HEIGHT = 12.1;
 const float Manipulator::FLOOR = 0.0;
@@ -51,7 +51,6 @@ const float Manipulator::RIGHT_RAKE_STABILIZER_UP = 0.0;
 Manipulator::Manipulator() {
 	// subsystem instance getting
 	using_limits = false;
-	using_encoder = false;
 	flap_position_raw = 0;
 
 	mobility = Mobility::getInstance();
@@ -66,45 +65,36 @@ Manipulator::Manipulator() {
 
 	// lifter initializations
 	lifter_one = new CANTalon(RobotPorts::LIFTER_ONE);
-	//lifter_two = new CANTalon(RobotPorts::LIFTER_TWO);
-	//lifter_two->SetControlMode(CANTalon::kFollower);
-	//lifter_two->Set(RobotPorts::LIFTER_ONE);
-	//lift_upper_limit = new DigitalInput(RobotPorts::LIFT_UPPER_LIMIT);
-	//lift_lower_limit = new DigitalInput(RobotPorts::LIFT_LOWER_LIMIT);
-
-	//lifter_one->SetControlMode(CANTalon::kPosition);
-	//lifter_one->SetPID(P, I, D);
-	//lifter_one->SetIzone(IZone);
+	lifter_direction = NOT_MOVING;
+	using_encoder = false;
+	if (using_encoder) {
+		lifter_one->SetControlMode(CANTalon::kPosition);
+	}
+	lifter_one->SetPID(P, I, D);
+	lifter_one->SetIzone(IZone);
 	lifter_one->SetFeedbackDevice(CANTalon::QuadEncoder);
 	lifter_one->ConfigLimitMode(CANSpeedController::kLimitMode_SwitchInputsOnly);
-
-	//TODO: figure out what this means: "When using quadrature, each unit is a quadrature edge (4X) mode."
 	lifter_one->ConfigEncoderCodesPerRev(INCH_PER_REV / PULSE_PER_REV);	//inches per revolution / pulses per revolution = inches per pulse
 	lifter_timer = new Timer();
 	current_height = 0; //starting height (floor level)
 	target_height = 0;
 	lifter_timeout = 0.0;
 	lifter_targeting = false;
+	process_timer = new Timer();
+	process_timer->Start();
 
 	// rake initializations
 	rake_port = new CANTalon(RobotPorts::RAKE_PORT_MOTOR);
 	rake_port->ConfigLimitMode(CANSpeedController::kLimitMode_SwitchInputsOnly);
 	rake_starboard = new CANTalon(RobotPorts::RAKE_STARBOARD_MOTOR);
 	rake_starboard->ConfigLimitMode(CANSpeedController::kLimitMode_SwitchInputsOnly);
-	//port_rake_limit = new DigitalInput(RobotPorts::PORT_RAKE_LIMIT);
-	//starboard_rake_limit = new DigitalInput(RobotPorts::STARBOARD_RAKE_LIMIT);
 	rake_timer = new Timer();
-	//port_rake_direction = RAKE_STILL;
-	//starboard_rake_direction = RAKE_STILL;
 	rake_pos = RAKE_HIGH;
 	rake_pos_prev = RAKE_HIGH;
 
 	// flap initializations
 	close_flaps = new CANTalon(RobotPorts::CLOSE_FLAPS_MOTOR);
 	close_flaps->SetFeedbackDevice(CANTalon::AnalogPot);
-	//flaps_closed_limit = new DigitalInput(RobotPorts::FLAPS_UPPER_LIMIT);
-	//flaps_opened_limit = new DigitalInput(RobotPorts::FLAPS_LOWER_LIMIT);
-	//potentiometer = new AnalogPotentiometer(RobotPorts::FLAP_POTENTIOMETER, 270, 0); //270 = full range of positions; 0 = lowest position
 	flap_timer = new Timer();
 	flap_state = FLAP_STILL;
 	target_flap_pos = FLAP_ANGLE_LOW;	//note: this might change idk
@@ -129,57 +119,11 @@ Manipulator* Manipulator::getInstance() {
 }
 
 void Manipulator::process() {
-	//uses data from encoder to determine current height of lift
-	/*if (!lifter_two->IsControlEnabled()) {
-	 DriverStation::ReportError("Lifter two (talon 7) not enabled");
-	 }*/
 	if (using_encoder) {
 		current_height = lifter_one->GetPosition();
 		log->write(Log::TRACE_LEVEL, "%s\tCurrent Height: %f Target Height: %f\n", Utils::getCurrentTime(), current_height, target_height);
 	}
 
-	if (pushToteDone()) {
-		log->write(Log::TRACE_LEVEL, "%s\ttote pushed\n", Utils::getCurrentTime());
-		left_wheel->Set(0.0);
-		right_wheel->Set(0.0);
-		wheel_state = WHEELS_STILL;
-	}
-
-	if (pullToteDone()) {
-		log->write(Log::TRACE_LEVEL, "%s\tTote pulled\n", Utils::getCurrentTime());
-		left_wheel->Set(0.0);
-		right_wheel->Set(0.0);
-		wheel_state = WHEELS_STILL;
-	}
-
-	if (flapMotionDone()) {
-		if (flap_state == FLAP_CLOSING) {
-			log->write(Log::TRACE_LEVEL, "%s\tFlaps closed\n", Utils::getCurrentTime());
-		}
-		else {
-			log->write(Log::TRACE_LEVEL, "%s\tFlaps opened\n", Utils::getCurrentTime());
-		}
-		close_flaps->Set(0.0);
-		flap_state = FLAP_STILL;
-	}
-	else {
-		switch (target_flap_pos) {
-		case FLAP_ANGLE_LOW:
-			closeFlaps(true);
-			break;
-		case FLAP_ANGLE_MID:
-			if (flap_position_raw < FLAP_ANGLE_MID) { //TODO: check to make sure orientation is correct (aka small value from potentiometer = more closed)
-				closeFlaps(false);
-			}
-			else {
-				closeFlaps(true);
-			}
-			break;
-		case FLAP_ANGLE_HIGH:
-			closeFlaps(false);
-			break;
-		}
-	}
 	if (lifter_targeting) {
 		log->write(Log::TRACE_LEVEL, "%s\tCurrent lift timer reading: %f\n", Utils::getCurrentTime(), lifter_timer->Get());
 		if (lifter_timer->Get() > lifter_timeout) {
@@ -224,10 +168,70 @@ void Manipulator::process() {
 			}
 		}
 	}
+	else if (using_encoder) {
+		// need to increment the goal position while moving
+		switch (lifter_direction) {
+		case MOVING_UP:
+			lifter_one->Set(current_height + MAX_LIFTER_INCR_PER_SEC * process_timer->Get());
+			break;
+		case NOT_MOVING:
+			lifter_one->Set(current_height);
+			break;
+		case MOVING_DOWN:
+			lifter_one->Set(current_height - MAX_LIFTER_INCR_PER_SEC * process_timer->Get());
+			break;
+		default:
+			// we got a problem
+			break;
+		}
+	}
 
-	if (lifter_one->IsRevLimitSwitchClosed() == 1) {//reset encoder to 0 every time lift hits lower limit switch
+	if (lifter_one->IsFwdLimitSwitchClosed() == 1) {//reset encoder to 0 every time lift hits lower limit switch
 		log->write(Log::TRACE_LEVEL, "%s\tHit bottom of lift: encoder set to 0\n", Utils::getCurrentTime());
 		lifter_one->SetPosition(0.0);
+	}
+
+	if (pushToteDone()) {
+		log->write(Log::TRACE_LEVEL, "%s\ttote pushed\n", Utils::getCurrentTime());
+		left_wheel->Set(0.0);
+		right_wheel->Set(0.0);
+		wheel_state = WHEELS_STILL;
+	}
+
+	if (pullToteDone()) {
+		log->write(Log::TRACE_LEVEL, "%s\tTote pulled\n", Utils::getCurrentTime());
+		left_wheel->Set(0.0);
+		right_wheel->Set(0.0);
+		wheel_state = WHEELS_STILL;
+	}
+
+	if (flapMotionDone()) {
+		if (flap_state == FLAP_CLOSING) {
+			log->write(Log::TRACE_LEVEL, "%s\tFlaps closed\n", Utils::getCurrentTime());
+		}
+		else {
+			log->write(Log::TRACE_LEVEL, "%s\tFlaps opened\n", Utils::getCurrentTime());
+		}
+		close_flaps->Set(0.0);
+		flap_state = FLAP_STILL;
+	}
+	else {
+		switch (target_flap_pos) {
+		case FLAP_ANGLE_LOW:
+			closeFlaps(true);
+			break;
+		case FLAP_ANGLE_MID:
+			if (flap_position_raw < FLAP_ANGLE_MID) { //TODO: check to make sure orientation is correct (aka small value from potentiometer = more closed)
+				closeFlaps(false);
+			}
+			else {
+				closeFlaps(true);
+			}
+			break;
+		case FLAP_ANGLE_HIGH:
+			closeFlaps(false);
+			break;
+		}
 	}
 
 	if ((rakeMotionDone() && DriverStation::GetInstance()->IsAutonomous()) /*|| hittingRakeLimits()*/) { //TODO: get real timeout period
@@ -236,6 +240,8 @@ void Manipulator::process() {
 		moveStarboardRake(RAKE_STILL);
 		rake_pos = rake_pos_prev;
 	}
+
+	process_timer->Reset();
 }
 
 void Manipulator::moveTote(float forwards, float rotate) {
@@ -243,17 +249,6 @@ void Manipulator::moveTote(float forwards, float rotate) {
 	rotate = fabs(rotate) < 0.15 ? 0 : rotate * fabs(rotate);
 	tote_wheels->ArcadeDrive(forwards, rotate, false);
 }
-
-/* not necessary, talons already check limit switches
- bool Manipulator::canMoveLifter() {
- if (lifter_targeting) {
- if (target_height > current_height &&)
- }
- else {
-
- }
- }
- */
 
 bool Manipulator::flapMotionDone() {	//TODO: add timeouts to flap positions
 	if (using_flap_potentiometer) {
@@ -607,7 +602,7 @@ void Manipulator::liftLifters(lifter_directions direction) {
 		/*double next_position = lifter_one->GetPosition() + ENCODER_INCREMENT;
 		 lifter_one->Set(next_position);*/
 		if (using_encoder) {
-			target_height = current_height + 2;
+			//target_height = current_height + 2;
 		}
 		else {
 			lifter_one->Set(0.5);
@@ -619,7 +614,7 @@ void Manipulator::liftLifters(lifter_directions direction) {
 		lifter_timer->Stop();
 		log->write(Log::TRACE_LEVEL, "%s\tLift moving down\n", Utils::getCurrentTime());
 		if (using_encoder) {
-			target_height = current_height - 2;
+			//target_height = current_height - 2;
 		}
 		else {
 			lifter_one->Set(-0.5);
@@ -629,12 +624,13 @@ void Manipulator::liftLifters(lifter_directions direction) {
 		lifter_timer->Stop();
 		log->write(Log::TRACE_LEVEL, "%s\tLift motors stopped\n", Utils::getCurrentTime());
 		if (using_encoder) {
-			target_height = current_height;
+			//target_height = current_height;
 		}
 		else {
 			lifter_one->Set(0.0);
 		}
 	}
+	lifter_direction = direction;
 }
 
 void Manipulator::setRakePosition(rake_positions p) {
