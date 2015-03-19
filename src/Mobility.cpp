@@ -63,7 +63,6 @@ Mobility::Mobility()
 	odometry_wheel_y_encoder->SetDistancePerPulse(Y_ODOMETRY_INCHES_PER_PULSE);
 
 	compass = I2CCompass::getInstance();
-	rotation_timer = new Timer();
 	rotation_timeout = 0.0;
 
 	accel = new BuiltInAccelerometer(BuiltInAccelerometer::kRange_4G);
@@ -92,6 +91,8 @@ Mobility::Mobility()
 	ultrasonic->SetOversampleBits(2);
 	//gyro = new Gyro(RobotPorts::GYRO);
 	gyro = I2CGyro::getInstance();
+
+	turn_timer = new Timer();
 }
 
 void Mobility::process()
@@ -105,10 +106,11 @@ void Mobility::process()
 
 	if(rotating_degrees)
 	{
-		//float accel = 0.0;
-		log->write(Log::TRACE_LEVEL, "%s\tGyro: %f\n", Utils::getCurrentTime(), angle);
-		if (rotation_timer->Get() > rotation_timeout) {
-			log->write(Log::TRACE_LEVEL, "Rotation stopeed after %f seconds", rotation_timeout);
+		float accel = 0.0;
+		log->write(Log::ERROR_LEVEL, "%s\tGyro: %f\n", Utils::getCurrentTime(), angle);
+		if(((rotate_direction == 1) && (angle >= target_degrees)) ||
+			((rotate_direction == -1) && (angle <= target_degrees)) ||
+			turn_timer->Get() > rotation_timeout) {
 			rotate_direction = 0;
 		}
 		else if(((rotate_direction == 1) && (angle >= target_degrees)) || ((rotate_direction == -1) && (angle <= target_degrees))) {
@@ -200,9 +202,9 @@ void Mobility::setRotationDegrees(int degrees)
 	log->write(Log::ERROR_LEVEL, "%s\tStart Degrees: %f\n", Utils::getCurrentTime(), start_degrees);
 	rotating_degrees = true;
 	rotation_timeout = (float)degrees * 0.75 / 90.0; // estimating 0.75 seconds for every 90 degrees
-	rotation_timer->Start();
-	rotation_timer->Reset();
 	setRotationSpeed(rotate_direction);
+	turn_timer->Reset();
+	turn_timer->Start();
 }
 
 void Mobility::resetXEncoderDistance()
@@ -215,12 +217,12 @@ void Mobility::resetYEncoderDistance()
 	odometry_wheel_y_encoder->Reset();
 }
 
-int Mobility::getXEncoderDistance()
+float Mobility::getXEncoderDistance()
 {
 	return odometry_wheel_x_encoder->GetDistance();
 }
 
-int Mobility::getYEncoderDistance()
+float Mobility::getYEncoderDistance()
 {
 	return odometry_wheel_y_encoder->GetDistance();
 }

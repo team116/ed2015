@@ -115,7 +115,7 @@ void Autonomous::stackTote() {
 	case 2:
 		// moving to the tote
 		// assumes the robot is at a 90 degree angle to the landmark (facing tote 1 from the right)
-		manipulator->raiseFlaps(false);
+		manipulator->raiseFlaps(true);
 		if (mobility->getUltrasonicDistance() > 3 && mobility->getYEncoderDistance() < 12 && !timer->HasPeriodPassed(12.0 / INCHES_PER_SECOND)) {
 			mobility->setDirection(0.0, -0.75);
 		}
@@ -134,7 +134,7 @@ void Autonomous::stackTote() {
 		}
 		else {
 			log->write(Log::INFO_LEVEL, "%s\tAuto: Pulled tote in\n", Utils::getCurrentTime());
-			manipulator->raiseFlaps(true);
+			manipulator->raiseFlaps(false);
 			manipulator->setTargetLevel(2);
 			timer->Reset();
 			// turn the robot so that it is facing the alliance wall
@@ -252,7 +252,7 @@ void Autonomous::stackTote() {
 		break;
 	case 10:
 		// place the tote
-		manipulator->raiseFlaps(false);
+		manipulator->raiseFlaps(true);
 		manipulator->pushTote();
 		// wait a brief moment to be sure that we've actually placed the tote
 		if (timer->HasPeriodPassed(0.5)) {
@@ -286,7 +286,7 @@ void Autonomous::moveContainer() {
 	case 1:
 		// moving to the container
 		// assumes the robot is at a +90 degree angle to the landmark (facing container 1 from the left)
-		manipulator->raiseFlaps(false);
+		manipulator->raiseFlaps(true);
 		if (mobility->getUltrasonicDistance() > 3 && mobility->getYEncoderDistance() < 12 && !timer->HasPeriodPassed(12.0 / INCHES_PER_SECOND)) {
 			mobility->setDirection(0.0, -0.75);
 		}
@@ -303,7 +303,7 @@ void Autonomous::moveContainer() {
 		manipulator->pullTote();
 		if (timer->HasPeriodPassed(1.0)) {
 			log->write(Log::INFO_LEVEL, "%s\tPicked up container\n", Utils::getCurrentTime());
-			manipulator->raiseFlaps(true);
+			manipulator->raiseFlaps(false);
 			manipulator->setTargetLevel(1);
 			// turn to face the alliance wall
 			mobility->setRotationDegrees(90);
@@ -328,7 +328,7 @@ void Autonomous::moveContainer() {
 		// put down the container
 		manipulator->setTargetLevel(0);
 		if (manipulator->getLevel() == 0) {
-			manipulator->raiseFlaps(false);
+			manipulator->raiseFlaps(true);
 			manipulator->pushTote();
 			++current_step;
 		}
@@ -358,7 +358,7 @@ void Autonomous::moveContainerAndTote() {
 		// moving to the container
 		// assumes the robot is at a +90 degree angle to the landmark (facing container 1 from the left)
 		//sam chanesman
-		manipulator->raiseFlaps(false);
+		manipulator->raiseFlaps(true);
 		if (mobility->getUltrasonicDistance() > 3 && mobility->getYEncoderDistance() < 12 && !timer->HasPeriodPassed(12 / INCHES_PER_SECOND)) {
 			mobility->setDirection(0.0, -0.75);
 		}
@@ -373,7 +373,7 @@ void Autonomous::moveContainerAndTote() {
 		// picking up the container
 		manipulator->pullTote();
 		if (timer->HasPeriodPassed(1.0)) {
-			manipulator->raiseFlaps(true);
+			manipulator->raiseFlaps(false);
 			manipulator->setTargetLevel(1);
 			mobility->setRotationDegrees(90);
 			timer->Reset();
@@ -400,7 +400,7 @@ void Autonomous::moveContainerAndTote() {
 			break;
 		}
 		else {
-			manipulator->raiseFlaps(false);
+			manipulator->raiseFlaps(true);
 			manipulator->pushTote();	//pushing container, not tote, fyi
 			++current_step;
 		}
@@ -438,7 +438,7 @@ void Autonomous::moveContainerAndTote() {
 		//pick up tote/container stack
 		manipulator->pullTote();
 		if (timer->HasPeriodPassed(1.0)) {
-			manipulator->raiseFlaps(true);
+			manipulator->raiseFlaps(false);
 			manipulator->setTargetLevel(1);
 			timer->Reset();
 			++current_step;
@@ -460,7 +460,7 @@ void Autonomous::moveContainerAndTote() {
 		//put it down
 		manipulator->setTargetLevel(0);
 		if (manipulator->getLevel() == 0) {
-			manipulator->raiseFlaps(false);
+			manipulator->raiseFlaps(true);
 			manipulator->pushTote();
 			timer->Reset();
 			++current_step;
@@ -564,7 +564,7 @@ void Autonomous::moveTwoTotes() {
 		// wait to ensure that the tote has actually been pulled in
 		if (timer->HasPeriodPassed(1.5)) {
 			timer->Reset();
-			manipulator->raiseFlaps(true);
+			manipulator->raiseFlaps(false);
 			manipulator->setTargetLevel(1);
 			++current_step;
 		}
@@ -626,7 +626,7 @@ void Autonomous::moveTwoTotes() {
 		break;
 	case 7:
 		// place the first tote on top of the second
-		manipulator->raiseFlaps(false);
+		manipulator->raiseFlaps(true);
 		manipulator->pushTote();
 		// wait briefly to make sure we actually pushed the tote out
 		if (timer->HasPeriodPassed(1.0)) {
@@ -668,7 +668,7 @@ void Autonomous::moveTwoTotes() {
 		// wait to ensure that the totes have actually been pulled in
 		if (timer->HasPeriodPassed(1.0)) {
 			timer->Reset();
-			manipulator->raiseFlaps(true);
+			manipulator->raiseFlaps(false);
 			manipulator->setTargetLevel(1);
 			// turn to face the alliance wall
 			mobility->setRotationDegrees(90);
@@ -692,11 +692,11 @@ void Autonomous::moveTwoTotes() {
 		break;
 	case 12:
 		/*
-		//turn to face landmark
-		mobility->setRotationDegrees(180);
-		//reset/start a timer so that we can move forward briefly to get very close to the landmark
-		timer->Reset();
-		*/
+		 //turn to face landmark
+		 mobility->setRotationDegrees(180);
+		 //reset/start a timer so that we can move forward briefly to get very close to the landmark
+		 timer->Reset();
+		 */
 		++current_step;
 		break;
 	case 13:
@@ -715,23 +715,23 @@ void Autonomous::moveTwoTotes() {
 		 break;
 		 */
 		/*
-		// but for now I'll do this lame timer thing
-		if (!timer->HasPeriodPassed(1.0)) {
-			mobility->setDirection(0.0, 0.75);
-		}
-		else {
-			timer->Reset();
-			timer->Start();
-			mobility->setDirection(0.0, 0.0);
-			++current_step;
-		}
-		*/
+		 // but for now I'll do this lame timer thing
+		 if (!timer->HasPeriodPassed(1.0)) {
+		 mobility->setDirection(0.0, 0.75);
+		 }
+		 else {
+		 timer->Reset();
+		 timer->Start();
+		 mobility->setDirection(0.0, 0.0);
+		 ++current_step;
+		 }
+		 */
 		timer->Reset();
 		++current_step;
 		break;
 	case 14:
 		// place the tote
-		manipulator->raiseFlaps(false);
+		manipulator->raiseFlaps(true);
 		manipulator->pushTote();
 		if (timer->HasPeriodPassed(0.5)) {
 			++current_step;
@@ -754,4 +754,274 @@ void Autonomous::moveTwoTotes() {
 		break;
 	}
 
+}
+
+void Autonomous::moveThreeTotes() {
+	// go down the line of totes, picking up each one and pushing aside the containers
+	// then drive into the auto zone, put down the stack, and back away enough that we aren't touching it
+	switch (current_step) {
+	case 1:
+		// scoot in towards tote
+		if (mobility->getUltrasonicDistance() > 3 && !timer->HasPeriodPassed(0.5)) {
+			mobility->setDirection(0.0, 0.75);
+		}
+		else {
+			mobility->setDirection(0.0, 0.0);
+			timer->Reset();
+			mobility->resetYEncoderDistance();
+			++current_step;
+		}
+		break;
+	case 2:
+		// picking up the tote
+		// wait to ensure that the tote has actually been pulled in
+		if (!timer->HasPeriodPassed(1.0)) {
+			manipulator->pullTote();
+
+		}
+		else {
+			timer->Reset();
+			manipulator->raiseFlaps(false);
+			manipulator->setTargetLevel(1);
+			++current_step;
+		}
+		break;
+	case 3:
+		// move forward to the container
+		if (mobility->getYEncoderDistance() < 12 && !timer->HasPeriodPassed(0.7)) {
+			mobility->setDirection(0.0, 0.75);
+		}
+		else {
+			mobility->setDirection(0.0, 0.0);
+			timer->Reset();
+			mobility->resetYEncoderDistance();
+			++current_step;
+		}
+		break;
+	case 4:
+		// move slightly to the side in preparation for smacking the container aside
+		if (!timer->HasPeriodPassed(0.2)) {
+			mobility->setRotationSpeed(0.5);
+			mobility->setDirection(0.5, 0.75);
+		}
+		else {
+			timer->Reset();
+			mobility->setRotationSpeed(0.0);
+			mobility->setDirection(0.0, 0.0);
+			++current_step;
+		}
+		break;
+	case 5:
+		// turn back
+		if (!timer->HasPeriodPassed(0.2)) {
+			mobility->setRotationSpeed(-0.5);
+			mobility->setDirection(-0.5, 0.75);
+		}
+		else {
+			timer->Reset();
+			mobility->setRotationSpeed(0.0);
+			mobility->setDirection(0.0, 0.0);
+			mobility->resetYEncoderDistance();
+			++current_step;
+		}
+		break;
+	case 6:
+		// move forward to the next tote
+		if (mobility->getUltrasonicDistance() > 2 && mobility->getYEncoderDistance() < 30 && !timer->HasPeriodPassed(1.5)) {
+			mobility->setDirection(0.0, 0.75);
+		}
+		else {
+			timer->Reset();
+			mobility->setDirection(0.0, 0.0);
+		}
+		break;
+	case 7:
+		// place the first tote on top of the second
+		manipulator->raiseFlaps(true);
+		manipulator->pushTote();
+		// wait briefly to make sure we actually pushed the tote out
+		if (timer->HasPeriodPassed(0.5)) {
+			timer->Reset();
+			++current_step;
+		}
+		break;
+	case 8:
+		// back up + lower manipulator lift
+		manipulator->setTargetLevel(0);
+		// this is an arbitrary distance to back up
+		if (mobility->getUltrasonicDistance() < 6 && !timer->HasPeriodPassed(0.3)) {
+			mobility->setDirection(0.0, -0.75);
+		}
+		else {
+			mobility->setDirection(0.0, 0.0);
+			if (manipulator->getLevel() == 0) {
+				// move on if we've backed up enough and the manipulator has lowered
+				timer->Reset();
+				mobility->resetYEncoderDistance();
+				++current_step;
+			}
+		}
+		break;
+	case 9:
+		//scoot forward again
+		if (mobility->getUltrasonicDistance() > 3 && fabs(mobility->getYEncoderDistance()) < 12 && !timer->HasPeriodPassed(12.0 / INCHES_PER_SECOND)) {
+			mobility->setDirection(0.0, 0.75);
+		}
+		else {
+			mobility->setDirection(0.0, 0.0);
+			timer->Reset();
+			mobility->resetYEncoderDistance();
+			++current_step;
+		}
+		break;
+	case 10:
+		// pick up the two stacked totes and start lifting them
+		// wait to ensure that the totes have actually been pulled in
+		if (!timer->HasPeriodPassed(0.5)) {
+			manipulator->pullTote();
+		}
+		else {
+			timer->Reset();
+			manipulator->raiseFlaps(false);
+			manipulator->setTargetLevel(2);
+			++current_step;
+		}
+		break;
+	case 11:
+		// move forward to the container
+		if (mobility->getYEncoderDistance() < 12 && !timer->HasPeriodPassed(0.7)) {
+			mobility->setDirection(0.0, 0.75);
+		}
+		else {
+			mobility->setDirection(0.0, 0.0);
+			timer->Reset();
+			mobility->resetYEncoderDistance();
+			++current_step;
+		}
+		break;
+	case 12:
+		// move slightly to the side in preparation for smacking the container aside
+		if (!timer->HasPeriodPassed(0.2)) {
+			mobility->setRotationSpeed(0.5);
+			mobility->setDirection(0.5, 0.75);
+		}
+		else {
+			timer->Reset();
+			mobility->setRotationSpeed(0.0);
+			mobility->setDirection(0.0, 0.0);
+			++current_step;
+		}
+		break;
+	case 13:
+		// turn back
+		if (!timer->HasPeriodPassed(0.2)) {
+			mobility->setRotationSpeed(-0.5);
+			mobility->setDirection(-0.5, 0.75);
+		}
+		else {
+			timer->Reset();
+			mobility->setRotationSpeed(0.0);
+			mobility->setDirection(0.0, 0.0);
+			mobility->resetYEncoderDistance();
+			++current_step;
+		}
+		break;
+	case 14:
+		// move forward to the last tote
+		if (mobility->getUltrasonicDistance() > 2 && mobility->getYEncoderDistance() < 30 && !timer->HasPeriodPassed(1.5)) {
+			mobility->setDirection(0.0, 0.75);
+		}
+		else {
+			timer->Reset();
+			mobility->setDirection(0.0, 0.0);
+		}
+		break;
+	case 15:
+		// place the totes on top of the third
+		manipulator->raiseFlaps(true);
+		manipulator->pushTote();
+		// wait briefly to make sure we actually pushed the totes out
+		if (timer->HasPeriodPassed(0.4)) {
+			timer->Reset();
+			++current_step;
+		}
+		break;
+	case 16:
+		// back up + lower manipulator lift
+		manipulator->setTargetLevel(0);
+		// this is an arbitrary distance to back up
+		if (mobility->getUltrasonicDistance() < 6 && !timer->HasPeriodPassed(0.3)) {
+			mobility->setDirection(0.0, -0.75);
+		}
+		else {
+			mobility->setDirection(0.0, 0.0);
+			if (manipulator->getLevel() == 0) {
+				// move on if we've backed up enough and the manipulator has lowered
+				timer->Reset();
+				mobility->resetYEncoderDistance();
+				++current_step;
+			}
+		}
+		break;
+	case 17:
+		//scoot forward again
+		if (mobility->getUltrasonicDistance() > 3 && fabs(mobility->getYEncoderDistance()) < 12 && !timer->HasPeriodPassed(0.4)) {
+			mobility->setDirection(0.0, 0.75);
+		}
+		else {
+			mobility->setDirection(0.0, 0.0);
+			timer->Reset();
+			mobility->resetYEncoderDistance();
+			++current_step;
+		}
+		break;
+	case 18:
+		// pick up the three stacked totes and start lifting them
+		// wait to ensure that the totes have actually been pulled in
+		if (!timer->HasPeriodPassed(0.4)) {
+			manipulator->pullTote();
+		}
+		else {
+			timer->Reset();
+			manipulator->raiseFlaps(false);
+			manipulator->setTargetLevel(1);
+			mobility->resetXEncoderDistance();
+			++current_step;
+		}
+		break;
+	case 19:
+		// move into the auto zone
+		if (mobility->getXEncoderDistance() < 108 && !timer->HasPeriodPassed(108.0 / INCHES_PER_SECOND)) {
+			mobility->setDirection(0.75, 0.0);
+		}
+		else {
+			timer->Reset();
+			mobility->setDirection(0.0, 0.0);
+			++current_step;
+		}
+		break;
+	case 20:
+		// put down the totes
+		manipulator->raiseFlaps(true);
+		manipulator->pushTote();
+		if (timer->HasPeriodPassed(0.4)) {
+			timer->Reset();
+			++current_step;
+		}
+		break;
+	case 21:
+		// back up
+		if (!timer->HasPeriodPassed(0.7)) {
+			mobility->setDirection(0.0, -0.75);
+		}
+		else {
+			timer->Stop();
+			mobility->setDirection(0.0, 0.0);
+			++current_step;
+		}
+		break;
+	case 22:
+		// yay we're done
+		break;
+	}
 }

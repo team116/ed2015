@@ -48,13 +48,6 @@ public:
 		FLAP_STILL
 	};
 
-	/*enum flap_positions
-	{
-		FLAP_LOW,
-		FLAP_MID,
-		FLAP_HIGH
-	};*/
-
 	enum wheel_directions
 	{
 		WHEELS_PULLING,
@@ -85,6 +78,7 @@ public:
 	void setLifterModifier(float power);
 	int getLevel();
 	float getHeight();
+	float getVoltageCount();
 	int getFlapAngle();
 	void usingEncoder(bool enc);
 
@@ -109,9 +103,8 @@ public:
 	static const int FLAP_ANGLE_HIGH;	//opened
 
 private:
-	static Manipulator* INSTANCE; //																			   ,`~
-	//HYDRAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAANGEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAS!!! :D  :3  (/^W^)/ `',', ~
-	// motors																									 ,~	`	`
+	static Manipulator* INSTANCE;
+	// motors
 	CANTalon* left_wheel;
 	CANTalon* right_wheel;
 	CANTalon* lifter_one;
@@ -121,20 +114,6 @@ private:
 	CANTalon* close_flaps;
 
 	RobotDrive* tote_wheels;
-	//hydrangeas
-	//hydrangeas
-	//hydrangeas
-	//hydrangeas
-	//hydrangeas
-	//hydrangeas
-	//hydrangeas
-	// sensors
-	/*DigitalInput* lift_upper_limit;
-	DigitalInput* lift_lower_limit;
-	DigitalInput* flaps_closed_limit;
-	DigitalInput* flaps_opened_limit;
-	DigitalInput* port_rake_limit;
-	DigitalInput* starboard_rake_limit;*/
 
 	static const float P;
 	static const float I;
@@ -143,8 +122,8 @@ private:
 	//AnalogPotentiometer* potentiometer;	//TODO: rewrite potentiometer to go through Talon
 	static const int PULSE_PER_REV;
 	static const float INCH_PER_REV;
-
-	static const float ENCODER_INCREMENT;
+	static const float rake_port_limit_current;
+	static const float rake_starboard_limit_current;
 
 	//servos
 	Servo* left_trex_arm;
@@ -162,6 +141,7 @@ private:
 	static const float RIGHT_RAKE_STABILIZER_UP;
 
 	// timers
+	Timer* process_timer; // used to increment the lifter position;
 	Timer* flap_timer;
 	static const float FLAP_TIMEOUT_LOW_TO_MID;
 	static const float FLAP_TIMEOUT_LOW_TO_HIGH;
@@ -180,6 +160,7 @@ private:
 	// lifter stuff --inches for everything
 	float current_height;
 	float target_height;
+	lifter_directions lifter_direction;
 
 	static const float TOTE_HEIGHT;
 	static const float LIFTER_RANGE;
@@ -199,6 +180,7 @@ private:
 	int target_flap_pos;
 	int flap_pos_start;
 	wheel_directions wheel_state;
+	static const float MAX_LIFTER_INCR_PER_SEC;
 
 
 	//stores grace range (aka how close is close enough)

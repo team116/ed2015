@@ -1,4 +1,5 @@
 #include <ctime>
+
 namespace RobotPorts
 {
 
@@ -22,13 +23,7 @@ namespace RobotPorts
 	const unsigned int ULTRASONIC = 0;
 
 	// digital sensors
-	//limits run through motors, not RoboRio
-	/*const unsigned int LIFT_UPPER_LIMIT = 0;
-	const unsigned int LIFT_LOWER_LIMIT = 1;
-	const unsigned int FLAPS_UPPER_LIMIT = 2;
-	const unsigned int FLAPS_LOWER_LIMIT = 3;
-	const unsigned int PORT_RAKE_LIMIT = 4;
-	const unsigned int STARBOARD_RAKE_LIMIT = 5;*/
+	//limits run through talons, not RoboRio
 
 	const unsigned int ENCODER_A = 6;
 	const unsigned int ENCODER_B = 7;
@@ -91,15 +86,6 @@ namespace LEDBoardPorts
 	const unsigned int LEVEL_4_INDICATOR = 3;
 	const unsigned int LEVEL_5_INDICATOR = 2;
 	const unsigned int LEVEL_6_INDICATOR = 1;
-
-	/*
-	const unsigned int STACK_ON_FLOOR_INDICATOR = 19;
-	const unsigned int STACK_ON_PLATFORM_INDICATOR = 20;
-	const unsigned int STACK_ON_STEP_INDICATOR = 21;
-
-	const unsigned int BACK_CAMERA_INDICATOR = 22;
-	const unsigned int FRONT_CAMERA_INDICATOR = 23;
-	*/
 }
 
 namespace InputBoardPorts
@@ -134,54 +120,7 @@ namespace InputBoardPorts
 	//analog inputs
 	const unsigned int FLAP_POSITION_KNOB = 0;
 }
-/*
-namespace IOBoardOnePorts
-{
-	//digital inputs
-	const unsigned int LIFTER_PRESET_0 = 1;
-	const unsigned int LIFTER_PRESET_1 = 2;
-	const unsigned int LIFTER_PRESET_2 = 3;
-	const unsigned int LIFTER_PRESET_3 = 4;
-	const unsigned int LIFTER_PRESET_4 = 5;
-	const unsigned int LIFTER_PRESET_5 = 6;
-	const unsigned int LIFTER_PRESET_6 = 7;
 
-	const unsigned int STACK_ON_PLATFORM_SWITCH = 8;
-	const unsigned int STACK_ON_STEP_SWITCH = 9;
-
-	const unsigned int LIFTER_UP_BUTTON = 10;
-	const unsigned int LIFTER_DOWN_BUTTON = 11;
-
-	//digital outputs
-	const unsigned int LEVEL_0_INDICATOR = 12;
-	const unsigned int LEVEL_1_INDICATOR = 13;
-	const unsigned int LEVEL_2_INDICATOR = 14;
-	const unsigned int LEVEL_3_INDICATOR = 15;
-	const unsigned int LEVEL_4_INDICATOR = 16;
-	const unsigned int LEVEL_5_INDICATOR = 17;
-	const unsigned int LEVEL_6_INDICATOR = 18;
-
-	const unsigned int STACK_ON_FLOOR_INDICATOR = 19;
-	const unsigned int STACK_ON_PLATFORM_INDICATOR = 20;
-	const unsigned int STACK_ON_STEP_INDICATOR = 21;
-
-	const unsigned int BACK_CAMERA_INDICATOR = 22;
-	const unsigned int FRONT_CAMERA_INDICATOR = 23;
-
-	//analog inputs
-	const unsigned int FLAP_POSITION_KNOB = 1;
-}
-
-namespace IOBoardTwoPorts{
-	const unsigned int FRONT_CAMERA_SELECT = 1;
-	const unsigned int BACK_CAMERA_SELECT = 2;
-
-	const unsigned int LEFT_RAKE_UP_BUTTON = 3;
-	const unsigned int LEFT_RAKE_DOWN_BUTTON = 4;
-	const unsigned int RIGHT_RAKE_UP_BUTTON = 5;
-	const unsigned int RIGHT_RAKE_DOWN_BUTTON = 6;
-}
-*/
 namespace Utils
 {
 	int convertFromVolts(const float voltage, const int voltage_levels, const float max_voltage);

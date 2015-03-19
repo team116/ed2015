@@ -22,8 +22,8 @@ public:
 	void setRotationDegrees(int degrees);
 	float getUltrasonicDistance();
 	void toggleFieldCentric();
-	int getXEncoderDistance();
-	int getYEncoderDistance();
+	float getXEncoderDistance();
+	float getYEncoderDistance();
 	bool getRotatingDegrees();
 	void resetXEncoderDistance();
 	void resetYEncoderDistance();
@@ -66,6 +66,8 @@ private:
 	float rotation_timeout;
 
 	BuiltInAccelerometer* accel;
+
+	Timer* turn_timer;
 
 	bool real_orientation;
 
