@@ -69,6 +69,7 @@ public:
 	void spinTote(float direction);
 
 	void raiseFlaps(bool close);
+	void moveFlaps(flap_directions dir);
 
 	void setSurface(float s);
 	void setTargetLevel(int level);
@@ -156,6 +157,12 @@ private:
 	float lifter_modifier;
 	Timer* wheel_timer;
 	static const float WHEEL_TIMEOUT;
+
+	static const float MAX_FLAP_CURRENT;
+	static const float FLAP_CURRENT_TIMEOUT;
+
+	bool flaps_max_current;
+	Timer* flaps_current_timer;
 
 	// lifter stuff --inches for everything
 	float current_height;

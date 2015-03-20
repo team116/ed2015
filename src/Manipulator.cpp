@@ -49,6 +49,9 @@ const float Manipulator::LEFT_RAKE_STABILIZER_UP = 0.0;
 const float Manipulator::RIGHT_RAKE_STABILIZER_DOWN = 0.0;
 const float Manipulator::RIGHT_RAKE_STABILIZER_UP = 0.0;
 
+const float Manipulator::MAX_FLAP_CURRENT = 1.5;
+const float Manipulator::FLAP_CURRENT_TIMEOUT = 0.1;
+
 Manipulator::Manipulator() {
 	// subsystem instance getting
 	using_limits = false;
@@ -109,6 +112,9 @@ Manipulator::Manipulator() {
 	right_trex_arm = new Servo(RobotPorts::RIGHT_TREX_ARM);
 	left_rake_stabilizer = new Servo(RobotPorts::LEFT_RAKE_STABILIZER);
 	right_rake_stabilizer = new Servo(RobotPorts::RIGHT_RAKE_STABILIZER);
+
+	flaps_max_current = false;
+	flaps_current_timer = new Timer();
 }
 
 Manipulator* Manipulator::getInstance() {
@@ -119,6 +125,23 @@ Manipulator* Manipulator::getInstance() {
 }
 
 void Manipulator::process() {
+	log->write(Log::INFO_LEVEL, "Voltage: %f\n", close_flaps->GetOutputCurrent());
+
+	if(close_flaps->GetOutputCurrent() > MAX_FLAP_CURRENT) {
+		log->write(Log::INFO_LEVEL, "Flaps Stuck, stopping motors\n");
+		flaps_max_current = true;
+		flaps_current_timer->Reset();
+		flaps_current_timer->Start();
+		close_flaps->Set(0.0);
+	}
+
+	if(flaps_current_timer->Get() > FLAP_CURRENT_TIMEOUT) {
+		log->write(Log::INFO_LEVEL, "Flap current timeout passed\n");
+		flaps_max_current = false;
+		flaps_current_timer->Stop();
+		flaps_current_timer->Reset();
+	}
+
 	if (using_encoder) {
 		current_height = lifter_one->GetPosition();
 		log->write(Log::TRACE_LEVEL, "%s\tCurrent Height: %f Target Height: %f\n", Utils::getCurrentTime(), current_height, target_height);
@@ -138,7 +161,7 @@ void Manipulator::process() {
 		wheel_state = WHEELS_STILL;
 	}
 
-	if (flapMotionDone()) {
+/*	if (flapMotionDone()) {
 		if (flap_state == FLAP_RAISING) {
 			log->write(Log::TRACE_LEVEL, "%s\tFlaps closed\n", Utils::getCurrentTime());
 		}
@@ -165,7 +188,7 @@ void Manipulator::process() {
 			raiseFlaps(true);
 			break;
 		}
-	}
+	}*/
 
 	if (lifter_targeting) {
 		log->write(Log::TRACE_LEVEL, "%s\tCurrent lift timer reading: %f\n", Utils::getCurrentTime(), lifter_timer->Get());
@@ -493,6 +516,22 @@ void Manipulator::raiseFlaps(bool close) {
 		log->write(Log::TRACE_LEVEL, "%s\tOpening flaps\n", Utils::getCurrentTime());
 		close_flaps->Set(-0.5);
 		flap_state = FLAP_LOWERING;
+	}
+}
+
+void Manipulator::moveFlaps(flap_directions dir) {
+	if(!flaps_max_current) {
+		switch(dir) {
+		case FLAP_LOWERING:
+			close_flaps->Set(-0.5);
+			break;
+		case FLAP_RAISING:
+			close_flaps->Set(0.5);
+			break;
+		case FLAP_STILL:
+			close_flaps->Set(0.0);
+			break;
+		}
 	}
 }
 
