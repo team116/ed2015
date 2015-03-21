@@ -128,7 +128,7 @@ Manipulator* Manipulator::getInstance() {
 void Manipulator::process() {
 	log->write(Log::INFO_LEVEL, "Voltage: %f\n", close_flaps->GetOutputCurrent());
 
-	if(isLimitReached) {
+	if(isLimitReached()) {
 		log->write(Log::INFO_LEVEL, "Flaps Stuck, stopping motors\n");
 		flaps_current_timer->Reset();
 		flaps_current_timer->Start();
