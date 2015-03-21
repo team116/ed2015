@@ -18,6 +18,7 @@ const float Manipulator::FLAP_TIMEOUT_LOW_TO_MID = 1.0;
 const float Manipulator::FLAP_TIMEOUT_LOW_TO_HIGH = 0.5;
 const float Manipulator::FLAP_TIMEOUT_MID_TO_HIGH = 0.5;
 
+
 const float Manipulator::RAKE_TIMEOUT_LOW_TO_MID = 1.1;
 const float Manipulator::RAKE_TIMEOUT_LOW_TO_HIGH = 1.1;
 const float Manipulator::RAKE_TIMEOUT_MID_TO_HIGH = 1.1;
@@ -103,6 +104,7 @@ Manipulator::Manipulator() {
 	target_flap_pos = FLAP_ANGLE_HIGH;	//note: this might change idk
 	flap_pos_start = FLAP_ANGLE_HIGH;
 	using_flap_potentiometer = false; // MAKE SURE TO CHANGE THIS WHEN APPROPRIATE
+	dir_not_possible = FLAP_STILL;
 
 	//belt_moving = false;
 	surface = 0;
@@ -113,7 +115,6 @@ Manipulator::Manipulator() {
 	left_rake_stabilizer = new Servo(RobotPorts::LEFT_RAKE_STABILIZER);
 	right_rake_stabilizer = new Servo(RobotPorts::RIGHT_RAKE_STABILIZER);
 
-	flaps_max_current = false;
 	flaps_current_timer = new Timer();
 }
 
@@ -127,17 +128,23 @@ Manipulator* Manipulator::getInstance() {
 void Manipulator::process() {
 	log->write(Log::INFO_LEVEL, "Voltage: %f\n", close_flaps->GetOutputCurrent());
 
-	if(close_flaps->GetOutputCurrent() > MAX_FLAP_CURRENT) {
+	if(isLimitReached) {
 		log->write(Log::INFO_LEVEL, "Flaps Stuck, stopping motors\n");
-		flaps_max_current = true;
 		flaps_current_timer->Reset();
 		flaps_current_timer->Start();
+		if(close_flaps->Get() < 0.0){
+			dir_not_possible = FLAP_LOWERING;
+		}
+		else if(close_flaps->Get() > 0.0){
+			dir_not_possible = FLAP_RAISING;
+		}
+		else
+			dir_not_possible = FLAP_STILL;
 		close_flaps->Set(0.0);
 	}
-
 	if(flaps_current_timer->Get() > FLAP_CURRENT_TIMEOUT) {
 		log->write(Log::INFO_LEVEL, "Flap current timeout passed\n");
-		flaps_max_current = false;
+		dir_not_possible = FLAP_STILL;
 		flaps_current_timer->Stop();
 		flaps_current_timer->Reset();
 	}
@@ -520,7 +527,7 @@ void Manipulator::raiseFlaps(bool close) {
 }
 
 void Manipulator::moveFlaps(flap_directions dir) {
-	if(!flaps_max_current) {
+	if(dir != dir_not_possible) {
 		switch(dir) {
 		case FLAP_LOWERING:
 			close_flaps->Set(-0.5);
@@ -533,6 +540,8 @@ void Manipulator::moveFlaps(flap_directions dir) {
 			break;
 		}
 	}
+	else
+		close_flaps->Set(0.0);
 }
 
 int Manipulator::getFlapAngle()
@@ -812,4 +821,12 @@ void Manipulator::setLifterModifier(float power)
 {
 	log->write(Log::DEBUG_LEVEL, "%s\tLifter Modifier set to: %f\n", Utils::getCurrentTime(), power);
 	lifter_modifier = power;
+}
+
+bool Manipulator::isLimitReached(){
+	if(close_flaps->GetOutputCurrent() >= MAX_FLAP_CURRENT){
+		return true;
+	}
+	else
+		return false;
 }

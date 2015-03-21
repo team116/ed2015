@@ -83,6 +83,8 @@ public:
 	int getFlapAngle();
 	void usingEncoder(bool enc);
 
+	bool isLimitReached();
+
 	void liftRakes(bool going_up);
 	void movePortRake(rake_directions direction);
 	void moveStarboardRake(rake_directions direction);
@@ -123,8 +125,7 @@ private:
 	//AnalogPotentiometer* potentiometer;	//TODO: rewrite potentiometer to go through Talon
 	static const int PULSE_PER_REV;
 	static const float INCH_PER_REV;
-	static const float rake_port_limit_current;
-	static const float rake_starboard_limit_current;
+	flap_directions dir_not_possible;
 
 	//servos
 	Servo* left_trex_arm;
@@ -161,7 +162,6 @@ private:
 	static const float MAX_FLAP_CURRENT;
 	static const float FLAP_CURRENT_TIMEOUT;
 
-	bool flaps_max_current;
 	Timer* flaps_current_timer;
 
 	// lifter stuff --inches for everything
