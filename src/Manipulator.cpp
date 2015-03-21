@@ -18,6 +18,7 @@ const float Manipulator::FLAP_TIMEOUT_LOW_TO_MID = 1.0;
 const float Manipulator::FLAP_TIMEOUT_LOW_TO_HIGH = 0.5;
 const float Manipulator::FLAP_TIMEOUT_MID_TO_HIGH = 0.5;
 
+
 const float Manipulator::RAKE_TIMEOUT_LOW_TO_MID = 1.1;
 const float Manipulator::RAKE_TIMEOUT_LOW_TO_HIGH = 1.1;
 const float Manipulator::RAKE_TIMEOUT_MID_TO_HIGH = 1.1;
@@ -48,6 +49,9 @@ const float Manipulator::LEFT_RAKE_STABILIZER_DOWN = 0.0;
 const float Manipulator::LEFT_RAKE_STABILIZER_UP = 0.0;
 const float Manipulator::RIGHT_RAKE_STABILIZER_DOWN = 0.0;
 const float Manipulator::RIGHT_RAKE_STABILIZER_UP = 0.0;
+
+const float Manipulator::MAX_FLAP_CURRENT = 1.5;
+const float Manipulator::FLAP_CURRENT_TIMEOUT = 0.1;
 
 Manipulator::Manipulator() {
 	// subsystem instance getting
@@ -100,6 +104,7 @@ Manipulator::Manipulator() {
 	target_flap_pos = FLAP_ANGLE_HIGH;	//note: this might change idk
 	flap_pos_start = FLAP_ANGLE_HIGH;
 	using_flap_potentiometer = false; // MAKE SURE TO CHANGE THIS WHEN APPROPRIATE
+	dir_not_possible = FLAP_STILL;
 
 	//belt_moving = false;
 	surface = 0;
@@ -109,6 +114,8 @@ Manipulator::Manipulator() {
 	right_trex_arm = new Servo(RobotPorts::RIGHT_TREX_ARM);
 	left_rake_stabilizer = new Servo(RobotPorts::LEFT_RAKE_STABILIZER);
 	right_rake_stabilizer = new Servo(RobotPorts::RIGHT_RAKE_STABILIZER);
+
+	flaps_current_timer = new Timer();
 }
 
 Manipulator* Manipulator::getInstance() {
@@ -119,6 +126,29 @@ Manipulator* Manipulator::getInstance() {
 }
 
 void Manipulator::process() {
+	log->write(Log::INFO_LEVEL, "Voltage: %f\n", close_flaps->GetOutputCurrent());
+
+	if(isLimitReached()) {
+		log->write(Log::INFO_LEVEL, "Flaps Stuck, stopping motors\n");
+		flaps_current_timer->Reset();
+		flaps_current_timer->Start();
+		if(close_flaps->Get() < 0.0){
+			dir_not_possible = FLAP_LOWERING;
+		}
+		else if(close_flaps->Get() > 0.0){
+			dir_not_possible = FLAP_RAISING;
+		}
+		else
+			dir_not_possible = FLAP_STILL;
+		close_flaps->Set(0.0);
+	}
+	if(flaps_current_timer->Get() > FLAP_CURRENT_TIMEOUT) {
+		log->write(Log::INFO_LEVEL, "Flap current timeout passed\n");
+		dir_not_possible = FLAP_STILL;
+		flaps_current_timer->Stop();
+		flaps_current_timer->Reset();
+	}
+
 	if (using_encoder) {
 		current_height = lifter_one->GetPosition();
 		log->write(Log::TRACE_LEVEL, "%s\tCurrent Height: %f Target Height: %f\n", Utils::getCurrentTime(), current_height, target_height);
@@ -138,7 +168,7 @@ void Manipulator::process() {
 		wheel_state = WHEELS_STILL;
 	}
 
-	if (flapMotionDone()) {
+/*	if (flapMotionDone()) {
 		if (flap_state == FLAP_RAISING) {
 			log->write(Log::TRACE_LEVEL, "%s\tFlaps closed\n", Utils::getCurrentTime());
 		}
@@ -165,7 +195,7 @@ void Manipulator::process() {
 			raiseFlaps(true);
 			break;
 		}
-	}
+	}*/
 
 	if (lifter_targeting) {
 		log->write(Log::TRACE_LEVEL, "%s\tCurrent lift timer reading: %f\n", Utils::getCurrentTime(), lifter_timer->Get());
@@ -496,6 +526,24 @@ void Manipulator::raiseFlaps(bool close) {
 	}
 }
 
+void Manipulator::moveFlaps(flap_directions dir) {
+	if(dir != dir_not_possible) {
+		switch(dir) {
+		case FLAP_LOWERING:
+			close_flaps->Set(-0.5);
+			break;
+		case FLAP_RAISING:
+			close_flaps->Set(0.5);
+			break;
+		case FLAP_STILL:
+			close_flaps->Set(0.0);
+			break;
+		}
+	}
+	else
+		close_flaps->Set(0.0);
+}
+
 int Manipulator::getFlapAngle()
 {
 	return flap_position_raw;
@@ -773,4 +821,12 @@ void Manipulator::setLifterModifier(float power)
 {
 	log->write(Log::DEBUG_LEVEL, "%s\tLifter Modifier set to: %f\n", Utils::getCurrentTime(), power);
 	lifter_modifier = power;
+}
+
+bool Manipulator::isLimitReached(){
+	if(close_flaps->GetOutputCurrent() >= MAX_FLAP_CURRENT){
+		return true;
+	}
+	else
+		return false;
 }

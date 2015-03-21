@@ -168,7 +168,7 @@ void DS::processManipulator() {
 	log->write(Log::TRACE_LEVEL, "%s\tFlap knob voltage: %f\n", Utils::getCurrentTime(), input_board->GetRawAxis(InputBoardPorts::FLAP_POSITION_KNOB));
 	int knob_pos = Utils::convertFromVolts(input_board->GetRawAxis(InputBoardPorts::FLAP_POSITION_KNOB)+1, 6, 2.0);
 	log->write(Log::TRACE_LEVEL, "%s\tFlap knob position: %i\n", Utils::getCurrentTime(), knob_pos);
-	switch (knob_pos) {
+/*	switch (knob_pos) {
 	case 0:
 	case 1:
 		if(last_set_flap_position != Manipulator::FLAP_ANGLE_LOW){
@@ -190,7 +190,7 @@ void DS::processManipulator() {
 			last_set_flap_position = Manipulator::FLAP_ANGLE_HIGH;
 		}
 		break;
-	}
+	}*/
 
 	// lifter preset buttons, have been repurposed as lift modifiers (below)
 	/*
@@ -280,10 +280,13 @@ void DS::processManipulator() {
 	}
 
 	if (input_board->GetRawButton(InputBoardPorts::FLAP_LOWER)) {
-		manipulator->raiseFlaps(false);
+		manipulator->moveFlaps(Manipulator::FLAP_LOWERING);
 	}
 	else if (input_board->GetRawButton(InputBoardPorts::FLAP_RAISE)) {
-		manipulator->raiseFlaps(true);
+		manipulator->moveFlaps(Manipulator::FLAP_RAISING);
+	}
+	else {
+		manipulator->moveFlaps(Manipulator::FLAP_STILL);
 	}
 }
 
