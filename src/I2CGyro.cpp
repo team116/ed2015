@@ -9,6 +9,7 @@
 #include <I2C.h>
 #include <Timer.h>
 #include "Ports.h"
+#include <WPILib.h>
 
 I2CGyro* I2CGyro::INSTANCE = NULL;
 
@@ -20,6 +21,7 @@ I2CGyro::I2CGyro()
 {
 	timer = new Timer();
 	channel = new I2C(I2C::kOnboard, RobotPorts::GYRO_ADDRESS);
+	log = Log::getInstance();
 
 	last_angle = 0.0;
 	current_angle = 0.0;
@@ -34,6 +36,7 @@ I2CGyro::I2CGyro()
 
 void I2CGyro::process()
 {
+	log->write(Log::TRACE_LEVEL, "Last Angle: %f\nCurrent Angle: %f\nOffset: %f\n\n", last_angle, current_angle, offset);
 	if (next_step == DONE && timer->Get() > READ_DELAY) {
 		last_angle = current_angle;
 

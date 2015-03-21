@@ -71,8 +71,8 @@ Manipulator::Manipulator() {
 	// lifter initializations
 	lifter_one = new CANTalon(RobotPorts::LIFTER_ONE);
 	lifter_direction = NOT_MOVING;
-	using_encoder = false; // not necessary, stops warning
-	usePID(using_encoder);
+	using_encoder = true; // not necessary, stops warning
+	usePID(!using_encoder);	//after this function, using_encoder will equal false
 	lifter_one->SetPID(P, I, D);
 	lifter_one->SetIzone(IZone);
 	lifter_one->SetFeedbackDevice(CANTalon::QuadEncoder);
@@ -196,6 +196,10 @@ void Manipulator::process() {
 			break;
 		}
 	}*/
+	if(!using_encoder && lifter_direction == NOT_MOVING){
+			log->write(Log::DEBUG_LEVEL, "%s\tUsing Lifter Modifier: %f", Utils::getCurrentTime(), lifter_modifier);
+			lifter_one->Set(0.0 - lifter_modifier);
+		}
 
 	if (lifter_targeting) {
 		log->write(Log::TRACE_LEVEL, "%s\tCurrent lift timer reading: %f\n", Utils::getCurrentTime(), lifter_timer->Get());
@@ -261,7 +265,7 @@ void Manipulator::process() {
 
 	if (lifter_one->IsFwdLimitSwitchClosed() == 1) {//reset encoder to 0 every time lift hits lower limit switch
 		log->write(Log::TRACE_LEVEL, "%s\tHit bottom of lift: encoder set to 0\n", Utils::getCurrentTime());
-		lifter_one->SetPosition(0.0);
+		lifter_one->SetPosition(0.0);	//if not in positional mode (aka not using encoder) then this line won't do anything
 	}
 
 	if ((rakeMotionDone() && DriverStation::GetInstance()->IsAutonomous()) /*|| hittingRakeLimits()*/) { //TODO: get real timeout period
@@ -663,12 +667,7 @@ void Manipulator::liftLifters(lifter_directions direction) {
 		/*double next_position = lifter_one->GetPosition() + ENCODER_INCREMENT;
 		 lifter_one->Set(next_position);*/
 
-		if (using_encoder) {
-			//target_height = current_height + 2;
-		}
-		else {
-			lifter_one->Set(-0.5);
-		}
+		lifter_direction = direction;
 
 //lifter two is set to follower mode, should move by itself
 	}
@@ -683,35 +682,22 @@ void Manipulator::liftLifters(lifter_directions direction) {
 		lifter_one->Set(0.5);
 		*/
 
-		if (using_encoder) {
-			//target_height = current_height - 2;
-		}
-		else {
-			lifter_one->Set(0.5);
-		}
+		lifter_direction = direction;
 
 	}
 	else if (direction == NOT_MOVING && !lifter_targeting) {
-		int enc_pos = lifter_one->GetEncPosition();
 		lifter_timer->Stop();
 		log->write(Log::TRACE_LEVEL, "%s\tLift motors stopped\n", Utils::getCurrentTime());
-		/*
-		if (!using_encoder) {
-			usePID(true);
-		}
-		lifter_one->Set(enc_pos);
-		*/
 
-		if (using_encoder) {
-			//target_height = current_height;
-		}
-		else {
+		//moved this to process
+		/*if(!using_encoder){
 			log->write(Log::DEBUG_LEVEL, "%s\tUsing Lifter Modifier: %f", Utils::getCurrentTime(), lifter_modifier);
 			lifter_one->Set(0.0 - lifter_modifier);
-		}
+		}*/
+
+		lifter_direction = direction;
 
 	}
-	lifter_direction = direction;
 }
 
 void Manipulator::setRakePosition(rake_positions p) {
@@ -808,13 +794,14 @@ void Manipulator::moveRakeStabilizers(servos_position trex_arm_position) {
 
 void Manipulator::usePID(bool use)
 {
-	if (use) {
+	if (use && !using_encoder) {
 		lifter_one->SetControlMode(CANSpeedController::kPosition);
+		using_encoder = use;
 	}
-	else {
+	else if(!use && using_encoder) {
 		lifter_one->SetControlMode(CANSpeedController::kPercentVbus);
+		using_encoder = use;
 	}
-	using_encoder = use;
 }
 
 void Manipulator::setLifterModifier(float power)

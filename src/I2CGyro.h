@@ -12,6 +12,8 @@
 #include <PIDSource.h>
 #include <I2C.h>
 #include <Timer.h>
+#include <WPILib.h>
+#include "Log.h"
 
 class I2CGyro : PIDSource {
 public:
@@ -40,6 +42,7 @@ private:
 	I2C* channel;
 	// used to prevent heavy bus traffic
 	Timer* timer;
+	Log* log;
 
 	static const float READ_DELAY;
 	static const float CONFIG_DELAY;
