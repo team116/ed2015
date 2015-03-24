@@ -3,6 +3,8 @@
 #ifndef CAMERAFEEDS_H_
 #define CAMERAFEEDS_H_
 
+#include "Log.h"
+
 class CameraFeeds {
 public:
 	//const int kBtCamFront = 1;
@@ -17,6 +19,8 @@ public:
 	void updateCam();
 
 private:
+	Log* log;
+
 	IMAQdxSession camFront;
 	IMAQdxSession camBack;
 	IMAQdxSession curCam;

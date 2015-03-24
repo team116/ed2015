@@ -32,28 +32,34 @@ const float Mobility::VOLTS_PER_INCH = 5.0 / 512.0;
 Mobility::Mobility()
 {
 	log = Log::getInstance();
+	log->write(Log::DEBUG_LEVEL, "%s\tConstructing Mobility.cpp\n", Utils::getCurrentTime());
+
 	front_left_motor = new CANTalon(RobotPorts::FRONT_LEFT_MOTOR);
 	front_left_motor->SetVoltageRampRate(RAMP_RATE);
 	front_left_motor->Set(0.0);
 	front_left_motor->SetFeedbackDevice(CANTalon::QuadEncoder);
+	front_left_motor->SetSensorDirection(true);
 	front_left_motor->Set(0.0);
 
 	front_right_motor = new CANTalon(RobotPorts::FRONT_RIGHT_MOTOR);
 	front_right_motor->SetVoltageRampRate(RAMP_RATE);
 	front_right_motor->Set(0.0);
 	front_right_motor->SetFeedbackDevice(CANTalon::QuadEncoder);
+	front_right_motor->SetSensorDirection(true);
 	front_right_motor->Set(0.0);
 
 	rear_left_motor = new CANTalon(RobotPorts::REAR_LEFT_MOTOR);
 	rear_left_motor->SetVoltageRampRate(RAMP_RATE);
 	rear_left_motor->Set(0.0);
 	rear_left_motor->SetFeedbackDevice(CANTalon::QuadEncoder);
+	rear_left_motor->SetSensorDirection(true);
 	rear_left_motor->Set(0.0);
 
 	rear_right_motor = new CANTalon(RobotPorts::REAR_RIGHT_MOTOR);
 	rear_right_motor->SetVoltageRampRate(RAMP_RATE);
 	rear_right_motor->Set(0.0);
 	rear_right_motor->SetFeedbackDevice(CANTalon::QuadEncoder);
+	rear_right_motor->SetSensorDirection(true);
 	rear_right_motor->Set(0.0);
 
 	odometry_wheel_x_encoder = new Encoder(RobotPorts::ODOMETRY_WHEEL_X_A,RobotPorts::ODOMETRY_WHEEL_X_B);

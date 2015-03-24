@@ -10,6 +10,7 @@
 #include <cmath>
 #include <I2C.h>
 #include <Timer.h>
+#include "Log.h"
 
 #define PI 3.1415926
 // the number of bytes in one coordinate sent by the compass, unsigned
@@ -19,6 +20,9 @@ const unsigned int I2CCompass::BUF_SIZE = 6;
 
 I2CCompass::I2CCompass()
 {
+	log = Log::getInstance();
+	log->write(Log::DEBUG_LEVEL, "%s\tConstructing I2CCompass.cpp\n", Utils::getCurrentTime());
+
 	timer = new Timer();
 	channel = new I2C(I2C::kOnboard, RobotPorts::COMPASS_ADDRESS);
 

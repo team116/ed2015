@@ -19,9 +19,11 @@ const unsigned int I2CGyro::BUF_SIZE = 6;
 
 I2CGyro::I2CGyro()
 {
+	log = Log::getInstance();
+	log->write(Log::DEBUG_LEVEL, "%s\tConstructing I2CGyro.cpp\n", Utils::getCurrentTime());
+
 	timer = new Timer();
 	channel = new I2C(I2C::kOnboard, RobotPorts::GYRO_ADDRESS);
-	log = Log::getInstance();
 
 	last_angle = 0.0;
 	current_angle = 0.0;

@@ -54,12 +54,13 @@ const float Manipulator::MAX_FLAP_CURRENT = 1.5;
 const float Manipulator::FLAP_CURRENT_TIMEOUT = 0.1;
 
 Manipulator::Manipulator() {
+	log = Log::getInstance();
+	log->write(Log::DEBUG_LEVEL, "%s\tConstructing Manipulator.cpp\n", Utils::getCurrentTime());
+
+	mobility = Mobility::getInstance();
 	// subsystem instance getting
 	using_limits = false;
 	flap_position_raw = 0;
-
-	mobility = Mobility::getInstance();
-	log = Log::getInstance();
 
 	left_wheel = new CANTalon(RobotPorts::LEFT_WHEEL);
 	right_wheel = new CANTalon(RobotPorts::RIGHT_WHEEL);

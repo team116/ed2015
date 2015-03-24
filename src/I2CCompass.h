@@ -11,6 +11,7 @@
 #include <PIDSource.h>
 #include <Timer.h>
 #include <I2C.h>
+#include "Log.h"
 
 class I2CCompass : PIDSource {
 public:
@@ -24,6 +25,8 @@ public:
 private:
 	I2CCompass();
 	static I2CCompass* INSTANCE;
+
+	Log* log;
 
 	Timer* timer;
 	I2C* channel;

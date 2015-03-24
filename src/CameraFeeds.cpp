@@ -8,8 +8,12 @@
 #include "CameraFeeds.h"
 #include "Ports.h"
 #include <WPILib.h>
+#include "Log.h"
 
 CameraFeeds::CameraFeeds(Joystick* newJoy) {
+	log = Log::getInstance();
+	log->write(Log::DEBUG_LEVEL, "%s\tConstructing CameraFeeds.cpp\n", Utils::getCurrentTime());
+
 	int imaqError;
 	imaqError = IMAQdxOpenCamera(camNameFront, IMAQdxCameraControlModeController, &camFront);
 	if (imaqError != IMAQdxErrorSuccess) {

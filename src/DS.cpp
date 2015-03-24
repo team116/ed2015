@@ -12,6 +12,8 @@ DS* DS::INSTANCE = NULL;
 
 DS::DS() {
 	log = Log::getInstance();
+	log->write(Log::DEBUG_LEVEL, "%s\tConstructing DS.cpp\n", Utils::getCurrentTime());
+
 	mobility = Mobility::getInstance();
 	manipulator = Manipulator::getInstance();
 
