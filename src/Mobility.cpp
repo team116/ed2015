@@ -103,6 +103,11 @@ Mobility::Mobility()
 
 void Mobility::process()
 {
+/*	POSITION_P_VALUE = std::stof(SmartDashboard::GetString("DB/String 0", std::to_string(POSITION_P_VALUE)));
+	POSITION_I_VALUE = std::stof(SmartDashboard::GetString("DB/String 1", std::to_string(POSITION_I_VALUE)));
+	POSITION_D_VALUE = std::stof(SmartDashboard::GetString("DB/String 2", std::to_string(POSITION_D_VALUE)));
+	POSITION_IZONE = std::stoi(SmartDashboard::GetString("DB/String 3", std::to_string(POSITION_IZONE)));*/
+
 	float angle = gyro->getAngle();
 	float rate = gyro->getRate();
 	float min_rate = 45.0f;
