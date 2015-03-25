@@ -35,6 +35,7 @@ public:
 	void rotClosedLoop(bool rot);
 
 	void PIDWrite(float rot_speed);
+	void setControlMode(CANSpeedController::ControlMode);
 
 private:
 	Mobility();
@@ -89,6 +90,8 @@ private:
 	BuiltInAccelerometer* accel;
 
 	Timer* turn_timer;
+
+	CANTalon::ControlMode control_mode;
 
 	bool real_orientation;
 

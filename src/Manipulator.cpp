@@ -797,10 +797,12 @@ void Manipulator::usePID(bool use)
 {
 	if (use && !using_encoder) {
 		lifter_one->SetControlMode(CANSpeedController::kPosition);
+		lifter_one->Set(0.0);
 		using_encoder = use;
 	}
 	else if(!use && using_encoder) {
 		lifter_one->SetControlMode(CANSpeedController::kPercentVbus);
+		lifter_one->Set(0.0);
 		using_encoder = use;
 	}
 }

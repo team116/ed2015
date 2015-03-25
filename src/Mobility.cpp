@@ -39,7 +39,8 @@ const float Mobility::MAX_ULTRASONIC_DISTANCE = 254.0;
 const float Mobility::MAX_ULTRASONIC_VOLTAGE = 5.5;
 const float Mobility::X_ODOMETRY_INCHES_PER_PULSE = 3.0 / 360.0;
 const float Mobility::Y_ODOMETRY_INCHES_PER_PULSE = 3.0 / 250.0;
-const float Mobility::MAX_VELOCITY = 555.1f;
+//const float Mobility::MAX_VELOCITY = 555.1f;
+const float Mobility::MAX_VELOCITY = 750; //SOFTWARE BOT
 const float Mobility::VOLTS_PER_INCH = 5.0 / 512.0;
 // 250 PPR on drive wheel encoders
 
@@ -87,6 +88,8 @@ Mobility::Mobility()
 	rotation_timeout = 0.0;
 
 	accel = new BuiltInAccelerometer(BuiltInAccelerometer::kRange_4G);
+
+	control_mode = CANTalon::kSpeed;
 
 	robot_drive = new RobotDrive(front_left_motor, rear_left_motor, front_right_motor, rear_right_motor);
 
@@ -187,23 +190,98 @@ void Mobility::process()
 		}
 	}
 
-	if (field_centric) {
-		robot_drive->MecanumDrive_Cartesian(x_direction, y_direction, rotation, angle);
+	if(control_mode == CANSpeedController::kSpeed || control_mode == CANSpeedController::kPercentVbus) {
+		log->write(Log::INFO_LEVEL, "%s\tMobility X: %f\n", Utils::getCurrentTime(), x_direction);
+		log->write(Log::INFO_LEVEL, "%s\tMobility Y: %f\n", Utils::getCurrentTime(), y_direction);
+		log->write(Log::INFO_LEVEL, "%s\tMobility R: %f\n", Utils::getCurrentTime(), rotation);
+		if (field_centric) {
+			robot_drive->MecanumDrive_Cartesian(x_direction, y_direction, rotation, angle);
+		}
+		else {
+			robot_drive->MecanumDrive_Cartesian(x_direction, y_direction, rotation);
+		}
 	}
-	else {
-		robot_drive->MecanumDrive_Cartesian(x_direction, y_direction, rotation);
+	else if(control_mode == CANSpeedController::kPosition){
+		float fl_pos = front_left_motor->GetPosition();
+		float fr_pos = front_right_motor->GetPosition();
+		float rl_pos = rear_left_motor->GetPosition();
+		float rr_pos = rear_right_motor->GetPosition();
+//		front_left_motor->SetPosition((fl_pos / fabs(fl_pos)) * fabs(rl_pos));
+//		front_right_motor->SetPosition((fr_pos / fabs(fr_pos)) * fabs(rr_pos));
+
+		float fl_target = 0.0;
+		float fr_target = 0.0;
+		float rl_target = 0.0;
+		float rr_target = 0.0;
+
+		if(x_direction == 0.0 && y_direction != 0.0) {
+			fl_target = -y_direction;
+			fr_target = y_direction;
+			rl_target = -y_direction;
+			rr_target = y_direction;
+		}
+		else if(x_direction != 0.0 && y_direction == 0.0) {
+			fl_target = -x_direction;
+			fr_target = -x_direction;
+			rl_target = x_direction;
+			rr_target = x_direction;
+		}
+
+		front_left_motor->Set(fl_target);
+		front_right_motor->Set(fr_target);
+		rear_left_motor->Set(rl_target);
+		rear_right_motor->Set(rr_target);
+
+/*		log->write(Log::INFO_LEVEL, "RL target: %f RL pos: %f\n", rl_target, rl_pos);
+		log->write(Log::INFO_LEVEL, "fabs: %f\n", fabs(rl_pos - rl_target));
+//		log->write(Log::INFO_LEVEL, "RL pos: %f target: %f error: %d\n", rear_left_motor->GetPosition(), rear_left_motor->Get(), rear_left_motor->GetClosedLoopError());
+		if(fabs(fl_pos - fl_target) <= POSITION_ZONE) {
+			front_left_motor->SetPosition(fl_target);
+			front_left_motor->SetControlMode(CANTalon::kPercentVbus);
+			front_left_motor->Set(0.0);
+			front_left_motor->SetControlMode(CANTalon::kPosition);
+		}
+		if(fabs(fr_pos - fr_target) <= POSITION_ZONE) {
+			front_right_motor->SetPosition(fr_target);
+			front_right_motor->SetControlMode(CANTalon::kPercentVbus);
+			front_right_motor->Set(0.0);
+			front_right_motor->SetControlMode(CANTalon::kPosition);
+		}
+		if(fabs(rl_pos - rl_target) <= POSITION_ZONE) {
+			log->write(Log::INFO_LEVEL, "Seting rl position to target\n");
+			rear_left_motor->SetPosition(rl_target);
+			rear_left_motor->SetControlMode(CANTalon::kPercentVbus);
+			rear_left_motor->Set(0.0);
+			rear_left_motor->SetControlMode(CANTalon::kPosition);
+		}
+		if(fabs(rr_pos - rr_target) <= POSITION_ZONE) {
+			rear_right_motor->SetPosition(rr_target);
+			rear_right_motor->SetControlMode(CANTalon::kPercentVbus);
+			rear_right_motor->Set(0.0);
+			rear_right_motor->SetControlMode(CANTalon::kPosition);
+		}*/
 	}
 }
 
 void Mobility::setDirection(float x, float y)//-1.0 through 1.0
 {
 	x_direction = x * MAX_SPEED;
-	y_direction = y * MAX_SPEED;
+	y_direction = -y * MAX_SPEED;
 }
 
 void Mobility::setRotationSpeed(float rotation_)//-1.0 through 1.0
 {
 	rotation = rotation_ * MAX_SPEED;
+}
+
+bool Mobility::isVelZero()
+{
+	int vel = 5;
+	if(abs(front_left_motor->GetEncVel()) <= vel && abs(front_right_motor->GetEncVel()) <= vel &&
+			abs(rear_left_motor->GetEncVel()) <= vel && abs(rear_right_motor->GetEncVel()) <= vel) {
+		return true;
+	}
+	return false;
 }
 
 void Mobility::toggleFieldCentric()
@@ -301,35 +379,76 @@ void Mobility::driveClosedLoop(bool use)
 	if (use != drive_closed_loop) {
 		drive_closed_loop = use;
 		if (use) {
-			log->write(Log::TRACE_LEVEL, "Closed Loop\n");
-			front_left_motor->SetPID(P_VALUE, I_VALUE, D_VALUE);
-			front_left_motor->Set(0.0f);
-			front_left_motor->SetControlMode(CANTalon::kSpeed);
+			front_left_motor->SetControlMode(control_mode);
 			front_left_motor->Set(0.0f);
 
-			front_right_motor->SetPID(P_VALUE, I_VALUE, D_VALUE);
-			front_right_motor->Set(0.0f);
-			front_right_motor->SetControlMode(CANTalon::kSpeed);
+			front_right_motor->SetControlMode(control_mode);
 			front_right_motor->Set(0.0f);
 
-			rear_left_motor->SetPID(P_VALUE, I_VALUE, D_VALUE);
-			rear_left_motor->Set(0.0f);
-			rear_left_motor->SetControlMode(CANTalon::kSpeed);
+			rear_left_motor->SetControlMode(control_mode);
 			rear_left_motor->Set(0.0f);
 
-			rear_right_motor->SetPID(P_VALUE, I_VALUE, D_VALUE);
-			rear_right_motor->Set(0.0f);
-			rear_right_motor->SetControlMode(CANTalon::kSpeed);
+			rear_right_motor->SetControlMode(control_mode);
 			rear_right_motor->Set(0.0f);
 
-			robot_drive->SetMaxOutput(MAX_VELOCITY);
-//			rear_left_motor->Set(205);
-//			rear_right_motor->Set(-0.2 * MAX_VELOCITY);
-//			front_left_motor->Set(0.2 * MAX_VELOCITY);
-//			front_right_motor->Set(-0.2 * MAX_VELOCITY);
+			switch(control_mode) {
+			case CANTalon::kSpeed:
+				log->write(Log::TRACE_LEVEL, "%s\tClosed Loop Speed Mode\n", Utils::getCurrentTime());
+
+				front_left_motor->SetPID(SPEED_P_VALUE, SPEED_I_VALUE, SPEED_D_VALUE);
+				front_left_motor->Set(0.0f);
+				front_left_motor->SetIzone(SPEED_IZONE);
+				front_left_motor->Set(0.0f);
+
+				front_right_motor->SetPID(SPEED_P_VALUE, SPEED_I_VALUE, SPEED_D_VALUE);
+				front_right_motor->Set(0.0f);
+				front_right_motor->SetIzone(SPEED_IZONE);
+				front_right_motor->Set(0.0f);
+
+				rear_left_motor->SetPID(SPEED_P_VALUE, SPEED_I_VALUE, SPEED_D_VALUE);
+				rear_left_motor->Set(0.0f);
+				rear_left_motor->SetIzone(SPEED_IZONE);
+				rear_left_motor->Set(0.0f);
+
+				rear_right_motor->SetPID(SPEED_P_VALUE, SPEED_I_VALUE, SPEED_D_VALUE);
+				rear_right_motor->Set(0.0f);
+				rear_right_motor->SetIzone(SPEED_IZONE);
+				rear_right_motor->Set(0.0f);
+
+				robot_drive->SetMaxOutput(MAX_VELOCITY);
+				break;
+			case CANTalon::kPosition:
+				log->write(Log::TRACE_LEVEL, "%s\tClosed Loop Position Mode\n", Utils::getCurrentTime());
+
+				front_left_motor->SetPID(POSITION_P_VALUE, POSITION_I_VALUE, POSITION_D_VALUE);
+				front_left_motor->Set(0.0f);
+				front_left_motor->SetIzone(POSITION_IZONE);
+				front_left_motor->Set(0.0f);
+
+				front_right_motor->SetPID(POSITION_P_VALUE, POSITION_I_VALUE, POSITION_D_VALUE);
+				front_right_motor->Set(0.0f);
+				front_right_motor->SetIzone(POSITION_IZONE);
+				front_right_motor->Set(0.0f);
+
+				rear_left_motor->SetPID(POSITION_P_VALUE, POSITION_I_VALUE, POSITION_D_VALUE);
+				rear_left_motor->Set(0.0f);
+				rear_left_motor->SetIzone(POSITION_IZONE);
+				rear_left_motor->Set(0.0f);
+
+				rear_right_motor->SetPID(POSITION_P_VALUE, POSITION_I_VALUE, POSITION_D_VALUE);
+				rear_right_motor->Set(0.0f);
+				rear_right_motor->SetIzone(POSITION_IZONE);
+				rear_right_motor->Set(0.0f);
+
+				robot_drive->SetMaxOutput(1.0);
+				break;
+			}
 		}
 		else {
-			log->write(Log::TRACE_LEVEL, "Open Loop\n");
+			log->write(Log::TRACE_LEVEL, "%s\tOpen Loop\n", Utils::getCurrentTime());
+
+			control_mode = CANTalon::kPercentVbus;
+
 			front_left_motor->SetPID(0.0, 0.0, 0.0);
 			front_left_motor->Set(0.0f);
 			front_left_motor->SetControlMode(CANTalon::kPercentVbus);
@@ -351,10 +470,40 @@ void Mobility::driveClosedLoop(bool use)
 			rear_right_motor->Set(0.0f);
 
 			robot_drive->SetMaxOutput(1.0);
-//			rear_left_motor->Set(0.2);
-//			rear_right_motor->Set(-0.2);
-//			front_left_motor->Set(0.2);
-//			front_right_motor->Set(-0.2);
+		}
+	}
+}
+
+void Mobility::setControlMode(CANSpeedController::ControlMode mode)
+{
+	if(control_mode != mode) {
+		switch(mode) {
+		case CANTalon::kSpeed:
+			log->write(Log::INFO_LEVEL, "%s\tSetting control mode to speed\n", Utils::getCurrentTime());
+			control_mode = CANTalon::kSpeed;
+			using_closed_loop = false;
+			useClosedLoop(true);
+			break;
+		case CANTalon::kPosition:
+			log->write(Log::INFO_LEVEL, "%s\tSetting control mode to position\n", Utils::getCurrentTime());
+			control_mode = CANTalon::kPosition;
+			front_left_motor->SetPosition(0.0);
+			front_right_motor->SetPosition(0.0);
+			rear_left_motor->SetPosition(0.0);
+			rear_right_motor->SetPosition(0.0);
+			using_closed_loop = false;
+			useClosedLoop(true);
+			break;
+		case CANTalon::kPercentVbus:
+			log->write(Log::INFO_LEVEL, "%s\tSetting control mode to throttle\n", Utils::getCurrentTime());
+			control_mode = CANTalon::kPercentVbus;
+			using_closed_loop = true;
+			useClosedLoop(false);
+			break;
+		default:
+			log->write(Log::WARNING_LEVEL, "%s\tWARNING: Unsupported control mode set: %d in Mobility.cpp at line"
+					" number %d\n", Utils::getCurrentTime(), mode, __LINE__);
+			break;
 		}
 	}
 }

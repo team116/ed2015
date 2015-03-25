@@ -33,10 +33,11 @@ private:
 	{
 		DO_NOTHING = 0,
 		INTO_ZONE = 1,
-		STACK_TOTE = 2,
+		STACK_THREE_TOTES = 2,
 		MOVE_CONTAINER = 3,
 		CONTAINER_AND_TOTE = 4,
-		CENTER_CONTAINERS = 5
+		CENTER_CONTAINERS = 5,
+		STACK_TOTE = 6//2
 	};
 
 	enum starting_locations
@@ -52,7 +53,11 @@ private:
 	int delay;
 	bool delay_over;
 
-	static const float INCHES_PER_SECOND;
+	static const float FIRST_TOTE_TIMEOUT;
+	static const float PULL_TIMEOUT;
+	static const float PUSH_TIMEOUT;
+	static const float MOVE_TO_ZONE_TIMEOUT;
+	static const float BACKUP_TIMEOUT;
 
 };
 

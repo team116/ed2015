@@ -81,7 +81,7 @@ void DS::processMobility() {
 		x = fabs(x) < 0.1 ? 0 : x * fabs(x) * fabs(x);
 		y = fabs(y) < 0.1 ? 0 : y * fabs(y) * fabs(y);
 		t = fabs(t) < 0.1 ? 0 : t * fabs(t) * fabs(t);
-		mobility->setDirection(x, y);
+		mobility->setDirection(x, -y);
 		if (toggle_rotation) {
 			mobility->setRotationSpeed(t * 0.75);
 		}
@@ -120,7 +120,7 @@ void DS::processMobility() {
 				x = 0.0;
 			}
 		}
-		mobility->setDirection(x, y);
+		mobility->setDirection(x, -y);
 		// the rotation is really fast, halve the speed
 		if (toggle_rotation) {
 			mobility->setRotationSpeed(t / 2.0);

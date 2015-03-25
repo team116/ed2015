@@ -57,6 +57,8 @@ public:
 
     void AutonomousInit()
     {
+//    	mobility->setControlMode(CANTalon::kPosition);
+    	mobility->setControlMode(CANTalon::kSpeed);
 		const float max_volt = 5.2;
 		float delay_volt = delay_switch->GetVoltage();
 		float play_volt = play_switch->GetVoltage();
@@ -71,7 +73,7 @@ public:
 
     void TeleopInit()
     {
-
+    	mobility->setControlMode(CANTalon::kSpeed);
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -99,12 +101,6 @@ public:
     	manipulator->process();
     	compass->process();
     	gyro->process();
-
-/*    	log ->write(Log::TRACE_LEVEL, "AccelX: %i\n");
-    	log ->write(Log::TRACE_LEVEL, "AccelY: %i\n");
-		log ->write(Log::TRACE_LEVEL, "AccelX: %i\n");
-    	log -> write(Log::TRACE_LEVEL, "Compass Yaw: %f\n");*/
- //   	log->write(Log::INFO_LEVEL, "Gyro: %f", gyro->getAngle());
     }
 
 	void TestPeriodic()
