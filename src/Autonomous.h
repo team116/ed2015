@@ -53,7 +53,11 @@ private:
 	int delay;
 	bool delay_over;
 
-	static const float INCHES_PER_SECOND;
+	static const float FIRST_TOTE_TIMEOUT;
+	static const float PULL_TIMEOUT;
+	static const float PUSH_TIMEOUT;
+	static const float MOVE_TO_ZONE_TIMEOUT;
+	static const float BACKUP_TIMEOUT;
 
 };
 
