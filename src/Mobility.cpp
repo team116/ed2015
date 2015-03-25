@@ -15,9 +15,15 @@
 
 using namespace std;
 
-float Mobility::P_VALUE = 0.9f;
-float Mobility::I_VALUE = 0.1f;
-float Mobility::D_VALUE = 0.0f;
+float Mobility::SPEED_P_VALUE = 0.8f;
+float Mobility::SPEED_I_VALUE = 0.004f;
+float Mobility::SPEED_D_VALUE = 0.0f;
+int Mobility::SPEED_IZONE = 1000;//1000 for speed mode
+float Mobility::POSITION_P_VALUE = 0.8f;
+float Mobility::POSITION_I_VALUE = 0.001f;
+float Mobility::POSITION_D_VALUE = 10.0f;
+int Mobility::POSITION_IZONE = 50;
+const float Mobility::POSITION_ZONE = 50.0;
 
 const float Mobility::ROT_P_VALUE = 0.5f;
 const float Mobility::ROT_I_VALUE = 0.004f;
@@ -116,7 +122,6 @@ Mobility::Mobility()
 	//ultrasonic->SetOversampleBits(2);
 	gyro = new Gyro(RobotPorts::GYRO);
 	gyro->SetSensitivity(GYRO_V_PER_DEG_PER_SEC);
-	gyro->SetDeadband(GYRO_V_DEADZONE);
 	gyro->InitGyro();
 	gyro->Reset();
 	gyro->SetPIDSourceParameter(PIDSource::kAngle);
@@ -481,8 +486,8 @@ void Mobility::setControlMode(CANSpeedController::ControlMode mode)
 		case CANTalon::kSpeed:
 			log->write(Log::INFO_LEVEL, "%s\tSetting control mode to speed\n", Utils::getCurrentTime());
 			control_mode = CANTalon::kSpeed;
-			using_closed_loop = false;
-			useClosedLoop(true);
+			drive_closed_loop = false;
+			driveClosedLoop(true);
 			break;
 		case CANTalon::kPosition:
 			log->write(Log::INFO_LEVEL, "%s\tSetting control mode to position\n", Utils::getCurrentTime());
@@ -491,14 +496,14 @@ void Mobility::setControlMode(CANSpeedController::ControlMode mode)
 			front_right_motor->SetPosition(0.0);
 			rear_left_motor->SetPosition(0.0);
 			rear_right_motor->SetPosition(0.0);
-			using_closed_loop = false;
-			useClosedLoop(true);
+			drive_closed_loop = false;
+			driveClosedLoop(true);
 			break;
 		case CANTalon::kPercentVbus:
 			log->write(Log::INFO_LEVEL, "%s\tSetting control mode to throttle\n", Utils::getCurrentTime());
 			control_mode = CANTalon::kPercentVbus;
-			using_closed_loop = true;
-			useClosedLoop(false);
+			drive_closed_loop = true;
+			driveClosedLoop(false);
 			break;
 		default:
 			log->write(Log::WARNING_LEVEL, "%s\tWARNING: Unsupported control mode set: %d in Mobility.cpp at line"

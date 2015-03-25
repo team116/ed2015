@@ -33,6 +33,7 @@ public:
 	void flipOrientation();
 	void driveClosedLoop(bool use);
 	void rotClosedLoop(bool rot);
+	bool isVelZero();
 
 	void PIDWrite(float rot_speed);
 	void setControlMode(CANSpeedController::ControlMode);
@@ -52,10 +53,15 @@ private:
 	static const float VOLTS_PER_INCH;
 
 	bool drive_closed_loop;
-	static float P_VALUE;
-	static float I_VALUE;
-	static float D_VALUE;
-	static int Izone;
+	static float SPEED_P_VALUE;
+	static float SPEED_I_VALUE;
+	static float SPEED_D_VALUE;
+	static int SPEED_IZONE;
+	static float POSITION_P_VALUE;
+	static float POSITION_I_VALUE;
+	static float POSITION_D_VALUE;
+	static int POSITION_IZONE;
+	static const float POSITION_ZONE;
 
 	static const float ROT_P_VALUE;
 	static const float ROT_I_VALUE;

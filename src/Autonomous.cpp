@@ -30,7 +30,7 @@ Autonomous::Autonomous(int delay, int play, int location) {
 	timer = new Timer();
 	mobility = Mobility::getInstance();
 	manipulator = Manipulator::getInstance();
-	mobility->useClosedLoop(true);
+	mobility->driveClosedLoop(true);
 
 	delay_over = false;
 	delay_timer->Start();
@@ -798,6 +798,8 @@ void Autonomous::moveThreeTotes() {
 		log->write(Log::INFO_LEVEL, "%s\tStarting move three totes play\n", Utils::getCurrentTime());
 		mobility->resetXEncoderDistance();
 		mobility->resetYEncoderDistance();
+		mobility->rotClosedLoop(true);
+		mobility->setRotationDegrees(0.0);
 		++current_step;
 		break;
 	case 2:
@@ -807,18 +809,10 @@ void Autonomous::moveThreeTotes() {
 
 		// picking up the tote
 		// wait to ensure that the tote has actually been pulled in
-<<<<<<< HEAD
-		if (!timer->HasPeriodPassed(1.0)) {
-			mobility->rotClosedLoop(true);
-			mobility->setRotationDegrees(0.0);
-			manipulator->pullTote();
-=======
-		log->write(Log::INFO_LEVEL, "%s\tPulling tote 1\n", Utils::getCurrentTime());
 		if (timer->HasPeriodPassed(pull_tote_time)) {
 			manipulator->moveTote(0.0,0.0);
 			timer->Reset();
 			++current_step;
->>>>>>> 79a4abb58de065737d480785c99c9d137a3d7ce5
 		}
 		else {
 			manipulator->moveTote(-1.0,0.0);//TODO:Check if forwards is inverted
