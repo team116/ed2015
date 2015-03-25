@@ -33,10 +33,11 @@ private:
 	{
 		DO_NOTHING = 0,
 		INTO_ZONE = 1,
-		STACK_TOTE = 2,
+		STACK_THREE_TOTES = 2,
 		MOVE_CONTAINER = 3,
 		CONTAINER_AND_TOTE = 4,
-		CENTER_CONTAINERS = 5
+		CENTER_CONTAINERS = 5,
+		STACK_TOTE = 6//2
 	};
 
 	enum starting_locations
