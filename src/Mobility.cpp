@@ -9,12 +9,27 @@
 #include "I2CCompass.h"
 #include "I2CGyro.h"
 #include <BuiltInAccelerometer.h>
+#include <PIDSource.h>
+#include <PIDOutput.h>
+#include <PIDController.h>
 
 using namespace std;
 
 float Mobility::P_VALUE = 0.9f;
 float Mobility::I_VALUE = 0.1f;
 float Mobility::D_VALUE = 0.0f;
+
+const float Mobility::ROT_P_VALUE = 0.5f;
+const float Mobility::ROT_I_VALUE = 0.004f;
+const float Mobility::ROT_D_VALUE = 1.0f;
+const int Mobility::ROT_Izone = 10.0;
+const float Mobility::GYRO_V_PER_DEG_PER_SEC = 0.007;
+const float Mobility::GYRO_V_DEADZONE = 2.5;
+const float Mobility::ROT_PID_MIN_IN = 0;
+const float Mobility::ROT_PID_MAX_IN = 360;
+const float Mobility::ROT_PID_MIN_OUT = 1.0;
+const float Mobility::ROT_PID_MAX_OUT = -1.0;
+
 Mobility* Mobility::INSTANCE = NULL;
 const float Mobility::DEFAULT_SPEED = 0.5;
 const float Mobility::MAX_SPEED = 0.9;
@@ -80,9 +95,10 @@ Mobility::Mobility()
 	useRealOrientation(real_orientation);
 
 	//SET THIS to the opposite of what you really want
-	using_closed_loop = true;
+	drive_closed_loop = true;
 	//DONT SET THIS
-	useClosedLoop(!using_closed_loop);
+	driveClosedLoop(!drive_closed_loop);
+	rotClosedLoop(false);
 
 	robot_drive->SetSafetyEnabled(false);
 	x_direction = 0;
@@ -93,10 +109,19 @@ Mobility::Mobility()
 	target_degrees = 0;
 	field_centric = false;
 	rotating_degrees = false;
-	ultrasonic = new AnalogInput(RobotPorts::ULTRASONIC);
-	ultrasonic->SetOversampleBits(2);
-	//gyro = new Gyro(RobotPorts::GYRO);
-	gyro = I2CGyro::getInstance();
+	//ultrasonic = new AnalogInput(RobotPorts::ULTRASONIC);
+	//ultrasonic->SetOversampleBits(2);
+	gyro = new Gyro(RobotPorts::GYRO);
+	gyro->SetSensitivity(GYRO_V_PER_DEG_PER_SEC);
+	gyro->SetDeadband(GYRO_V_DEADZONE);
+	gyro->InitGyro();
+	gyro->Reset();
+	gyro->SetPIDSourceParameter(PIDSource::kAngle);
+	//gyro = I2CGyro::getInstance();
+	pid_controller = new PIDController(ROT_P_VALUE, ROT_I_VALUE, ROT_D_VALUE, gyro, this);
+	pid_controller->SetInputRange(ROT_PID_MIN_IN, ROT_PID_MAX_IN);
+	pid_controller->SetOutputRange(ROT_PID_MIN_OUT, ROT_PID_MAX_OUT);
+	pid_controller->SetContinuous();
 
 	turn_timer = new Timer();
 }
@@ -108,44 +133,60 @@ void Mobility::process()
 	POSITION_D_VALUE = std::stof(SmartDashboard::GetString("DB/String 2", std::to_string(POSITION_D_VALUE)));
 	POSITION_IZONE = std::stoi(SmartDashboard::GetString("DB/String 3", std::to_string(POSITION_IZONE)));*/
 
-	float angle = gyro->getAngle();
-	float rate = gyro->getRate();
-	float min_rate = 45.0f;
-	float max_rate = 345.0f;
-	float min_rot_speed = 0.2;
-	float max_rot_speed = 0.75;
+	float angle = gyro->GetAngle();
 
-	if(rotating_degrees)
-	{
-		float accel = 0.0;
-		log->write(Log::ERROR_LEVEL, "%s\tGyro: %f\n", Utils::getCurrentTime(), angle);
-		if(((rotate_direction == 1) && (angle >= target_degrees)) ||
-			((rotate_direction == -1) && (angle <= target_degrees)) ||
-			turn_timer->Get() > rotation_timeout) {
-			rotate_direction = 0;
-		}
-		else if(((rotate_direction == 1) && (angle >= target_degrees)) || ((rotate_direction == -1) && (angle <= target_degrees))) {
-			rotate_direction = 0;
-		}
-
-		if (rotate_direction == 0) {
-			log->write(Log::ERROR_LEVEL, "%s\tRotating finished\n", Utils::getCurrentTime());
-			rotating_degrees = false;
-			rotation_timeout = 0.0;
+	if (pid_controller->IsEnabled()) {
+		if (rotation_timer->Get() > rotation_timeout) {
+			// set our current angle as the goal
 			rotation_timer->Stop();
+			pid_controller->SetSetpoint(gyro->GetAngle());
+			pid_controller->Reset();
+			pid_controller->Enable();
 		}
-		// float var = ((((rate - min_rate)/(max_rate - min_rate))) - (max(min(fabs(target_degrees - angle),0.8f), 0.2f))) * 0.072f;
-		// log->write(Log::ERROR_LEVEL, "Rotate Difference: %f\n", var);
-		// log->write(Log::ERROR_LEVEL, "Rotation Speed: %f\n", rotation + var);
-		// setRotationSpeed(rotation + var);
-		/*
-		accel = 0.072f * (min((target_degrees - angle) / (angle - start_degrees), 1.0f) - (rate / max_rate));
-		log->write(Log::ERROR_LEVEL, "%s\tRotation Speed: %f\n", Utils::getCurrentTime(), rotation);
-		log->write(Log::ERROR_LEVEL, "%s\tRotation Difference: %f\n", Utils::getCurrentTime(), accel);
-		// setRotationSpeed((float)rotate_direction * max(min(rotation + accel, max_rot_speed), min_rot_speed));
-		rotation = (float)rotate_direction * max(min(rotation + accel, max_rot_speed), min_rot_speed);
-		*/
+
+		// implement izone
+		if (fabs(pid_controller->GetError()) < ROT_Izone) {
+			pid_controller->Reset();
+			pid_controller->Enable();
+		}
 	}
+	else {
+		if (rotating_degrees) {
+			float rate = gyro->GetRate();
+			float min_rate = 45.0f;
+			float max_rate = 345.0f;
+			float min_rot_speed = 0.2;
+			float max_rot_speed = 0.75;
+			float accel = 0.0;
+			log->write(Log::ERROR_LEVEL, "%s\tGyro: %f\n", Utils::getCurrentTime(), angle);
+			if(((rotate_direction == 1) && (angle >= target_degrees)) ||
+				((rotate_direction == -1) && (angle <= target_degrees)) ||
+				turn_timer->Get() > rotation_timeout) {
+				rotate_direction = 0;
+			}
+			else if(((rotate_direction == 1) && (angle >= target_degrees)) || ((rotate_direction == -1) && (angle <= target_degrees))) {
+				rotate_direction = 0;
+			}
+
+			if (rotate_direction == 0) {
+				log->write(Log::ERROR_LEVEL, "%s\tRotating finished\n", Utils::getCurrentTime());
+				rotating_degrees = false;
+				rotation_timeout = 0.0;
+				rotation_timer->Stop();
+			}
+			// float var = ((((rate - min_rate)/(max_rate - min_rate))) - (max(min(fabs(target_degrees - angle),0.8f), 0.2f))) * 0.072f;
+			// log->write(Log::ERROR_LEVEL, "Rotate Difference: %f\n", var);
+			// log->write(Log::ERROR_LEVEL, "Rotation Speed: %f\n", rotation + var);
+			// setRotationSpeed(rotation + var);
+
+			accel = 0.072f * (min((target_degrees - angle) / (angle - start_degrees), 1.0f) - (rate / max_rate));
+			log->write(Log::ERROR_LEVEL, "%s\tRotation Speed: %f\n", Utils::getCurrentTime(), rotation);
+			log->write(Log::ERROR_LEVEL, "%s\tRotation Difference: %f\n", Utils::getCurrentTime(), accel);
+			// setRotationSpeed((float)rotate_direction * max(min(rotation + accel, max_rot_speed), min_rot_speed));
+			rotation = (float)rotate_direction * max(min(rotation + accel, max_rot_speed), min_rot_speed);
+		}
+	}
+
 	if (field_centric) {
 		robot_drive->MecanumDrive_Cartesian(x_direction, y_direction, rotation, angle);
 	}
@@ -173,35 +214,19 @@ void Mobility::toggleFieldCentric()
 
 float Mobility::getUltrasonicDistance()
 {
- 	/*
-	int bits;
-	float maxDistance = 254.0;
-	float currentDistance;
-	float maxVoltage = 5.5;
-	// sets roof for sampling values
-	ultrasonic->SetOversampleBits(2);
-	bits = ultrasonic->GetOversampleBits();
-	// number that 2^ that the number of samples is reduced by...
-	ultrasonic->SetAverageBits(1);
-	bits = ultrasonic->GetAverageBits();
-
-	ultrasonic->SetSampleRate(62500);
-	int raw = ultrasonic->GetValue();
-	float volts = ultrasonic->GetVoltage();
-	int averageRaw = ultrasonic->GetAverageValue();
-	float averageVolts = ultrasonic->GetAverageVoltage();
-	//	wait for iiiiiiiittt.....
-	currentDistance = (volts * maxDistance)/maxVoltage;
-	return currentDistance;
-	*/
 	// IDK how this is supposed to actually be but I'm going with this
-	float distance = ultrasonic->GetVoltage() / VOLTS_PER_INCH;
-	return distance;
+	//float distance = ultrasonic->GetVoltage() / VOLTS_PER_INCH;
+	//return distance;
+	return 0.0;
 }
 
 void Mobility::setRotationDegrees(int degrees)
 {
-	start_degrees = gyro->getAngle();
+	start_degrees = gyro->GetAngle();
+	target_degrees = start_degrees + degrees;
+	log->write(Log::ERROR_LEVEL, "%s\tStart Degrees: %f\n", Utils::getCurrentTime(), start_degrees);
+
+
 	rotate_direction = 0;
 	if (degrees > 0) {
 		rotate_direction = 1;
@@ -209,11 +234,16 @@ void Mobility::setRotationDegrees(int degrees)
 	else if (degrees < 0) {
 		rotate_direction = -1;
 	}
-	target_degrees = start_degrees + degrees;
-	log->write(Log::ERROR_LEVEL, "%s\tStart Degrees: %f\n", Utils::getCurrentTime(), start_degrees);
-	rotating_degrees = true;
+
+	if (pid_controller->IsEnabled()) {
+		pid_controller->SetSetpoint(target_degrees);
+	}
+	else {
+		rotating_degrees = true;
+		setRotationSpeed(rotate_direction);
+	}
+
 	rotation_timeout = (float)degrees * 0.75 / 90.0; // estimating 0.75 seconds for every 90 degrees
-	setRotationSpeed(rotate_direction);
 	turn_timer->Reset();
 	turn_timer->Start();
 }
@@ -265,11 +295,11 @@ void Mobility::flipOrientation()
 	useRealOrientation(!real_orientation);
 }
 
-void Mobility::useClosedLoop(bool use)
+void Mobility::driveClosedLoop(bool use)
 {
 	// don't want to have to worry about unnecessary talon down time from switching configuration
-	if (use != using_closed_loop) {
-		using_closed_loop = use;
+	if (use != drive_closed_loop) {
+		drive_closed_loop = use;
 		if (use) {
 			log->write(Log::TRACE_LEVEL, "Closed Loop\n");
 			front_left_motor->SetPID(P_VALUE, I_VALUE, D_VALUE);
@@ -326,6 +356,27 @@ void Mobility::useClosedLoop(bool use)
 //			front_left_motor->Set(0.2);
 //			front_right_motor->Set(-0.2);
 		}
+	}
+}
+
+void Mobility::rotClosedLoop(bool rot)
+{
+	if (rot && !pid_controller->IsEnabled()) {
+		pid_controller->Enable();
+	}
+	else {
+		// the would mean that upon re-enable the robot might immediately start turning
+		// pid_controller->Disable();
+
+		// resetting the controller prevents that behavior, this also disables
+		pid_controller->Reset();
+	}
+}
+
+void Mobility::PIDWrite(float rot_speed)
+{
+	if (pid_controller->IsEnabled()) {
+		setRotationSpeed(rot_speed);
 	}
 }
 

@@ -766,8 +766,9 @@ void Autonomous::moveThreeTotes() {
 		// picking up the tote
 		// wait to ensure that the tote has actually been pulled in
 		if (!timer->HasPeriodPassed(1.0)) {
+			mobility->rotClosedLoop(true);
+			mobility->setRotationDegrees(0.0);
 			manipulator->pullTote();
-
 		}
 		else {
 			timer->Reset();

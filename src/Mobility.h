@@ -11,8 +11,10 @@
 #include "I2CCompass.h"
 #include "I2CGyro.h"
 #include <BuiltInAccelerometer.h>
+#include <PIDController.h>
+#include <PIDOutput.h>
 
-class Mobility
+class Mobility : PIDOutput
 {
 public:
 	static Mobility* getInstance();
@@ -29,11 +31,15 @@ public:
 	void resetYEncoderDistance();
 	void useRealOrientation(bool real);
 	void flipOrientation();
-	void useClosedLoop(bool use);
+	void driveClosedLoop(bool use);
+	void rotClosedLoop(bool rot);
+
+	void PIDWrite(float rot_speed);
 
 private:
 	Mobility();
 	static Mobility* INSTANCE;
+
 	static const float DEFAULT_SPEED;
 	static const float MAX_SPEED;
 	static const float RAMP_RATE;
@@ -43,18 +49,33 @@ private:
 	static const float Y_ODOMETRY_INCHES_PER_PULSE;
 	static const float MAX_VELOCITY;
 	static const float VOLTS_PER_INCH;
+
+	bool drive_closed_loop;
 	static float P_VALUE;
 	static float I_VALUE;
 	static float D_VALUE;
 	static int Izone;
-	bool using_closed_loop;
+
+	static const float ROT_P_VALUE;
+	static const float ROT_I_VALUE;
+	static const float ROT_D_VALUE;
+	static const int ROT_Izone;
+	static const float GYRO_V_PER_DEG_PER_SEC;
+	static const float GYRO_V_DEADZONE;
+	static const float ROT_PID_MIN_IN;
+	static const float ROT_PID_MAX_IN;
+	static const float ROT_PID_MIN_OUT;
+	static const float ROT_PID_MAX_OUT;
+
 	CANTalon* front_left_motor;
 	CANTalon* front_right_motor;
 	CANTalon* rear_left_motor;
 	CANTalon* rear_right_motor;
 	RobotDrive* robot_drive;
-	AnalogInput* ultrasonic;
-	I2CGyro* gyro;
+	//AnalogInput* ultrasonic;
+	//I2CGyro* gyro;
+	Gyro* gyro;
+	PIDController* pid_controller;
 
 	Encoder* odometry_wheel_x_encoder;
 	Encoder* odometry_wheel_y_encoder;
