@@ -15,7 +15,7 @@
 #include <WPILib.h>
 #include "Log.h"
 
-class I2CGyro : PIDSource {
+class I2CGyro : public PIDSource {
 public:
 	static I2CGyro* getInstance();
 

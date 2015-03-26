@@ -73,17 +73,20 @@ void I2CGyro::reset() {
 
 double I2CGyro::PIDGet()
 {
-	return getAngle();
+	// return getAngle();
+	return 0.0;
 }
 
 float I2CGyro::getRate()
 {
-	return (last_angle - current_angle) / READ_DELAY;
+	//return (last_angle - current_angle) / READ_DELAY;
+	return 0.0;
 }
 
 float I2CGyro::getAngle()
 {
-	return current_angle - offset;
+	//return current_angle - offset;
+	return 0.0;
 }
 
 I2CGyro* I2CGyro::getInstance()

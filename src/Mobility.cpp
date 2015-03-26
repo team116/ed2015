@@ -115,10 +115,10 @@ Mobility::Mobility()
 	rotating_degrees = false;
 	//ultrasonic = new AnalogInput(RobotPorts::ULTRASONIC);
 	//ultrasonic->SetOversampleBits(2);
-	gyro = new Gyro(RobotPorts::GYRO);
-	gyro->SetSensitivity(GYRO_V_PER_DEG_PER_SEC);
-	gyro->SetPIDSourceParameter(PIDSource::kAngle);
-	//gyro = I2CGyro::getInstance();
+	//gyro = new Gyro(RobotPorts::GYRO);
+	gyro = I2CGyro::getInstance();
+	//gyro->SetSensitivity(GYRO_V_PER_DEG_PER_SEC);
+	//gyro->SetPIDSourceParameter(PIDSource::kAngle);
 	pid_controller = new PIDController(ROT_P_VALUE, ROT_I_VALUE, ROT_D_VALUE, gyro, this);
 	pid_controller->SetInputRange(ROT_PID_MIN_IN, ROT_PID_MAX_IN);
 	pid_controller->SetOutputRange(ROT_PID_MIN_OUT, ROT_PID_MAX_OUT);
@@ -144,7 +144,8 @@ void Mobility::process()
 		if (rotation_timer->Get() > rotation_timeout) {
 			// set our current angle as the goal
 			rotation_timer->Stop();
-			pid_controller->SetSetpoint(gyro->GetAngle());
+			//pid_controller->SetSetpoint(gyro->GetAngle());
+			pid_controller->SetSetpoint(gyro->getAngle());
 			pid_controller->Reset();
 			pid_controller->Enable();
 		}
@@ -157,7 +158,8 @@ void Mobility::process()
 	}
 	else {
 		if (rotating_degrees) {
-			float rate = gyro->GetRate();
+			//float rate = gyro->GetRate();
+			float rate = gyro->getRate();
 			float min_rate = 45.0f;
 			float max_rate = 345.0f;
 			float min_rot_speed = 0.2;
@@ -301,7 +303,8 @@ float Mobility::getUltrasonicDistance()
 
 void Mobility::setRotationDegrees(int degrees)
 {
-	start_degrees = gyro->GetAngle();
+	//start_degrees = gyro->GetAngle();
+	start_degrees = gyro->getAngle();
 	target_degrees = start_degrees + degrees;
 	log->write(Log::ERROR_LEVEL, "%s\tStart Degrees: %f\n", Utils::getCurrentTime(), start_degrees);
 

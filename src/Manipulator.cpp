@@ -50,7 +50,7 @@ const float Manipulator::LEFT_RAKE_STABILIZER_UP = 0.0;
 const float Manipulator::RIGHT_RAKE_STABILIZER_DOWN = 0.0;
 const float Manipulator::RIGHT_RAKE_STABILIZER_UP = 0.0;
 
-const float Manipulator::MAX_FLAP_CURRENT = 1.5;
+const float Manipulator::MAX_FLAP_CURRENT = 4.0;
 const float Manipulator::FLAP_CURRENT_TIMEOUT = 0.1;
 
 Manipulator::Manipulator() {
@@ -119,13 +119,6 @@ Manipulator::Manipulator() {
 	flaps_current_timer = new Timer();
 }
 
-Manipulator* Manipulator::getInstance() {
-	if (INSTANCE == NULL) {
-		INSTANCE = new Manipulator();
-	}
-	return INSTANCE;
-}
-
 void Manipulator::process() {
 	log->write(Log::INFO_LEVEL, "Voltage: %f\n", close_flaps->GetOutputCurrent());
 
@@ -143,6 +136,15 @@ void Manipulator::process() {
 			dir_not_possible = FLAP_STILL;
 		close_flaps->Set(0.0);
 	}
+	/*
+	if (close_flaps->Get() < 0.0) {
+		log->write(Log::TRACE_LEVEL, "%s\tRaising flaps current: %f\n", Utils::getCurrentTime(), close_flaps->GetOutputCurrent());
+	}
+	else if (close_flaps->Get() > 0.0) {
+		log->write(Log::TRACE_LEVEL, "%s\tLowering flaps current: %f\n", Utils::getCurrentTime(), close_flaps->GetOutputCurrent());
+	}
+	*/
+
 	if(flaps_current_timer->Get() > FLAP_CURRENT_TIMEOUT) {
 		log->write(Log::INFO_LEVEL, "Flap current timeout passed\n");
 		dir_not_possible = FLAP_STILL;
@@ -198,9 +200,9 @@ void Manipulator::process() {
 		}
 	}*/
 	if(!using_encoder && lifter_direction == NOT_MOVING){
-			log->write(Log::DEBUG_LEVEL, "%s\tUsing Lifter Modifier: %f", Utils::getCurrentTime(), lifter_modifier);
-			lifter_one->Set(0.0 - lifter_modifier);
-		}
+		log->write(Log::DEBUG_LEVEL, "%s\tUsing Lifter Modifier: %f", Utils::getCurrentTime(), lifter_modifier);
+		lifter_one->Set(0.0 - lifter_modifier);
+	}
 
 	if (lifter_targeting) {
 		log->write(Log::TRACE_LEVEL, "%s\tCurrent lift timer reading: %f\n", Utils::getCurrentTime(), lifter_timer->Get());
@@ -257,6 +259,22 @@ void Manipulator::process() {
 			break;
 		case MOVING_DOWN:
 			lifter_one->Set(current_height - MAX_LIFTER_INCR_PER_SEC * process_timer->Get());
+			break;
+		default:
+			// we got a problem
+			break;
+		}
+	}
+	else if (!using_encoder) {
+		switch (lifter_direction) {
+		case MOVING_UP:
+			lifter_one->Set(-0.5);
+			break;
+		case NOT_MOVING:
+			lifter_one->Set(0.0);
+			break;
+		case MOVING_DOWN:
+			lifter_one->Set(0.5);
 			break;
 		default:
 			// we got a problem
@@ -538,7 +556,7 @@ void Manipulator::moveFlaps(flap_directions dir) {
 			close_flaps->Set(-0.5);
 			break;
 		case FLAP_RAISING:
-			close_flaps->Set(0.5);
+			close_flaps->Set(0.7);
 			break;
 		case FLAP_STILL:
 			close_flaps->Set(0.0);
@@ -814,9 +832,17 @@ void Manipulator::setLifterModifier(float power)
 }
 
 bool Manipulator::isLimitReached(){
-	if(close_flaps->GetOutputCurrent() >= MAX_FLAP_CURRENT){
+	if(close_flaps->GetOutputCurrent() >= MAX_FLAP_CURRENT) {
 		return true;
 	}
-	else
+	else {
 		return false;
+	}
+}
+
+Manipulator* Manipulator::getInstance() {
+	if (INSTANCE == NULL) {
+		INSTANCE = new Manipulator();
+	}
+	return INSTANCE;
 }

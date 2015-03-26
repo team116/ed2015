@@ -82,8 +82,8 @@ private:
 	CANTalon* rear_right_motor;
 	RobotDrive* robot_drive;
 	//AnalogInput* ultrasonic;
-	//I2CGyro* gyro;
-	Gyro* gyro;
+	I2CGyro* gyro;
+	//Gyro* gyro;
 	PIDController* pid_controller;
 
 	Encoder* odometry_wheel_x_encoder;
