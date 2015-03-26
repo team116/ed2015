@@ -22,7 +22,7 @@ private:
 	Manipulator* manipulator;
 	Log* log;
 	I2CCompass* compass;
-	I2CGyro* gyro;
+	//I2CGyro* gyro;
 
 public:
 	Robot(void)
@@ -33,12 +33,12 @@ public:
 		mobility = Mobility::getInstance();
 		manipulator = Manipulator::getInstance();
 		compass = I2CCompass::getInstance();
-		gyro = I2CGyro::getInstance();
-
+		//gyro = I2CGyro::getInstance();
 		// initialize autonomous switches
 		delay_switch = new AnalogInput(RobotPorts::AUTONOMOUS_DELAY_SWITCH);
 		play_switch = new AnalogInput(RobotPorts::AUTONOMOUS_PLAY_SWITCH);
 		location_switch = new AnalogInput(RobotPorts::AUTONOMOUS_LOCATION_SWITCH);
+		log->write(Log::ERROR_LEVEL, "%s\tRobot construction finished\n", Utils::getCurrentTime());
 	}
 
     ////////////////////////////////////////////////////////////////////////////
@@ -57,6 +57,7 @@ public:
 
     void AutonomousInit()
     {
+    	log->write(Log::ERROR_LEVEL, "%s\tAutonomous Init called\n", Utils::getCurrentTime());
 //    	mobility->setControlMode(CANTalon::kPosition);
     	mobility->setControlMode(CANTalon::kSpeed);
 		const float max_volt = 5.2;
@@ -69,11 +70,14 @@ public:
 		int play_pos = Utils::convertFromVolts(play_volt, 6, max_volt);
 		int loc_pos = Utils::convertFromVolts(location_volt, 6, max_volt);
 		autonomous = new Autonomous(delay_pos, play_pos, loc_pos);
+    	log->write(Log::ERROR_LEVEL, "%s\tAutonomous Init ended\n", Utils::getCurrentTime());
     }
 
     void TeleopInit()
     {
+		log->write(Log::ERROR_LEVEL, "%s\tTeleop init started\n", Utils::getCurrentTime());
     	mobility->setControlMode(CANTalon::kSpeed);
+		log->write(Log::ERROR_LEVEL, "%s\tTeleop init finished\n", Utils::getCurrentTime());
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -91,7 +95,7 @@ public:
     	mobility->process();
     	manipulator->process();
     	compass->process();
-    	gyro->process();
+    	//gyro->process();
     }
 
     void TeleopPeriodic()
@@ -100,7 +104,7 @@ public:
     	mobility->process();
     	manipulator->process();
     	compass->process();
-    	gyro->process();
+    	//gyro->process();
     }
 
 	void TestPeriodic()

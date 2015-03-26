@@ -107,7 +107,6 @@ Mobility::Mobility()
 	drive_closed_loop = true;
 	//DONT SET THIS
 	driveClosedLoop(!drive_closed_loop);
-	rotClosedLoop(false);
 
 	robot_drive->SetSafetyEnabled(false);
 	x_direction = 0;
@@ -122,16 +121,17 @@ Mobility::Mobility()
 	//ultrasonic->SetOversampleBits(2);
 	gyro = new Gyro(RobotPorts::GYRO);
 	gyro->SetSensitivity(GYRO_V_PER_DEG_PER_SEC);
-	gyro->InitGyro();
-	gyro->Reset();
 	gyro->SetPIDSourceParameter(PIDSource::kAngle);
 	//gyro = I2CGyro::getInstance();
 	pid_controller = new PIDController(ROT_P_VALUE, ROT_I_VALUE, ROT_D_VALUE, gyro, this);
 	pid_controller->SetInputRange(ROT_PID_MIN_IN, ROT_PID_MAX_IN);
 	pid_controller->SetOutputRange(ROT_PID_MIN_OUT, ROT_PID_MAX_OUT);
 	pid_controller->SetContinuous();
+	rotClosedLoop(false);
 
 	turn_timer = new Timer();
+
+	log->write(Log::ERROR_LEVEL, "%s\tFinished Mobility construction\n", Utils::getCurrentTime());
 }
 
 void Mobility::process()
@@ -475,6 +475,7 @@ void Mobility::driveClosedLoop(bool use)
 			rear_right_motor->Set(0.0f);
 
 			robot_drive->SetMaxOutput(1.0);
+			log->write(Log::TRACE_LEVEL, "%s\tOpen loop initialization finished\n", Utils::getCurrentTime());
 		}
 	}
 }
@@ -518,7 +519,7 @@ void Mobility::rotClosedLoop(bool rot)
 	if (rot && !pid_controller->IsEnabled()) {
 		pid_controller->Enable();
 	}
-	else {
+	else if (pid_controller->IsEnabled()) {
 		// the would mean that upon re-enable the robot might immediately start turning
 		// pid_controller->Disable();
 
