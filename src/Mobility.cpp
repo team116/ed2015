@@ -103,15 +103,11 @@ Mobility::Mobility()
 	real_orientation = true;
 	useRealOrientation(real_orientation);
 
-	//SET THIS to the opposite of what you really want
-	drive_closed_loop = true;
-	//DONT SET THIS
-	driveClosedLoop(!drive_closed_loop);
+	control_mode = CANTalon::kPercentVbus;
+	setControlMode(CANTalon::kSpeed);
 
 	robot_drive->SetSafetyEnabled(false);
-	x_direction = 0;
-	y_direction = 0;
-	rotation = 0;
+
 	start_degrees = 0;
 	rotate_direction = 0;
 	target_degrees = 0;
@@ -299,7 +295,6 @@ float Mobility::getUltrasonicDistance()
 {
 	// IDK how this is supposed to actually be but I'm going with this
 	//float distance = ultrasonic->GetVoltage() / VOLTS_PER_INCH;
-	//return distance;
 	return 0.0;
 }
 
@@ -378,7 +373,7 @@ void Mobility::flipOrientation()
 	useRealOrientation(!real_orientation);
 }
 
-void Mobility::driveClosedLoop(bool use)
+/*void Mobility::useClosedLoop(bool use)
 {
 	// don't want to have to worry about unnecessary talon down time from switching configuration
 	if (use != drive_closed_loop) {
@@ -478,37 +473,129 @@ void Mobility::driveClosedLoop(bool use)
 			log->write(Log::TRACE_LEVEL, "%s\tOpen loop initialization finished\n", Utils::getCurrentTime());
 		}
 	}
-}
+}*/
 
 void Mobility::setControlMode(CANSpeedController::ControlMode mode)
 {
 	if(control_mode != mode) {
+		control_mode = mode;
+
+		front_left_motor->SetControlMode(control_mode);
+		front_left_motor->Set(0.0f);
+
+		front_right_motor->SetControlMode(control_mode);
+		front_right_motor->Set(0.0f);
+
+		rear_left_motor->SetControlMode(control_mode);
+		rear_left_motor->Set(0.0f);
+
+		rear_right_motor->SetControlMode(control_mode);
+		rear_right_motor->Set(0.0f);
+
 		switch(mode) {
 		case CANTalon::kSpeed:
 			log->write(Log::INFO_LEVEL, "%s\tSetting control mode to speed\n", Utils::getCurrentTime());
-			control_mode = CANTalon::kSpeed;
-			drive_closed_loop = false;
-			driveClosedLoop(true);
+
+			front_left_motor->SetPID(SPEED_P_VALUE, SPEED_I_VALUE, SPEED_D_VALUE);
+			front_left_motor->SetIzone(SPEED_IZONE);
+			front_left_motor->Set(0.0f);
+
+			front_right_motor->SetPID(SPEED_P_VALUE, SPEED_I_VALUE, SPEED_D_VALUE);
+			front_right_motor->SetIzone(SPEED_IZONE);
+			front_right_motor->Set(0.0f);
+
+			rear_left_motor->SetPID(SPEED_P_VALUE, SPEED_I_VALUE, SPEED_D_VALUE);
+			rear_left_motor->SetIzone(SPEED_IZONE);
+			rear_left_motor->Set(0.0f);
+
+			rear_right_motor->SetPID(SPEED_P_VALUE, SPEED_I_VALUE, SPEED_D_VALUE);
+			rear_right_motor->SetIzone(SPEED_IZONE);
+			rear_right_motor->Set(0.0f);
+
+			robot_drive->SetMaxOutput(MAX_VELOCITY);
 			break;
 		case CANTalon::kPosition:
 			log->write(Log::INFO_LEVEL, "%s\tSetting control mode to position\n", Utils::getCurrentTime());
-			control_mode = CANTalon::kPosition;
+
 			front_left_motor->SetPosition(0.0);
 			front_right_motor->SetPosition(0.0);
 			rear_left_motor->SetPosition(0.0);
 			rear_right_motor->SetPosition(0.0);
-			drive_closed_loop = false;
-			driveClosedLoop(true);
+
+			front_left_motor->SetPID(POSITION_P_VALUE, POSITION_I_VALUE, POSITION_D_VALUE);
+			front_left_motor->SetIzone(POSITION_IZONE);
+			front_left_motor->Set(0.0f);
+
+			front_right_motor->SetPID(POSITION_P_VALUE, POSITION_I_VALUE, POSITION_D_VALUE);
+			front_right_motor->SetIzone(POSITION_IZONE);
+			front_right_motor->Set(0.0f);
+
+			rear_left_motor->SetPID(POSITION_P_VALUE, POSITION_I_VALUE, POSITION_D_VALUE);
+			rear_left_motor->SetIzone(POSITION_IZONE);
+			rear_left_motor->Set(0.0f);
+
+			rear_right_motor->SetPID(POSITION_P_VALUE, POSITION_I_VALUE, POSITION_D_VALUE);
+			rear_right_motor->SetIzone(POSITION_IZONE);
+			rear_right_motor->Set(0.0f);
+
+			robot_drive->SetMaxOutput(1.0);
 			break;
 		case CANTalon::kPercentVbus:
 			log->write(Log::INFO_LEVEL, "%s\tSetting control mode to throttle\n", Utils::getCurrentTime());
-			control_mode = CANTalon::kPercentVbus;
-			drive_closed_loop = true;
-			driveClosedLoop(false);
+
+			front_left_motor->SetPID(0.0, 0.0, 0.0);
+			front_left_motor->SetIzone(0.0);
+			front_left_motor->Set(0.0f);
+
+			front_right_motor->SetPID(0.0, 0.0, 0.0);
+			front_right_motor->SetIzone(0.0);
+			front_right_motor->Set(0.0f);
+
+			rear_left_motor->SetPID(0.0, 0.0, 0.0);
+			rear_left_motor->SetIzone(0.0);
+			rear_left_motor->Set(0.0f);
+
+			rear_right_motor->SetPID(0.0, 0.0, 0.0);
+			rear_right_motor->SetIzone(0.0);
+			rear_right_motor->Set(0.0f);
+
+			robot_drive->SetMaxOutput(1.0);
 			break;
 		default:
 			log->write(Log::WARNING_LEVEL, "%s\tWARNING: Unsupported control mode set: %d in Mobility.cpp at line"
-					" number %d\n", Utils::getCurrentTime(), mode, __LINE__);
+					" number %d, defaulting to throttle\n", Utils::getCurrentTime(), mode, __LINE__);
+
+			control_mode = CANTalon::kPercentVbus;
+
+			front_left_motor->SetControlMode(control_mode);
+			front_left_motor->Set(0.0f);
+
+			front_right_motor->SetControlMode(control_mode);
+			front_right_motor->Set(0.0f);
+
+			rear_left_motor->SetControlMode(control_mode);
+			rear_left_motor->Set(0.0f);
+
+			rear_right_motor->SetControlMode(control_mode);
+			rear_right_motor->Set(0.0f);
+
+			front_left_motor->SetPID(0.0, 0.0, 0.0);
+			front_left_motor->SetIzone(0.0);
+			front_left_motor->Set(0.0f);
+
+			front_right_motor->SetPID(0.0, 0.0, 0.0);
+			front_right_motor->SetIzone(0.0);
+			front_right_motor->Set(0.0f);
+
+			rear_left_motor->SetPID(0.0, 0.0, 0.0);
+			rear_left_motor->SetIzone(0.0);
+			rear_left_motor->Set(0.0f);
+
+			rear_right_motor->SetPID(0.0, 0.0, 0.0);
+			rear_right_motor->SetIzone(0.0);
+			rear_right_motor->Set(0.0f);
+
+			robot_drive->SetMaxOutput(1.0);
 			break;
 		}
 	}

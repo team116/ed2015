@@ -30,7 +30,6 @@ Autonomous::Autonomous(int delay, int play, int location) {
 	timer = new Timer();
 	mobility = Mobility::getInstance();
 	manipulator = Manipulator::getInstance();
-	mobility->driveClosedLoop(true);
 
 	delay_over = false;
 	delay_timer->Start();
@@ -364,8 +363,21 @@ void Autonomous::moveContainer() {
 }
 
 void Autonomous::moveContainerAndTote() {
+	switch(current_step) {
+	case 1:
+		if(mobility->getYEncoderDistance() >= 24) {
+			mobility->setDirection(0.0,0.0);
+			mobility->resetYEncoderDistance();
+			timer->Reset();
+			++current_step;
+		}
+		else {
+			mobility->setDirection(0.0, 0.25);
+		}
+	}
+
 //assuming we're facing container, we pick up container, place it on tote, then move into autozone
-	switch (current_step) {
+	/*switch (current_step) {
 	case 1:
 		// moving to the container
 		// assumes the robot is at a +90 degree angle to the landmark (facing container 1 from the left)
@@ -492,7 +504,7 @@ void Autonomous::moveContainerAndTote() {
 	case 11:
 		//yay done :D :D :D :D :D :D :D :D :D :D :D :D :D :D :D :D :D :D :D :D :D :D :D :D :D :D :D
 		break;
-	}
+	}*/
 }
 
 void Autonomous::centerContainers() {
@@ -773,12 +785,13 @@ void Autonomous::moveThreeTotes() {
 	const float close_flaps_time = 0.2;
 	const float move_right_time = 1.3;
 	const float wait_for_stop_time = 0.1;
-	const float forward_past_container_time = 1.3;
-	const float move_left_time = 1.35;
+	const float forward_past_container_time = 1.5;
+	const float move_left_time = 1.3;
 	const float forward_into_tote_time = 0.5;
-	const float rotate_right_time = 0.6;
+	const float rotate_right_zone_time = 0.6;
 	const float forward_into_zone_time = 1.5;
 	const float open_flaps_time = 0.1;
+	const float rotate_right_time = 0.1;
 
 	const float right_distance = 33.0;
 	const float forward_past_container_distance = 62.0;
@@ -791,11 +804,15 @@ void Autonomous::moveThreeTotes() {
 	const float forward_container_speed = 0.3;
 	const float forward_tote_speed = 0.2;
 	const float forward_zone_speed = 0.3;
+	const float rotate_right_speed = 0.5;
 
 
 	switch(current_step) {
 	case 1:
 		log->write(Log::INFO_LEVEL, "%s\tStarting move three totes play\n", Utils::getCurrentTime());
+		mobility->setControlMode(CANTalon::kSpeed);
+		mobility->setDirection(0.0, 0.0);
+		mobility->setRotationSpeed(0.0);
 		mobility->resetXEncoderDistance();
 		mobility->resetYEncoderDistance();
 		mobility->rotClosedLoop(true);
@@ -904,7 +921,7 @@ void Autonomous::moveThreeTotes() {
 			mobility->resetXEncoderDistance();
 			mobility->resetYEncoderDistance();
 			timer->Reset();
-			current_step = 40;
+			++current_step;
 		}
 		else {
 			mobility->setDirection(left_speed, 0.0);
@@ -915,12 +932,14 @@ void Autonomous::moveThreeTotes() {
 		log->write(Log::INFO_LEVEL, "%s\tWaiting for robot to  stop\n", Utils::getCurrentTime());
 		if(mobility->isVelZero() || timer->HasPeriodPassed(wait_for_stop_time)) {
 			timer->Reset();
+			mobility->setRotationSpeed(0.0);
 			mobility->resetXEncoderDistance();
 			mobility->resetYEncoderDistance();
 			++current_step;
 		}
 		else {
 			mobility->setDirection(0.0,0.0);
+			mobility->setRotationSpeed(rotate_right_speed);
 		}
 		break;
 	case 11:
@@ -1042,7 +1061,7 @@ void Autonomous::moveThreeTotes() {
 		}
 		break;
 	case 20:
-		//Move left infront of tote 2
+		//Move left infront of tote 3
 		log->write(Log::INFO_LEVEL, "%s\tMoving left infront of tote 3\n", Utils::getCurrentTime());
 		if((fabs(mobility->getXEncoderDistance()) >= left_distance) || (timer->HasPeriodPassed(move_left_time))) {
 			mobility->setDirection(0.0, 0.0);
@@ -1060,12 +1079,14 @@ void Autonomous::moveThreeTotes() {
 		log->write(Log::INFO_LEVEL, "%s\tWaiting for robot to  stop\n", Utils::getCurrentTime());
 		if(mobility->isVelZero() || timer->HasPeriodPassed(wait_for_stop_time)) {
 			timer->Reset();
+			mobility->setRotationSpeed(0.0);
 			mobility->resetXEncoderDistance();
 			mobility->resetYEncoderDistance();
 			++current_step;
 		}
 		else {
 			mobility->setDirection(0.0,0.0);
+			mobility->setRotationSpeed(rotate_right_speed);
 		}
 		break;
 	case 22:
@@ -1123,7 +1144,7 @@ void Autonomous::moveThreeTotes() {
 	case 26:
 		//Rotate right towards zone
 		log->write(Log::INFO_LEVEL, "%s\tRotating to face auto zone\n", Utils::getCurrentTime());
-		if(timer->HasPeriodPassed(rotate_right_time)) {
+		if(timer->HasPeriodPassed(rotate_right_zone_time)) {
 			mobility->setRotationSpeed(0.0);
 			timer->Reset();
 			mobility->resetXEncoderDistance();
