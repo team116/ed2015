@@ -21,7 +21,7 @@ namespace RobotPorts
 	const unsigned int AUTONOMOUS_PLAY_SWITCH = 2;
 	const unsigned int AUTONOMOUS_LOCATION_SWITCH = 3;
 //	const unsigned int ULTRASONIC = 0;
-	const unsigned int ANALOG_GYRO = 0;
+	const unsigned int GYRO = 0;
 
 	// digital sensors
 	//limits run through talons, not RoboRio

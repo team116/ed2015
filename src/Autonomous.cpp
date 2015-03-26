@@ -815,6 +815,8 @@ void Autonomous::moveThreeTotes() {
 		mobility->setRotationSpeed(0.0);
 		mobility->resetXEncoderDistance();
 		mobility->resetYEncoderDistance();
+		mobility->rotClosedLoop(true);
+		mobility->setRotationDegrees(0.0);
 		++current_step;
 		break;
 	case 2:
@@ -824,7 +826,6 @@ void Autonomous::moveThreeTotes() {
 
 		// picking up the tote
 		// wait to ensure that the tote has actually been pulled in
-		log->write(Log::INFO_LEVEL, "%s\tPulling tote 1\n", Utils::getCurrentTime());
 		if (timer->HasPeriodPassed(pull_tote_time)) {
 			manipulator->moveTote(0.0,0.0);
 			timer->Reset();
