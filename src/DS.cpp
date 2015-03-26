@@ -15,7 +15,7 @@ DS::DS() {
 	log->write(Log::DEBUG_LEVEL, "%s\tConstructing DS.cpp\n", Utils::getCurrentTime());
 
 	mobility = Mobility::getInstance();
-	mobility->rotClosedLoop(false);
+	mobility->rotClosedLoop(true);
 	manipulator = Manipulator::getInstance();
 
 	main_joystick = Joystick::GetStickForPort(DSPorts::DRIVER_ONE_JOYSTICK);

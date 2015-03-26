@@ -25,9 +25,9 @@ float Mobility::POSITION_D_VALUE = 10.0f;
 int Mobility::POSITION_IZONE = 50;
 const float Mobility::POSITION_ZONE = 50.0;
 
-const float Mobility::ROT_P_VALUE = 0.5f;
-const float Mobility::ROT_I_VALUE = 0.004f;
-const float Mobility::ROT_D_VALUE = 1.0f;
+const float Mobility::ROT_P_VALUE = 0.0f;
+const float Mobility::ROT_I_VALUE = 0.000f;
+const float Mobility::ROT_D_VALUE = 0.0f;
 const int Mobility::ROT_Izone = 10.0;
 const float Mobility::GYRO_V_PER_DEG_PER_SEC = 0.007;
 const float Mobility::GYRO_V_DEADZONE = 2.5;
@@ -137,7 +137,8 @@ void Mobility::process()
 	POSITION_D_VALUE = std::stof(SmartDashboard::GetString("DB/String 2", std::to_string(POSITION_D_VALUE)));
 	POSITION_IZONE = std::stoi(SmartDashboard::GetString("DB/String 3", std::to_string(POSITION_IZONE)));*/
 
-	float angle = gyro->GetAngle();
+	float angle = gyro->PIDGet();
+	//log->write(Log::TRACE_LEVEL, "%s\tGyro: %f", Utils::getCurrentTime(), angle);
 
 	if (pid_controller->IsEnabled()) {
 		if (rotation_timer->Get() > rotation_timeout) {
