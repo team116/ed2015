@@ -35,9 +35,11 @@ public:
 
 private:
 	Mobility();
+
 	static Mobility* INSTANCE;
 	static const float DEFAULT_SPEED;
 	static const float MAX_SPEED;
+
 	static const float RAMP_RATE;
 	static const float MAX_ULTRASONIC_DISTANCE;
 	static const float MAX_ULTRASONIC_VOLTAGE;
@@ -45,10 +47,12 @@ private:
 	static const float Y_ODOMETRY_INCHES_PER_PULSE;
 	static const float MAX_VELOCITY;
 	static const float VOLTS_PER_INCH;
+
 	static float SPEED_P_VALUE;
 	static float SPEED_I_VALUE;
 	static float SPEED_D_VALUE;
 	static int SPEED_IZONE;
+
 	static float POSITION_P_VALUE;
 	static float POSITION_I_VALUE;
 	static float POSITION_D_VALUE;

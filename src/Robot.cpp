@@ -57,8 +57,8 @@ public:
 
     void AutonomousInit()
     {
+    	//Dont set control mode here, set it for individual plays
 //    	mobility->setControlMode(CANTalon::kPosition);
-    	mobility->setControlMode(CANTalon::kSpeed);
 		const float max_volt = 5.2;
 		float delay_volt = delay_switch->GetVoltage();
 		float play_volt = play_switch->GetVoltage();
