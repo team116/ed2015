@@ -37,9 +37,10 @@ namespace RobotPorts
 
 	// PWM
 	const unsigned int LEFT_TREX_ARM = 0;
-	const unsigned int RIGHT_TREX_ARM = 2;
+	const unsigned int RIGHT_TREX_ARM = 4;
 	const unsigned int LEFT_RAKE_STABILIZER = 1;
 	const unsigned int RIGHT_RAKE_STABILIZER = 3;
+	const unsigned int CONTAINER_BLOCKER = 2;
 	//const unsigned int
 
 	// I2C, everything in hex cuz why the hell not

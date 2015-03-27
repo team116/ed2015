@@ -70,6 +70,9 @@ private:
 
 	//IMAQdxError imaqError;
 
+	IMAQdxSession* top_cam;
+	CameraServer* cam_server;
+
 };
 
 #endif // DS_H_

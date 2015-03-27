@@ -815,7 +815,7 @@ void Autonomous::moveThreeTotes() {
 		mobility->setRotationSpeed(0.0);
 		mobility->resetXEncoderDistance();
 		mobility->resetYEncoderDistance();
-		mobility->rotClosedLoop(true);
+		mobility->rotClosedLoop(false);
 		mobility->setRotationDegrees(0.0);
 		++current_step;
 		break;

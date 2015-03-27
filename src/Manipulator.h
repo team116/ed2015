@@ -96,6 +96,7 @@ public:
 
 	void moveTrexArms(servos_position trex_arm_position);
 	void moveRakeStabilizers(servos_position trex_arm_position);
+	void moveContainerBlocker(servos_position container_block_position);
 
 
 	static const float FLOOR;
@@ -146,6 +147,11 @@ private:
 	static const float RIGHT_RAKE_STABILIZER_DOWN;
 	static const float LEFT_RAKE_STABILIZER_UP;
 	static const float RIGHT_RAKE_STABILIZER_UP;
+
+	Servo* container_blocker;
+	bool can_deploy_servo;
+	static const float CONTAINER_BLOCKER_OUT;
+	static const float CONTAINER_BLOCKER_REFACTOR;
 
 	// timers
 	Timer* process_timer; // used to increment the lifter position;

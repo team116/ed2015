@@ -301,6 +301,7 @@ void DS::processManipulator() {
 		manipulator->moveFlaps(Manipulator::FLAP_STILL);
 	}
 
+	/*
 	if (input_board->GetRawButton(InputBoardPorts::CAMERA_SELECT_SWITCH)) {
 		manipulator->moveTrexArms(Manipulator::DOWN);
 		manipulator->moveRakeStabilizers(Manipulator::DOWN);
@@ -308,6 +309,13 @@ void DS::processManipulator() {
 	else {
 		manipulator->moveTrexArms(Manipulator::OUT);
 		manipulator->moveRakeStabilizers(Manipulator::OUT);
+	}
+	*/
+	if (input_board->GetRawButton(InputBoardPorts::CAMERA_SELECT_SWITCH)) {
+		manipulator->moveContainerBlocker(Manipulator::DOWN);
+	}
+	else {
+		manipulator->moveContainerBlocker(Manipulator::OUT);
 	}
 }
 

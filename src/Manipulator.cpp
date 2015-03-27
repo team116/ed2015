@@ -44,6 +44,12 @@ const float Manipulator::LEFT_TREX_DOWN = 90.0;
 const float Manipulator::LEFT_TREX_UP = 0.0;
 const float Manipulator::RIGHT_TREX_DOWN = 150.0;
 const float Manipulator::RIGHT_TREX_UP = 60.0;
+const float Manipulator::CONTAINER_BLOCKER_OUT = 0.45;
+const float Manipulator::CONTAINER_BLOCKER_REFACTOR = 0.85;
+
+//const float Manipulator::CONTAINER_BLOCKER_RETRACT = 0.45;
+//const float Manipulator::CONTAINER_BLOCKER_OUT = 0.85;
+
 // TODO: find actual values for rake stabilizer positions
 const float Manipulator::LEFT_RAKE_STABILIZER_DOWN = 0.0;
 const float Manipulator::LEFT_RAKE_STABILIZER_UP = 0.0;
@@ -120,6 +126,9 @@ Manipulator::Manipulator() {
 	right_trex_arm = new Servo(RobotPorts::RIGHT_TREX_ARM);
 	left_rake_stabilizer = new Servo(RobotPorts::LEFT_RAKE_STABILIZER);
 	right_rake_stabilizer = new Servo(RobotPorts::RIGHT_RAKE_STABILIZER);
+	container_blocker = new Servo(RobotPorts::CONTAINER_BLOCKER);
+	can_deploy_servo = true;
+	moveContainerBlocker(DOWN);
 
 	flaps_current_timer = new Timer();
 }
@@ -274,12 +283,14 @@ void Manipulator::process() {
 		switch (lifter_direction) {
 		case MOVING_UP:
 			lifter_one->Set(-0.5);
+			can_deploy_servo = true;
 			break;
 		case NOT_MOVING:
 			lifter_one->Set(0.0 - lifter_modifier);
 			break;
 		case MOVING_DOWN:
 			lifter_one->Set(0.5);
+			can_deploy_servo = false;
 			break;
 		default:
 			// we got a problem
@@ -298,6 +309,12 @@ void Manipulator::process() {
 		moveStarboardRake(RAKE_STILL);
 		rake_pos = rake_pos_prev;
 	}
+
+	/*
+	if (!can_deploy_servo) {
+		moveContainerBlocker(DOWN);
+	}
+	*/
 
 	process_timer->Reset();
 }
@@ -697,7 +714,7 @@ void Manipulator::liftLifters(lifter_directions direction) {
 		 lifter_one->Set(next_position);*/
 
 		lifter_direction = direction;
-
+		can_deploy_servo = true;
 //lifter two is set to follower mode, should move by itself
 	}
 	else if (direction == MOVING_DOWN && (lifter_one->IsRevLimitSwitchClosed() != 1 || !using_limits)) {
@@ -712,7 +729,7 @@ void Manipulator::liftLifters(lifter_directions direction) {
 		*/
 
 		lifter_direction = direction;
-
+		can_deploy_servo = false;
 	}
 	else if (direction == NOT_MOVING && !lifter_targeting) {
 		lifter_timer->Stop();
@@ -818,6 +835,18 @@ void Manipulator::moveRakeStabilizers(servos_position trex_arm_position) {
 	else {
 		left_rake_stabilizer->SetAngle(LEFT_RAKE_STABILIZER_UP);
 		right_rake_stabilizer->SetAngle(RIGHT_RAKE_STABILIZER_UP);
+	}
+}
+
+void Manipulator::moveContainerBlocker(servos_position container_blocker_position)
+{
+	if (container_blocker_position == OUT) {
+		container_blocker->Set(CONTAINER_BLOCKER_OUT);
+	}
+	else {
+		// if (can_deploy_servo) {
+		container_blocker->Set(CONTAINER_BLOCKER_REFACTOR);
+		// }
 	}
 }
 
