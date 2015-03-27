@@ -95,8 +95,6 @@ Mobility::Mobility()
 
 	accel = new BuiltInAccelerometer(BuiltInAccelerometer::kRange_4G);
 
-	control_mode = CANTalon::kSpeed;
-
 	robot_drive = new RobotDrive(front_left_motor, rear_left_motor, front_right_motor, rear_right_motor);
 
 	// set to true if this is the software bot
@@ -115,15 +113,19 @@ Mobility::Mobility()
 	rotating_degrees = false;
 	//ultrasonic = new AnalogInput(RobotPorts::ULTRASONIC);
 	//ultrasonic->SetOversampleBits(2);
-	//gyro = new Gyro(RobotPorts::GYRO);
-	gyro = I2CGyro::getInstance();
-	//gyro->SetSensitivity(GYRO_V_PER_DEG_PER_SEC);
-	//gyro->SetPIDSourceParameter(PIDSource::kAngle);
+	gyro = new Gyro(RobotPorts::GYRO);
+	//gyro = I2CGyro::getInstance();
+	gyro->SetSensitivity(GYRO_V_PER_DEG_PER_SEC);
+	gyro->SetPIDSourceParameter(PIDSource::kAngle);
 	pid_controller = new PIDController(ROT_P_VALUE, ROT_I_VALUE, ROT_D_VALUE, gyro, this);
 	pid_controller->SetInputRange(ROT_PID_MIN_IN, ROT_PID_MAX_IN);
 	pid_controller->SetOutputRange(ROT_PID_MIN_OUT, ROT_PID_MAX_OUT);
 	pid_controller->SetContinuous();
 	rotClosedLoop(false);
+
+	x_direction = 0.0;
+	y_direction = 0.0;
+	rotation = 0.0;
 
 	turn_timer = new Timer();
 
@@ -138,14 +140,22 @@ void Mobility::process()
 	POSITION_IZONE = std::stoi(SmartDashboard::GetString("DB/String 3", std::to_string(POSITION_IZONE)));*/
 
 	float angle = gyro->PIDGet();
-	//log->write(Log::TRACE_LEVEL, "%s\tGyro: %f", Utils::getCurrentTime(), angle);
+	log->write(Log::TRACE_LEVEL, "%s\tGyro angle: %f", Utils::getCurrentTime(), angle);
+
+	log->write(Log::TRACE_LEVEL, "%s\tOdometry wheel x raw: %d\n", Utils::getCurrentTime(), odometry_wheel_x_encoder->GetRaw());
+	log->write(Log::TRACE_LEVEL, "%s\tOdometry wheel x dis: %f\n", Utils::getCurrentTime(), odometry_wheel_x_encoder->GetDistance());
+	log->write(Log::TRACE_LEVEL, "%s\tOdometry wheel y raw: %d\n", Utils::getCurrentTime(), odometry_wheel_y_encoder->GetRaw());
+	log->write(Log::TRACE_LEVEL, "%s\tOdometry wheel y dis: %f\n", Utils::getCurrentTime(), odometry_wheel_y_encoder->GetDistance());
+
+	log->write(Log::TRACE_LEVEL, "%s\tFront right wheel velocity: %f\n", Utils::getCurrentTime(), front_right_motor->GetEncVel());
+	log->write(Log::TRACE_LEVEL, "%s\tFront left wheel velocity: %f\n", Utils::getCurrentTime(), front_left_motor->GetEncVel());
 
 	if (pid_controller->IsEnabled()) {
 		if (rotation_timer->Get() > rotation_timeout) {
 			// set our current angle as the goal
 			rotation_timer->Stop();
-			//pid_controller->SetSetpoint(gyro->GetAngle());
-			pid_controller->SetSetpoint(gyro->getAngle());
+			pid_controller->SetSetpoint(gyro->GetAngle());
+			//pid_controller->SetSetpoint(gyro->getAngle());
 			pid_controller->Reset();
 			pid_controller->Enable();
 		}
@@ -158,8 +168,8 @@ void Mobility::process()
 	}
 	else {
 		if (rotating_degrees) {
-			//float rate = gyro->GetRate();
-			float rate = gyro->getRate();
+			float rate = gyro->GetRate();
+			//float rate = gyro->getRate();
 			float min_rate = 45.0f;
 			float max_rate = 345.0f;
 			float min_rot_speed = 0.2;
@@ -271,6 +281,12 @@ void Mobility::setDirection(float x, float y)//-1.0 through 1.0
 {
 	x_direction = x * MAX_SPEED;
 	y_direction = -y * MAX_SPEED;
+	if (x_direction == 0.0 && y_direction == 0.0 && control_mode != CANTalon::kPercentVbus) {
+		front_right_motor->PIDWrite(0.0);
+		front_left_motor->PIDWrite(0.0);
+		rear_right_motor->PIDWrite(0.0);
+		rear_left_motor->PIDWrite(0.0);
+	}
 }
 
 void Mobility::setRotationSpeed(float rotation_)//-1.0 through 1.0
@@ -303,8 +319,8 @@ float Mobility::getUltrasonicDistance()
 
 void Mobility::setRotationDegrees(int degrees)
 {
-	//start_degrees = gyro->GetAngle();
-	start_degrees = gyro->getAngle();
+	start_degrees = gyro->GetAngle();
+	//start_degrees = gyro->getAngle();
 	target_degrees = start_degrees + degrees;
 	log->write(Log::ERROR_LEVEL, "%s\tStart Degrees: %f\n", Utils::getCurrentTime(), start_degrees);
 
@@ -622,7 +638,8 @@ void Mobility::rotClosedLoop(bool rot)
 void Mobility::PIDWrite(float rot_speed)
 {
 	if (pid_controller->IsEnabled()) {
-		setRotationSpeed(rot_speed);
+		// pid rotation disabled
+		// setRotationSpeed(rot_speed);
 	}
 }
 

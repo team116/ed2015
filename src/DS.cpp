@@ -54,11 +54,12 @@ DS::DS() {
 }
 
 void DS::process() {
-
+	/*
 	if (secondary_joystick->GetRawButton(JoystickPorts::OVERRIDE_BUTTON)) {
 		log->write(Log::INFO_LEVEL, "%s\tOverride button pressed\n", Utils::getCurrentTime());
 		danny_override = !danny_override;
 	}
+	*/
 
 	processMobility();
 	processManipulator();
@@ -73,7 +74,7 @@ void DS::processMobility() {
 	// we might just remove this because the override button is a dumb idea
 	toggle_rotation = secondary_joystick->GetRawButton(JoystickPorts::TOGGLE_ROTATION);
 	toggle_cardinal = secondary_joystick->GetRawButton(JoystickPorts::CARDINAL_DIRECTION);
-	if (danny_override) {
+	/*if (danny_override) {
 		log->write(Log::TRACE_LEVEL, "%s\tIn override mode\n", Utils::getCurrentTime());
 		float x = secondary_joystick->GetX(), y = secondary_joystick->GetY(),
 				t = secondary_joystick->GetRawAxis(2);
@@ -88,11 +89,12 @@ void DS::processMobility() {
 		else {
 			mobility->setRotationSpeed(0.0);
 		}
-	}
+	}*/
 
 	// normal control by first driver
-	else {
+	//else {
 		// check if the driver is trying to change to/from field-centric
+		/*
 		drive_type = main_joystick->GetRawButton(JoystickPorts::FIELD_CENTRIC_TOGGLE);
 
 		if (drive_type && !drive_type_handled) {
@@ -103,6 +105,7 @@ void DS::processMobility() {
 		else if (drive_type_handled && !drive_type) {
 			drive_type_handled = false;
 		}
+		*/
 
 		toggle_rotation = main_joystick->GetRawButton(JoystickPorts::TOGGLE_ROTATION);
 		toggle_cardinal = main_joystick->GetRawButton(JoystickPorts::CARDINAL_DIRECTION);
@@ -128,7 +131,8 @@ void DS::processMobility() {
 		else {
 			mobility->setRotationSpeed(0.0);
 		}
-	}
+	//}
+	/*
 	turn_degrees = main_joystick->GetRawButton(JoystickPorts::TURN_DEGREES);
 	if (turn_degrees && !turn_degrees_handled) {
 		log->write(Log::ERROR_LEVEL, "Starting turn Degrees\n");
@@ -138,7 +142,9 @@ void DS::processMobility() {
 	else if (!turn_degrees && turn_degrees_handled) {
 		turn_degrees_handled = false;
 	}
+	*/
 
+	/*
 	if (main_joystick->GetRawButton(JoystickPorts::FLIP_ORIENTATION)) {
 		if (!flip_orientation_handled) {
 			flip_orientation_handled = true;
@@ -148,6 +154,7 @@ void DS::processMobility() {
 	else {
 		flip_orientation_handled = false;
 	}
+	*/
 }
 
 void DS::processManipulator() {
@@ -266,6 +273,7 @@ void DS::processManipulator() {
 	}
 
 	// normal control of manipulator by driver two
+
 	if (!danny_override) {
 		manipulator->moveTote(secondary_joystick->GetY(), secondary_joystick->GetTwist());
 /*		if (secondary_joystick->GetY() > 0.4) {
@@ -281,6 +289,8 @@ void DS::processManipulator() {
 		}*/
 	}
 
+	manipulator->useLifterWheels(!secondary_joystick->GetRawButton(JoystickPorts::USE_BASE_WHEELS));
+
 	if (input_board->GetRawButton(InputBoardPorts::FLAP_LOWER)) {
 		manipulator->moveFlaps(Manipulator::FLAP_LOWERING);
 	}
@@ -289,6 +299,15 @@ void DS::processManipulator() {
 	}
 	else {
 		manipulator->moveFlaps(Manipulator::FLAP_STILL);
+	}
+
+	if (input_board->GetRawButton(InputBoardPorts::CAMERA_SELECT_SWITCH)) {
+		manipulator->moveTrexArms(Manipulator::DOWN);
+		manipulator->moveRakeStabilizers(Manipulator::DOWN);
+	}
+	else {
+		manipulator->moveTrexArms(Manipulator::OUT);
+		manipulator->moveRakeStabilizers(Manipulator::OUT);
 	}
 }
 

@@ -82,6 +82,8 @@ public:
 	float getVoltageCount();
 	int getFlapAngle();
 	void usingEncoder(bool enc);
+	void useLifterWheels(bool lifter);
+	bool usingLifterWheels();
 
 	bool isLimitReached();
 
@@ -108,15 +110,18 @@ public:
 private:
 	static Manipulator* INSTANCE;
 	// motors
-	CANTalon* left_wheel;
-	CANTalon* right_wheel;
+	CANTalon* left_lifter_wheel;
+	CANTalon* right_lifter_wheel;
+	CANTalon* left_base_wheel;
+	CANTalon* right_base_wheel;
 	CANTalon* lifter_one;
 	//CANTalon* lifter_two;
 	CANTalon* rake_port;
 	CANTalon* rake_starboard;
 	CANTalon* close_flaps;
 
-	RobotDrive* tote_wheels;
+	RobotDrive* lifter_tote_wheels;
+	RobotDrive* base_tote_wheels;
 
 	static const float P;
 	static const float I;
@@ -186,6 +191,7 @@ private:
 	flap_directions flap_state;
 	int target_flap_pos;
 	int flap_pos_start;
+	bool using_lifter_wheels;
 	wheel_directions wheel_state;
 	static const float MAX_LIFTER_INCR_PER_SEC;
 

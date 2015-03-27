@@ -38,13 +38,13 @@ Autonomous::Autonomous(int delay, int play, int location) {
 
 void Autonomous::process() {
 	//wait for iiiiiiiiittt...
-	if (!delay_over) {
+/*	if (!delay_over) {
 		if (!delay_timer->HasPeriodPassed(delay)) {
 			return;
 		}
 		delay_over = true;
 		log->write(Log::INFO_LEVEL, "%s\tAuto: delay over\n", Utils::getCurrentTime());
-	}
+	}*/
 	//BOOM
 	switch (play) {
 	case Plays::DO_NOTHING:
@@ -793,11 +793,11 @@ void Autonomous::moveThreeTotes() {
 	const float open_flaps_time = 0.1;
 	const float rotate_right_time = 0.1;
 
-	const float right_distance = 33.0;
+	const float right_distance = 26.0;
 	const float forward_past_container_distance = 62.0;
-	const float left_distance = 33.0;
+	const float left_distance = 26.0;
 	const float forward_into_tote_distance = 16.0;
-	const float forward_into_zone_distance = 48.0;
+	const float forward_into_zone_distance = 100.0;
 
 	const float right_speed = 0.3;
 	const float left_speed = -0.3;

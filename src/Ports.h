@@ -8,13 +8,15 @@ namespace RobotPorts
 	const unsigned int FRONT_RIGHT_MOTOR = 2;
 	const unsigned int REAR_LEFT_MOTOR = 3; //3
 	const unsigned int REAR_RIGHT_MOTOR = 4;
-	const unsigned int LEFT_WHEEL = 11;
-	const unsigned int RIGHT_WHEEL = 5;
+	const unsigned int LEFT_LIFTER_WHEEL = 11;
+	const unsigned int RIGHT_LIFTER_WHEEL = 5;
 	const unsigned int LIFTER_ONE = 6;
-	const unsigned int LIFTER_TWO = 7;
-	const unsigned int RAKE_PORT_MOTOR = 8; //8
-	const unsigned int RAKE_STARBOARD_MOTOR = 9;
+	//const unsigned int LIFTER_TWO = 7;
+	const unsigned int RAKE_PORT_MOTOR = 7; //8
+	const unsigned int RAKE_STARBOARD_MOTOR = 12; //9
 	const unsigned int CLOSE_FLAPS_MOTOR = 10;
+	const unsigned int LEFT_BASE_WHEEL = 8;
+	const unsigned int RIGHT_BASE_WHEEL = 9;
 
 	// analog sensors
 	const unsigned int AUTONOMOUS_DELAY_SWITCH = 1;
@@ -35,8 +37,8 @@ namespace RobotPorts
 
 	// PWM
 	const unsigned int LEFT_TREX_ARM = 0;
-	const unsigned int RIGHT_TREX_ARM = 1;
-	const unsigned int LEFT_RAKE_STABILIZER = 2;
+	const unsigned int RIGHT_TREX_ARM = 2;
+	const unsigned int LEFT_RAKE_STABILIZER = 1;
 	const unsigned int RIGHT_RAKE_STABILIZER = 3;
 	//const unsigned int
 
@@ -67,6 +69,7 @@ namespace DSPorts
 
 namespace JoystickPorts
 {
+	const unsigned int USE_BASE_WHEELS = 1;
 	const unsigned int CARDINAL_DIRECTION = 1;
 	const unsigned int TOGGLE_ROTATION = 2;
 	const unsigned int FIELD_CENTRIC_TOGGLE = 3;

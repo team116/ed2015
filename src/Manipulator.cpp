@@ -62,12 +62,17 @@ Manipulator::Manipulator() {
 	using_limits = false;
 	flap_position_raw = 0;
 
-	left_wheel = new CANTalon(RobotPorts::LEFT_WHEEL);
-	right_wheel = new CANTalon(RobotPorts::RIGHT_WHEEL);
-	tote_wheels = new RobotDrive(left_wheel, right_wheel);
-	tote_wheels->SetSafetyEnabled(false);
+	left_lifter_wheel = new CANTalon(RobotPorts::LEFT_LIFTER_WHEEL);
+	right_lifter_wheel = new CANTalon(RobotPorts::RIGHT_LIFTER_WHEEL);
+	left_base_wheel = new CANTalon(RobotPorts::LEFT_BASE_WHEEL);
+	right_base_wheel = new CANTalon(RobotPorts::RIGHT_BASE_WHEEL);
+	lifter_tote_wheels = new RobotDrive(left_lifter_wheel, right_lifter_wheel);
+	base_tote_wheels = new RobotDrive(left_base_wheel, right_base_wheel);
+	lifter_tote_wheels->SetSafetyEnabled(false);
+	base_tote_wheels->SetSafetyEnabled(false);
 	wheel_timer = new Timer();
 	wheel_state = WHEELS_STILL;
+	using_lifter_wheels = true;
 
 	// lifter initializations
 	lifter_one = new CANTalon(RobotPorts::LIFTER_ONE);
@@ -159,15 +164,15 @@ void Manipulator::process() {
 
 	if (pushToteDone()) {
 		log->write(Log::TRACE_LEVEL, "%s\ttote pushed\n", Utils::getCurrentTime());
-		left_wheel->Set(0.0);
-		right_wheel->Set(0.0);
+		left_lifter_wheel->Set(0.0);
+		right_lifter_wheel->Set(0.0);
 		wheel_state = WHEELS_STILL;
 	}
 
 	if (pullToteDone()) {
 		log->write(Log::TRACE_LEVEL, "%s\tTote pulled\n", Utils::getCurrentTime());
-		left_wheel->Set(0.0);
-		right_wheel->Set(0.0);
+		left_lifter_wheel->Set(0.0);
+		right_lifter_wheel->Set(0.0);
 		wheel_state = WHEELS_STILL;
 	}
 
@@ -271,7 +276,7 @@ void Manipulator::process() {
 			lifter_one->Set(-0.5);
 			break;
 		case NOT_MOVING:
-			lifter_one->Set(0.0);
+			lifter_one->Set(0.0 - lifter_modifier);
 			break;
 		case MOVING_DOWN:
 			lifter_one->Set(0.5);
@@ -300,7 +305,12 @@ void Manipulator::process() {
 void Manipulator::moveTote(float forwards, float rotate) {
 //Third value is "squaredinputs", need to figure out if this means it will square the value or if were telling it the value is already squared
 	rotate = fabs(rotate) < 0.15 ? 0 : rotate * fabs(rotate);
-	tote_wheels->ArcadeDrive(forwards, rotate, false);
+	if (using_lifter_wheels) {
+		lifter_tote_wheels->ArcadeDrive(forwards, rotate, false);
+	}
+	else {
+		base_tote_wheels->ArcadeDrive(forwards / 2.0, rotate / 2.0, false);
+	}
 }
 
 bool Manipulator::flapMotionDone() {	//TODO: add timeouts to flap positions
@@ -520,8 +530,8 @@ bool Manipulator::pullToteDone() {
 void Manipulator::pullTote() {
 	log->write(Log::TRACE_LEVEL, "%s\tPulling tote\n", Utils::getCurrentTime());
 	wheel_state = WHEELS_PULLING;
-	left_wheel->Set(0.5);			//0.5 is an arbitrary number, may change
-	right_wheel->Set(0.5);//also, +/- is written here to signify inwards/outwards, not right/left (check, may need to change)
+	left_lifter_wheel->Set(0.5);			//0.5 is an arbitrary number, may change
+	right_lifter_wheel->Set(0.5);//also, +/- is written here to signify inwards/outwards, not right/left (check, may need to change)
 	wheel_timer->Start();
 	wheel_timer->Reset();
 }
@@ -529,8 +539,8 @@ void Manipulator::pullTote() {
 void Manipulator::pushTote() {
 	log->write(Log::TRACE_LEVEL, "%s\tPushing tote\n", Utils::getCurrentTime());
 	wheel_state = WHEELS_PUSHING;
-	left_wheel->Set(-0.2);
-	right_wheel->Set(-0.2);
+	left_lifter_wheel->Set(-0.2);
+	right_lifter_wheel->Set(-0.2);
 	wheel_timer->Start();
 	wheel_timer->Reset();
 }
@@ -650,8 +660,8 @@ void Manipulator::spinTote(float direction) {
 		right_dir = 1.0;
 	}
 	log->write(Log::TRACE_LEVEL, "%s\tSpinning tote: Direction = %f\n", Utils::getCurrentTime(), direction, left_dir, right_dir);
-	left_wheel->Set(left_dir);
-	right_wheel->Set(right_dir);
+	left_lifter_wheel->Set(left_dir);
+	right_lifter_wheel->Set(right_dir);
 }
 
 void Manipulator::honorLimits(bool to_use_or_not_to_use) {
@@ -838,6 +848,20 @@ bool Manipulator::isLimitReached(){
 	else {
 		return false;
 	}
+}
+
+void Manipulator::useLifterWheels(bool use)
+{
+	if (use != using_lifter_wheels) {
+		moveTote(0.0, 0.0);
+	}
+	// true means to use the wheels on the lifter, false means on the base
+	using_lifter_wheels = use;
+}
+
+bool Manipulator::usingLifterWheels()
+{
+	return using_lifter_wheels;
 }
 
 Manipulator* Manipulator::getInstance() {

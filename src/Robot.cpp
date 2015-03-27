@@ -76,7 +76,9 @@ public:
     void TeleopInit()
     {
 		log->write(Log::ERROR_LEVEL, "%s\tTeleop init started\n", Utils::getCurrentTime());
-    	mobility->setControlMode(CANTalon::kSpeed);
+    	mobility->setControlMode(CANTalon::kPercentVbus);
+		//mobility->setControlMode(CANTalon::kSpeed);
+    	manipulator->useLifterWheels(true);
 		log->write(Log::ERROR_LEVEL, "%s\tTeleop init finished\n", Utils::getCurrentTime());
     }
 
