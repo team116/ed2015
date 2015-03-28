@@ -60,6 +60,7 @@ public:
     	log->write(Log::ERROR_LEVEL, "%s\tAutonomous Init called\n", Utils::getCurrentTime());
     	//Dont set control mode here, set it for individual plays
     	// mobility->setControlMode(CANTalon::kPosition);
+    	mobility->resetGyro();
 		const float max_volt = 5.2;
 		float delay_volt = delay_switch->GetVoltage();
 		float play_volt = play_switch->GetVoltage();

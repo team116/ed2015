@@ -4,11 +4,17 @@
 #include "Mobility.h"
 #include "Manipulator.h"
 #include "CameraFeeds.h"
+#include <USBCamera.h>
 #include <CameraServer.h>
+#include <memory>
+
+using namespace std;
 
 class DS
 {
 public:
+	~DS();
+
 	static DS* getInstance();
 	void process();
 	void processMobility();
@@ -70,8 +76,11 @@ private:
 
 	//IMAQdxError imaqError;
 
-	IMAQdxSession* top_cam;
+	//IMAQdxSession top_cam;
+	//Image* frame;
+	//shared_ptr<USBCamera> top_cam;
 	CameraServer* cam_server;
+	//CameraFeeds* cam_feed;
 
 };
 

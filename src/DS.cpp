@@ -1,16 +1,27 @@
-#include <string.h>
-#include <stdlib.h>
-#include "WPILib.h"
 #include "Ports.h"
 #include "DS.h"
 #include "Mobility.h"
 #include "Manipulator.h"
 #include "Log.h"
-#include "CameraFeeds.h"
+#include <USBCamera.h>
+#include <CameraFeeds.h>
+#include <DriverStation.h>
+#include <CameraServer.h>
+#include <WPIlib.h>
 #include <cmath>
+#include <string.h>
+#include <stdlib.h>
+#include <memory>
+#include <cstring>
+#include <cstdio>
+
+using namespace std;
+
 DS* DS::INSTANCE = NULL;
 
-DS::DS() {
+DS::DS() //:
+	//top_cam(new USBCamera("cam0", false))
+{
 	log = Log::getInstance();
 	log->write(Log::DEBUG_LEVEL, "%s\tConstructing DS.cpp\n", Utils::getCurrentTime());
 
@@ -50,6 +61,17 @@ DS::DS() {
 
 	output_board->SetOutputs(0);
 
+	//top_cam->UpdateSettings();
+	//top_cam->OpenCamera();
+	//top_cam->StartCapture();
+	/*
+	IMAQdxOpenCamera("cam0", IMAQdxCameraControlModeController, &top_cam);
+	frame = imaqCreateImage(IMAQ_IMAGE_RGB, 0);
+	*/
+
+	cam_server = CameraServer::GetInstance();
+	cam_server->SetQuality(100);
+	cam_server->StartAutomaticCapture("cam2");
 
 }
 
@@ -60,7 +82,17 @@ void DS::process() {
 		danny_override = !danny_override;
 	}
 	*/
-
+	/*
+	if (strcmp(top_cam->GetError().GetMessage(), "") != 0) {
+		char buffer[256];
+		snprintf(buffer, 256, "top_cam Error: %s", top_cam->GetError().GetMessage());
+		DriverStation::ReportError(buffer);
+		top_cam->ClearError();
+	}
+	*/
+	//IMAQdxGrab(top_cam, frame, true, NULL);
+	//cam_server->SetImage(frame);
+	//cam_feed->run();
 	processMobility();
 	processManipulator();
 	processLEDS();
@@ -578,6 +610,12 @@ void DS::useBackCam(bool back)
 	using_back_cam = back;
 }
 */
+
+DS::~DS()
+{
+	//cam_feed->end();
+}
+
 DS* DS::getInstance() {
 	if (INSTANCE == NULL) {
 		INSTANCE = new DS();

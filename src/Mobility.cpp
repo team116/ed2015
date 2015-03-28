@@ -155,6 +155,7 @@ void Mobility::process()
 	log->write(Log::TRACE_LEVEL, "%s\tFront left wheel velocity: %f\n", Utils::getCurrentTime(), front_left_motor->GetEncVel());
 
 	if (pid_controller->IsEnabled()) {
+		/*&
 		if (rotation_timer->Get() > rotation_timeout) {
 			// set our current angle as the goal
 			rotation_timer->Stop();
@@ -169,6 +170,7 @@ void Mobility::process()
 			pid_controller->Reset();
 			pid_controller->Enable();
 		}
+		*/
 	}
 	else {
 		if (rotating_degrees) {
@@ -625,6 +627,11 @@ void Mobility::setControlMode(CANSpeedController::ControlMode mode)
 	}
 }
 
+void Mobility::resetGyro()
+{
+	gyro->Reset();
+}
+
 void Mobility::rotClosedLoop(bool rot)
 {
 	if (rot && !pid_controller->IsEnabled()) {
@@ -636,6 +643,7 @@ void Mobility::rotClosedLoop(bool rot)
 
 		// resetting the controller prevents that behavior, this also disables
 		pid_controller->Reset();
+		pid_controller->Disable();
 	}
 }
 

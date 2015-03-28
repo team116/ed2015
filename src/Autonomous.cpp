@@ -783,9 +783,9 @@ void Autonomous::moveTwoTotes() {
 void Autonomous::moveThreeTotes() {
 	const float pull_tote_time = 0.1;
 	const float close_flaps_time = 0.2;
-	const float move_right_time = 1.3;
+	const float move_right_time = 1.5;
 	const float wait_for_stop_time = 0.1;
-	const float forward_past_container_time = 1.5;
+	const float forward_past_container_time = 1.9;
 	const float move_left_time = 1.3;
 	const float forward_into_tote_time = 0.5;
 	const float rotate_right_zone_time = 0.6;
@@ -815,8 +815,7 @@ void Autonomous::moveThreeTotes() {
 		mobility->setRotationSpeed(0.0);
 		mobility->resetXEncoderDistance();
 		mobility->resetYEncoderDistance();
-		mobility->rotClosedLoop(false);
-		mobility->setRotationDegrees(0.0);
+		//mobility->setRotationDegrees(0.0);
 		++current_step;
 		break;
 	case 2:

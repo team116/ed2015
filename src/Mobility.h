@@ -34,6 +34,7 @@ public:
 	void driveClosedLoop(bool use);
 	void rotClosedLoop(bool rot);
 	bool isVelZero();
+	void resetGyro();
 
 	void PIDWrite(float rot_speed);
 	void setControlMode(CANSpeedController::ControlMode);
